@@ -1,143 +1,84 @@
-# ScopeGuard
+# Elevare AI Platform
 
-Premium, conversion-focused Next.js marketing website for a freelancer protection digital product business.
+Premium marketing website + secure authentication + role-based admin/user dashboards for **https://elevareai.store**.
 
-## 1) Project overview
-ScopeGuard positions freelancer documentation as a **revenue protection system** rather than generic templates. The site is optimized for:
-- direct purchase conversion
-- lead capture
-- authority and trust
-- SEO and performance
-- easy extension for future products/resources
+## Tech Stack
+- Next.js App Router + TypeScript + Tailwind CSS
+- File-backed CMS persistence (current runtime)
+- Session-based auth with hashed passwords (scrypt)
+- Prisma schema + PostgreSQL seed scaffolding included for migration to DB-backed ops
 
-## 2) Local development
+## Features
+- Public marketing pages: `/`, `/product`, `/about`, `/contact`, `/resources`, `/privacy`, `/terms`, `/refund-policy`
+- Auth pages: `/signin`, `/signup`, `/forgot-password`, `/reset-password`, `/unauthorized`
+- User dashboard: `/dashboard`
+- Admin dashboard: `/admin`
+- Admin content management for site/pricing/testimonials/faq/products/resources
+- Admin user management (create/update/delete, role switch)
+- Locked support email: `contact@elevareai.store`
+- Locked domain references: `https://elevareai.store`
+
+## Roles & Permissions
+- `admin`: full admin dashboard + content/user management + website editing
+- `user`: own dashboard and profile/password management
+
+## Environment
+Copy `.env.example` to `.env` and set values.
+
+## Local Development
 ```bash
 npm install
-cp .env.example .env.local
 npm run dev
 ```
-Open http://localhost:3000.
 
-## 3) Environment setup
-Create `.env.local` (dev) or `.env` (production):
-
-```env
-NEXT_PUBLIC_SITE_URL=https://scopeguard.co
-NEXT_PUBLIC_CONTACT_EMAIL=support@scopeguard.co
-NEXT_PUBLIC_CHECKOUT_STARTER_URL=https://your-checkout-provider.com/starter
-NEXT_PUBLIC_CHECKOUT_PRO_URL=https://your-checkout-provider.com/pro
-NEXT_PUBLIC_CHECKOUT_PREMIUM_URL=https://your-checkout-provider.com/premium
-NEXT_PUBLIC_LEAD_MAGNET_URL=https://your-domain.com/freelancer-protection-checklist
+## Prisma / Database Steps (for PostgreSQL migration)
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+npx prisma db seed
 ```
 
-## 4) Production build commands
+## Build & Start
 ```bash
-npm install
 npm run build
 npm run start
 ```
 
-## 5) VPS deployment (Ubuntu 24.04)
-1. SSH into server.
-2. Install Node.js 22 LTS and Git.
-3. Clone repo to `/var/www/scopeguard`.
-4. Add `.env` file.
-5. Install dependencies and build:
+## Ubuntu 24.04 VPS Deployment
+1. Install Node.js, Nginx, PM2, Certbot.
+2. Clone project into `/var/www/elevareai`.
+3. Install dependencies and build:
    ```bash
-   npm ci
+   npm install
    npm run build
    ```
-6. Start app with PM2 (below).
+4. Start with PM2:
+   ```bash
+   pm2 start npm --name elevareai -- start
+   pm2 save
+   pm2 startup
+   ```
+5. Configure Nginx reverse proxy to `localhost:3000` for `elevareai.store`.
+6. Run Certbot SSL:
+   ```bash
+   sudo certbot --nginx -d elevareai.store
+   ```
 
-## 6) Git pull / update workflow
-```bash
-cd /var/www/scopeguard
-git pull origin main
-npm ci
-npm run build
-pm2 restart scopeguard
-```
+## Admin Bootstrap
+- First run automatically seeds an admin user if `storage/users.json` is empty.
+- Seed credentials are controlled by `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD`.
 
-## 7) PM2 process commands
-```bash
-npm install -g pm2
-cd /var/www/scopeguard
-pm2 start npm --name scopeguard -- start
-pm2 save
-pm2 startup
-pm2 status
-pm2 logs scopeguard
-```
+## Security Notes
+- Passwords are hashed using Node `scrypt`.
+- Session token is stored in HTTP-only cookie.
+- `/admin` guarded by middleware + server-side role checks.
+- All admin mutation endpoints require admin authorization.
 
-## 8) Nginx reverse proxy example
-`/etc/nginx/sites-available/scopeguard`
+## Content Workflow
+1. Sign in as admin.
+2. Open `/admin`.
+3. Use **Content** section to edit JSON collections.
+4. Save; public pages update immediately.
 
-```nginx
-server {
-    listen 80;
-    server_name scopeguard.co www.scopeguard.co;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Enable and reload:
-```bash
-sudo ln -s /etc/nginx/sites-available/scopeguard /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-## 9) Domain DNS setup
-- A record: `@` → `207.180.27.22`
-- A record: `www` → `207.180.27.22`
-- Wait for propagation, then verify with:
-  ```bash
-  dig +short scopeguard.co
-  dig +short www.scopeguard.co
-  ```
-
-## 10) SSL setup (Certbot)
-```bash
-sudo apt update
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d scopeguard.co -d www.scopeguard.co
-sudo certbot renew --dry-run
-```
-
-## 11) Security best practices
-- Keep Ubuntu and packages updated.
-- Use firewall (`ufw allow OpenSSH`, `ufw allow 'Nginx Full'`).
-- Disable password SSH, use keys.
-- Do not commit `.env` files.
-- Rotate provider/API credentials.
-- Restrict admin access to checkout platforms.
-
-## 12) How to update branding/copy/testimonials/pricing/checkout URLs
-- **Brand/navigation/stats**: `content/site.ts`
-- **Pricing ladder**: `content/pricing.ts`
-- **Testimonials**: `content/testimonials.ts`
-- **FAQ**: `content/faq.ts`
-- **Product highlights/deliverables**: `content/products.ts`
-- **Checkout links**: `.env` via `lib/checkout.ts`
-
-## 13) Add future products/resources
-- Add new resource cards in `content/resources.ts`
-- Add route pages under `app/` for new products, blog, lead magnets
-- Reuse `SectionTitle`, `Card`, and CTA components for consistency
-- Extend SEO metadata via `lib/seo.ts`
-
-## Optional Docker deployment
-```bash
-docker compose up -d --build
-```
+## Support
+All support and contact references must use: `contact@elevareai.store`.

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/content/site";
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
+export const siteUrl = "https://elevareai.store";
+const siteName = "Elevare AI";
 
 export function createMetadata({
   title,
@@ -12,7 +12,7 @@ export function createMetadata({
   description: string;
   path?: string;
 }): Metadata {
-  const fullTitle = `${title} | ${siteConfig.name}`;
+  const fullTitle = `${title} | ${siteName}`;
   const url = new URL(path, siteUrl).toString();
 
   return {
@@ -23,17 +23,10 @@ export function createMetadata({
       title: fullTitle,
       description,
       url,
-      siteName: siteConfig.name,
+      siteName,
       locale: "en_US",
       type: "website",
-      images: [
-        {
-          url: "/og/cover.svg",
-          width: 1200,
-          height: 630,
-          alt: `${siteConfig.name} Open Graph Image`
-        }
-      ]
+      images: [{ url: "/og/cover.svg", width: 1200, height: 630, alt: `${siteName} Open Graph Image` }]
     },
     twitter: {
       card: "summary_large_image",
@@ -41,8 +34,6 @@ export function createMetadata({
       description,
       images: ["/og/cover.svg"]
     },
-    alternates: {
-      canonical: url
-    }
+    alternates: { canonical: url }
   };
 }
