@@ -1,0 +1,32 @@
+{
+  "highlights": [
+    {
+      "id": "h1",
+      "title": "Conversion Architecture",
+      "description": "Message hierarchy and section logic built to guide visitors from awareness to action."
+    },
+    {
+      "id": "h2",
+      "title": "Operational Clarity",
+      "description": "Delivery and offer systems that prevent chaos as customer volume grows."
+    },
+    {
+      "id": "h3",
+      "title": "Premium Positioning",
+      "description": "Narrative and offer framing that supports higher pricing and stronger trust."
+    }
+  ],
+  "deliverables": [
+    "Premium hero and CTA framework",
+    "Pricing ladder and offer stack",
+    "Buyer journey optimization map",
+    "Offer messaging worksheet",
+    "Resource and authority page templates"
+  ],
+  "fit": "Ideal for product-led businesses, coaches, creators, and boutique teams launching premium digital offers.",
+  "bonuses": [
+    "Launch-day messaging prompts",
+    "Conversion copy QA checklist",
+    "Post-purchase experience audit sheet"
+  ]
+}

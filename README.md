@@ -22,8 +22,8 @@ Open http://localhost:3000.
 Create `.env.local` (dev) or `.env` (production):
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://scopeguard.co
-NEXT_PUBLIC_CONTACT_EMAIL=support@scopeguard.co
+NEXT_PUBLIC_SITE_URL=https://elevareai.store
+NEXT_PUBLIC_CONTACT_EMAIL=contact@elevareai.store
 NEXT_PUBLIC_CHECKOUT_STARTER_URL=https://your-checkout-provider.com/starter
 NEXT_PUBLIC_CHECKOUT_PRO_URL=https://your-checkout-provider.com/pro
 NEXT_PUBLIC_CHECKOUT_PREMIUM_URL=https://your-checkout-provider.com/premium
@@ -75,7 +75,7 @@ pm2 logs scopeguard
 ```nginx
 server {
     listen 80;
-    server_name scopeguard.co www.scopeguard.co;
+    server_name elevareai.store www.elevareai.store;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -103,15 +103,15 @@ sudo systemctl reload nginx
 - A record: `www` → `207.180.27.22`
 - Wait for propagation, then verify with:
   ```bash
-  dig +short scopeguard.co
-  dig +short www.scopeguard.co
+  dig +short elevareai.store
+  dig +short www.elevareai.store
   ```
 
 ## 10) SSL setup (Certbot)
 ```bash
 sudo apt update
 sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d scopeguard.co -d www.scopeguard.co
+sudo certbot --nginx -d elevareai.store -d www.elevareai.store
 sudo certbot renew --dry-run
 ```
 
