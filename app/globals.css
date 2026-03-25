@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+::selection {
+  background: rgba(108, 141, 255, 0.4);
+  color: #f5f8ff;
+}
+
+.prose-legal h2 {
+  @apply mt-8 text-xl font-semibold text-foreground;
+}
+
+.prose-legal p,
+.prose-legal li {
+  @apply text-sm leading-7 text-muted;
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #b8c6ff 0%, #7fa0ff 45%, #5cd4c7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
