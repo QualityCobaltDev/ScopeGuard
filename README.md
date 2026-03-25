@@ -2,8 +2,6 @@
 
 Premium, conversion-focused Next.js marketing website for a freelancer protection digital product business.
 
-**Deployment target:** Ubuntu 24.04 VPS (`207.180.27.22`) behind **Nginx + PM2 + Certbot**.
-
 ## 1) Project overview
 ScopeGuard positions freelancer documentation as a **revenue protection system** rather than generic templates. The site is optimized for:
 - direct purchase conversion
