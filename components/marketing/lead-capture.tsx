@@ -37,13 +37,13 @@ export function LeadCapture() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
-            placeholder="you@business.com"
+            placeholder="your email"
             aria-label="Email"
           />
           <Button className="w-full" type="submit">
             {done ? "You're in — check your inbox" : "Send me the checklist"}
           </Button>
-          <p className="text-xs text-muted">By subscribing, you agree to receive practical business emails from ScopeGuard.</p>
+          <p className="text-xs text-muted">By subscribing, you agree to receive practical business emails from Elevare AI.</p>
         </form>
       </Card>
     </section>
