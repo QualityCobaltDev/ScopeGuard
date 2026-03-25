@@ -1,0 +1,97 @@
+{
+  "name": "Elevare AI",
+  "tagline": "Premium Digital Growth Systems",
+  "description": "Elevare AI helps digital businesses launch premium offer systems, protect margins, and convert visitors into qualified buyers.",
+  "url": "https://elevareai.store",
+  "contactEmail": "contact@elevareai.store",
+  "nav": [
+    { "href": "/", "label": "Home" },
+    { "href": "/product", "label": "Product" },
+    { "href": "/resources", "label": "Resources" },
+    { "href": "/about", "label": "About" },
+    { "href": "/contact", "label": "Contact" }
+  ],
+  "stats": [
+    { "label": "Revenue pipeline influenced", "value": "$4.8M+" },
+    { "label": "Operators using framework logic", "value": "12,000+" },
+    { "label": "Average implementation window", "value": "60 min" }
+  ],
+  "hero": {
+    "badge": "Premium operating framework",
+    "title": "Turn your digital offer into a\nconversion-grade revenue engine",
+    "description": "Elevare AI provides conversion architecture, messaging systems, and operational assets so every customer touchpoint feels premium and intentional.",
+    "primaryCtaLabel": "Get Premium Access",
+    "primaryCtaLink": "https://elevareai.store/product",
+    "secondaryCtaLabel": "Explore Resource Library",
+    "secondaryCtaLink": "https://elevareai.store/resources"
+  },
+  "painPoints": [
+    {
+      "id": "pp1",
+      "title": "Weak positioning",
+      "description": "Generic messaging makes premium offers look interchangeable and suppresses conversion rates."
+    },
+    {
+      "id": "pp2",
+      "title": "Scope and margin leakage",
+      "description": "Unclear boundaries and process gaps create delivery drag and profitability erosion."
+    },
+    {
+      "id": "pp3",
+      "title": "Inconsistent buyer journey",
+      "description": "Fragmented pages and offers reduce trust and lower checkout intent."
+    }
+  ],
+  "finalCta": {
+    "title": "Build a premium digital product business that scales cleanly.",
+    "description": "Deploy Elevare AI systems once, then run faster launches with stronger positioning and conversion control.",
+    "buttonLabel": "Start now",
+    "buttonLink": "https://elevareai.store/product"
+  },
+  "about": {
+    "eyebrow": "About Elevare AI",
+    "title": "Engineered for founders building high-trust digital products",
+    "description": "Elevare AI was built to combine strategic messaging, conversion design, and operational systems in one premium framework.",
+    "sections": [
+      { "id": "ab1", "title": "Why we exist", "body": "Too many strong products underperform because their positioning and conversion systems are assembled ad hoc. We provide a structured operating layer for premium digital offers." },
+      { "id": "ab2", "title": "What we solve", "body": "We solve unclear messaging, weak funnel continuity, and process friction through practical implementation assets." },
+      { "id": "ab3", "title": "Mission", "body": "Help digital founders build trustworthy, high-performing product brands that convert with less noise." },
+      { "id": "ab4", "title": "Standard", "body": "Every asset is designed for clarity, performance, and a premium customer experience." }
+    ]
+  },
+  "footer": {
+    "description": "Premium digital product systems for clearer messaging, stronger conversion, and cleaner operations.",
+    "companyLinks": [
+      { "href": "/about", "label": "About" },
+      { "href": "/resources", "label": "Resources" },
+      { "href": "/contact", "label": "Contact" }
+    ],
+    "legalLinks": [
+      { "href": "/privacy", "label": "Privacy" },
+      { "href": "/terms", "label": "Terms" },
+      { "href": "/refund-policy", "label": "Refund Policy" }
+    ]
+  },
+  "contact": {
+    "headline": "Talk to Elevare AI",
+    "description": "For partnerships, product support, or strategic questions, send a message and we'll respond with practical guidance.",
+    "responseWindow": "1–2 business days"
+  },
+  "legal": {
+    "privacy": [
+      "We collect information you submit in forms and product checkout events needed to deliver services.",
+      "Data is used for product delivery, support, and security monitoring.",
+      "You can request privacy-related support via contact@elevareai.store."
+    ],
+    "terms": [
+      "Purchases grant a non-transferable license for internal business use.",
+      "Elevare AI provides product and operational resources, not individualized legal counsel.",
+      "Terms may be updated periodically; continued use indicates acceptance."
+    ],
+    "refund": [
+      "Digital product access is delivered instantly and purchases are generally final.",
+      "If files are inaccessible or corrupted, contact us within 7 days for resolution.",
+      "All refund support requests must be sent to contact@elevareai.store."
+    ]
+  }
+}

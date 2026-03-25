@@ -1,0 +1,32 @@
+[
+  {
+    "id": "starter",
+    "name": "Starter",
+    "label": "Launch Foundation",
+    "price": "$79",
+    "description": "Core messaging and conversion assets to launch a clear premium offer.",
+    "includes": ["Offer messaging framework", "High-converting hero structure", "Core CTA stack", "Launch checklist"],
+    "cta": "Choose Starter",
+    "featured": false
+  },
+  {
+    "id": "pro",
+    "name": "Pro",
+    "label": "Growth System",
+    "price": "$149",
+    "description": "Everything in Starter plus funnel optimization and buyer journey assets.",
+    "includes": ["Everything in Starter", "Pricing ladder templates", "Buyer objection scripts", "Conversion page blocks"],
+    "cta": "Get Pro",
+    "featured": true
+  },
+  {
+    "id": "premium",
+    "name": "Premium",
+    "label": "Operator Suite",
+    "price": "$249",
+    "description": "Full premium system with scaling workflows, automation prompts, and positioning support.",
+    "includes": ["Everything in Pro", "Scale roadmap", "Premium brand playbook", "Launch sprint framework"],
+    "cta": "Go Premium",
+    "featured": false
+  }
+]

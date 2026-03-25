@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(user)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model NavItem {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  position  Int
+  area      String   @default("main")
+  updatedAt DateTime @updatedAt
+}
+
+model FooterLink {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  group     String
+  position  Int
+  updatedAt DateTime @updatedAt
+}
+
+model PricingPlan {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  label       String
+  price       String
+  description String
+  includes    Json
+  cta         String
+  featured    Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  quote     String
+  position  Int
+  updatedAt DateTime @updatedAt
+}
+
+model FAQItem {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  position  Int
+  updatedAt DateTime @updatedAt
+}
+
+model ProductSection {
+  id        String   @id @default(cuid())
+  kind      String
+  title     String
+  body      String
+  position  Int
+  updatedAt DateTime @updatedAt
+}
+
+model ResourceEntry {
+  id          String   @id @default(cuid())
+  title       String
+  type        String
+  description String
+  status      String
+  link        String
+  position    Int
+  updatedAt   DateTime @updatedAt
+}
