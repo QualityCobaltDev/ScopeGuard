@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { readCollection } from "@/lib/content-store";
 
-export const metadata = createMetadata({ title: "Contact", description: "Contact Elevare AI for product and support inquiries.", path: "/contact" });
+export const metadata = createMetadata({ title: "Contact", description: "Contact ScopeGuard for product and support inquiries.", path: "/contact" });
 
 export default async function ContactPage() {
   const site = await readCollection("site");

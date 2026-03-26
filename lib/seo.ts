@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteUrl = "https://elevareai.store";
-const siteName = "Elevare AI";
+const siteName = "ScopeGuard";
 
 export function createMetadata({
   title,

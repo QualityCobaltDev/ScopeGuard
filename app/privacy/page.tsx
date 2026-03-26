@@ -1,7 +1,7 @@
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 
-export const metadata = createMetadata({ title: "Privacy Policy", description: "Elevare AI privacy policy.", path: "/privacy" });
+export const metadata = createMetadata({ title: "Privacy Policy", description: "ScopeGuard privacy policy.", path: "/privacy" });
 
 export default async function PrivacyPage() {
   const site = await readCollection("site");

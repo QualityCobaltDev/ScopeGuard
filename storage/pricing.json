@@ -2,31 +2,54 @@
   {
     "id": "starter",
     "name": "Starter",
-    "label": "Launch Foundation",
-    "price": "$79",
-    "description": "Core messaging and conversion assets to launch a clear premium offer.",
-    "includes": ["Offer messaging framework", "High-converting hero structure", "Core CTA stack", "Launch checklist"],
-    "cta": "Choose Starter",
-    "featured": false
+    "label": "Freelancer Protection System",
+    "price": "$49",
+    "description": "Entry-level protection to prevent bad-fit clients, scope drift, and payment surprises before work begins.",
+    "includes": [
+      "Service Agreement Templates",
+      "Payment Protection Terms",
+      "NDA Template",
+      "Client Onboarding Form",
+      "Quick Start Guide"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": false,
+    "audience": "Best for freelancers who need fast legal and scope protection.",
+    "benefit": "Implement in under an hour and protect every project from day one."
   },
   {
     "id": "pro",
     "name": "Pro",
-    "label": "Growth System",
-    "price": "$149",
-    "description": "Everything in Starter plus funnel optimization and buyer journey assets.",
-    "includes": ["Everything in Starter", "Pricing ladder templates", "Buyer objection scripts", "Conversion page blocks"],
-    "cta": "Get Pro",
-    "featured": true
+    "label": "Freelancer Business Toolkit",
+    "price": "$99",
+    "description": "Everything in Starter plus operational assets that improve workflow, professionalism, and pricing clarity.",
+    "includes": [
+      "Everything in Starter",
+      "Invoice Templates",
+      "Proposal Templates",
+      "Pricing Calculator"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": false,
+    "audience": "Best for freelancers scaling delivery and closing with higher confidence.",
+    "benefit": "Run a cleaner client process and get paid faster with stronger systems."
   },
   {
     "id": "premium",
     "name": "Premium",
-    "label": "Operator Suite",
-    "price": "$249",
-    "description": "Full premium system with scaling workflows, automation prompts, and positioning support.",
-    "includes": ["Everything in Pro", "Scale roadmap", "Premium brand playbook", "Launch sprint framework"],
-    "cta": "Go Premium",
-    "featured": false
+    "label": "Freelancer Revenue System",
+    "price": "$149",
+    "description": "Everything in Pro plus growth assets designed to increase deal value, negotiation control, and closing power.",
+    "includes": [
+      "Everything in Pro",
+      "Client Acquisition Scripts",
+      "Negotiation Templates",
+      "Upsell Frameworks",
+      "Communication Scripts"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": true,
+    "audience": "Best for high-intent freelancers optimizing revenue and expansion.",
+    "benefit": "Position as a premium operator and increase average project value."
   }
 ]

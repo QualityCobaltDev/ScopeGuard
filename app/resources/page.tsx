@@ -6,7 +6,7 @@ import { readCollection } from "@/lib/content-store";
 
 export const metadata = createMetadata({
   title: "Resources",
-  description: "Resource hub for premium offer positioning, conversion strategy, and digital product execution.",
+  description: "Resource hub for freelancer legal and business growth content.",
   path: "/resources"
 });
 

@@ -1,17 +1,17 @@
 [
   {
     "id": "f1",
-    "question": "Who is Elevare AI for?",
-    "answer": "Elevare AI is designed for digital founders, consultants, and operators selling premium digital offers."
+    "question": "Is ScopeGuard only for new freelancers?",
+    "answer": "No. ScopeGuard is built for both new and established freelancers who want stronger protection, cleaner workflows, and better client boundaries."
   },
   {
     "id": "f2",
     "question": "Can I edit every framework asset?",
-    "answer": "Yes. Every deliverable is editable so you can adapt it to your positioning, market, and offer style."
+    "answer": "Yes. Every file is editable so you can tailor terms, pricing language, and process flow to your niche."
   },
   {
     "id": "f3",
-    "question": "Is this a subscription?",
-    "answer": "No. This site is a product-first business model and not a multi-tenant SaaS platform."
+    "question": "How quickly can I implement ScopeGuard?",
+    "answer": "Most freelancers can deploy Starter in less than an hour and then layer Pro/Premium assets as they grow."
   }
 ]

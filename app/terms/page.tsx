@@ -1,7 +1,7 @@
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 
-export const metadata = createMetadata({ title: "Terms", description: "Elevare AI terms and conditions.", path: "/terms" });
+export const metadata = createMetadata({ title: "Terms", description: "ScopeGuard terms and conditions.", path: "/terms" });
 
 export default async function TermsPage() {
   const site = await readCollection("site");

@@ -1,20 +1,20 @@
 [
   {
     "id": "t1",
-    "quote": "Elevare AI gave us a premium narrative and conversion flow in days, not months.",
-    "name": "Nora P.",
-    "role": "Digital Product Founder"
+    "quote": "ScopeGuard helped me stop scope drift immediately. My clients now sign clearer terms and pay faster.",
+    "name": "Aly M.",
+    "role": "Brand Designer"
   },
   {
     "id": "t2",
-    "quote": "After implementing the framework, our sales page clarity improved and trial-to-sale conversion jumped.",
-    "name": "Ethan K.",
-    "role": "Growth Lead"
+    "quote": "I replaced scattered docs with one premium system. Onboarding now feels authoritative and clean.",
+    "name": "Jordan T.",
+    "role": "Webflow Developer"
   },
   {
     "id": "t3",
-    "quote": "The offer ladder and messaging architecture made our brand feel instantly more premium.",
-    "name": "Maya R.",
-    "role": "Course Creator"
+    "quote": "The negotiation scripts alone paid for ScopeGuard in one conversation.",
+    "name": "Ravi K.",
+    "role": "Growth Marketer"
   }
 ]

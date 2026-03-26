@@ -1,26 +1,29 @@
 export const productHighlights = [
   {
     title: "Revenue Protection Stack",
-    description:
-      "Contracts, payment terms, and escalation language built to reduce payment risk before project kickoff."
+    description: "Contracts, payment terms, and boundary language built to protect freelance income before kickoff."
   },
   {
     title: "Client Control Framework",
-    description:
-      "Onboarding forms and scope boundaries that prevent runaway requests and endless revisions."
+    description: "Onboarding and scope systems that prevent project drift and protect margin."
   },
   {
     title: "Authority-First Delivery",
-    description:
-      "Proposals, invoices, and scripts that position you as the expert and keep communication disciplined."
+    description: "Proposals, scripts, and communication assets that help you operate like a premium studio."
   }
 ] as const;
 
 export const deliverables = [
-  "Service agreement templates (project + retainer)",
-  "NDA + confidentiality annex",
-  "Client onboarding form + project intake checklist",
-  "Payment protection and late-fee terms",
-  "Proposal and invoice systems",
-  "Negotiation, upsell, and communication scripts"
+  "Service Agreement Templates",
+  "Payment Protection Terms",
+  "NDA Template",
+  "Client Onboarding Form",
+  "Quick Start Guide",
+  "Invoice Templates",
+  "Proposal Templates",
+  "Pricing Calculator",
+  "Client Acquisition Scripts",
+  "Negotiation Templates",
+  "Upsell Frameworks",
+  "Communication Scripts"
 ];

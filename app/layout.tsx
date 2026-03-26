@@ -12,8 +12,8 @@ import { getCurrentUser } from "@/lib/user-store";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Elevare AI | Premium Digital Growth Systems",
-  description: "Elevare AI helps digital businesses launch premium offer systems and convert with confidence.",
+  title: "ScopeGuard | Premium Digital Growth Systems",
+  description: "ScopeGuard helps freelancers protect revenue, reduce scope creep, and standardize client operations with confidence.",
   metadataBase: new URL("https://elevareai.store")
 };
 

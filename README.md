@@ -1,4 +1,4 @@
-# Elevare AI Admin-Enabled Website
+# ScopeGuard Admin-Enabled Website
 
 Production website for **https://elevareai.store** with a premium public frontend and a secure Admin User Board.
 

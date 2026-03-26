@@ -45,6 +45,8 @@ export type PricingTier = {
   includes: string[];
   cta: string;
   featured?: boolean;
+  audience?: string;
+  benefit?: string;
 };
 
 export type Testimonial = { id: string; quote: string; name: string; role: string };
