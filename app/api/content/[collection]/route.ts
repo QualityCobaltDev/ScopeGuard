@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createArrayItem, deleteArrayItem, readCollection, updateArrayItem, writeCollection } from "@/lib/content-store";
 import { CollectionName } from "@/lib/content-types";
+import { requireAdmin } from "@/lib/permissions";
 
 const COLLECTIONS: CollectionName[] = ["site", "pricing", "testimonials", "faq", "products", "resources"];
 
@@ -15,8 +15,18 @@ export async function GET(_: Request, { params }: { params: Promise<{ collection
   return NextResponse.json(await readCollection(collection));
 }
 
+async function authGuard() {
+  try {
+    await requireAdmin();
+    return null;
+  } catch {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+}
+
 export async function POST(req: Request, { params }: { params: Promise<{ collection: string }> }) {
-  if (!(await isAdminAuthenticated())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const denied = await authGuard();
+  if (denied) return denied;
   const { collection } = await params;
   if (!validateCollection(collection)) return NextResponse.json({ message: "Invalid collection" }, { status: 404 });
   const body = await req.json();
@@ -26,7 +36,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ collection: string }> }) {
-  if (!(await isAdminAuthenticated())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const denied = await authGuard();
+  if (denied) return denied;
   const { collection } = await params;
   if (!validateCollection(collection)) return NextResponse.json({ message: "Invalid collection" }, { status: 404 });
   const body = (await req.json()) as { id?: string; payload?: unknown };
@@ -47,7 +58,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ collection: string }> }) {
-  if (!(await isAdminAuthenticated())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const denied = await authGuard();
+  if (denied) return denied;
   const { collection } = await params;
   if (!validateCollection(collection)) return NextResponse.json({ message: "Invalid collection" }, { status: 404 });
   if (collection === "site" || collection === "products") return NextResponse.json({ message: "Delete is not supported for this collection" }, { status: 400 });

@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileStickyCta } from "@/components/layout/mobile-sticky-cta";
 import { readCollection } from "@/lib/content-store";
+import { getCurrentUser } from "@/lib/user-store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const site = await readCollection("site");
+  const [site, user] = await Promise.all([readCollection("site"), getCurrentUser()]);
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -31,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SiteHeader site={site} />
+        <SiteHeader site={site} user={user} />
         <main>{children}</main>
         <SiteFooter site={site} />
         <MobileStickyCta />
