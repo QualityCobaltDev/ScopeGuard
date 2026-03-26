@@ -5,7 +5,7 @@ import { readCollection } from "@/lib/content-store";
 
 export const metadata = createMetadata({
   title: "About",
-  description: "Why ScopeGuard exists and how it helps freelancers protect revenue with authority-grade systems.",
+  description: "Why Elevare AI exists and how it helps digital product operators scale premium offers.",
   path: "/about"
 });
 

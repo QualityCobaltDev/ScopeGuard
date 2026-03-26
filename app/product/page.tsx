@@ -7,7 +7,7 @@ import { readCollection } from "@/lib/content-store";
 
 export const metadata = createMetadata({
   title: "Product",
-  description: "Explore ScopeGuard deliverables, tier benefits, and freelancer protection features.",
+  description: "Explore Elevare AI deliverables, pricing tiers, and premium growth features.",
   path: "/product"
 });
 

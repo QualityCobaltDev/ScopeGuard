@@ -43,7 +43,7 @@ export function LeadCapture() {
           <Button className="w-full" type="submit">
             {done ? "You're in — check your inbox" : "Send me the checklist"}
           </Button>
-          <p className="text-xs text-muted">By subscribing, you agree to receive practical business emails from ScopeGuard.</p>
+          <p className="text-xs text-muted">By subscribing, you agree to receive practical business emails from Elevare AI.</p>
         </form>
       </Card>
     </section>
