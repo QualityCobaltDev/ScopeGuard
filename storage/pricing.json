@@ -1,0 +1,55 @@
+[
+  {
+    "id": "starter",
+    "name": "Starter",
+    "label": "Freelancer Protection System",
+    "price": "$49",
+    "description": "Entry-level protection to prevent bad-fit clients, scope drift, and payment surprises before work begins.",
+    "includes": [
+      "Service Agreement Templates",
+      "Payment Protection Terms",
+      "NDA Template",
+      "Client Onboarding Form",
+      "Quick Start Guide"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": false,
+    "audience": "Best for freelancers who need fast legal and scope protection.",
+    "benefit": "Implement in under an hour and protect every project from day one."
+  },
+  {
+    "id": "pro",
+    "name": "Pro",
+    "label": "Freelancer Business Toolkit",
+    "price": "$99",
+    "description": "Everything in Starter plus operational assets that improve workflow, professionalism, and pricing clarity.",
+    "includes": [
+      "Everything in Starter",
+      "Invoice Templates",
+      "Proposal Templates",
+      "Pricing Calculator"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": false,
+    "audience": "Best for freelancers scaling delivery and closing with higher confidence.",
+    "benefit": "Run a cleaner client process and get paid faster with stronger systems."
+  },
+  {
+    "id": "premium",
+    "name": "Premium",
+    "label": "Freelancer Revenue System",
+    "price": "$149",
+    "description": "Everything in Pro plus growth assets designed to increase deal value, negotiation control, and closing power.",
+    "includes": [
+      "Everything in Pro",
+      "Client Acquisition Scripts",
+      "Negotiation Templates",
+      "Upsell Frameworks",
+      "Communication Scripts"
+    ],
+    "cta": "Buy Now / Get Instant Access",
+    "featured": true,
+    "audience": "Best for high-intent freelancers optimizing revenue and expansion.",
+    "benefit": "Position as a premium operator and increase average project value."
+  }
+]

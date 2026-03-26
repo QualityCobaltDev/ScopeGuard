@@ -2,11 +2,11 @@ export type PricingTier = {
   id: "starter" | "pro" | "premium";
   name: string;
   label: string;
-  price: string;
+  price: "$49" | "$99" | "$149";
   description: string;
   featured?: boolean;
   includes: string[];
-  cta: string;
+  cta: "Buy Now / Get Instant Access";
 };
 
 export const pricingTiers: PricingTier[] = [
@@ -15,44 +15,33 @@ export const pricingTiers: PricingTier[] = [
     name: "Starter",
     label: "Freelancer Protection System",
     price: "$49",
-    description: "Core legal and onboarding assets to lock down scope and payment expectations.",
+    description: "Entry-level protection to prevent bad clients, scope creep, and payment friction.",
     includes: [
-      "Service Agreement templates",
-      "NDA template",
-      "Client onboarding form",
-      "Payment protection terms",
-      "Quick-start implementation guide"
+      "Service Agreement Templates",
+      "Payment Protection Terms",
+      "NDA Template",
+      "Client Onboarding Form",
+      "Quick Start Guide"
     ],
-    cta: "Buy Starter"
+    cta: "Buy Now / Get Instant Access"
   },
   {
     id: "pro",
     name: "Pro",
     label: "Freelancer Business Toolkit",
     price: "$99",
-    description: "Everything in Starter plus client-facing assets to increase close rates and speed payments.",
-    includes: [
-      "Everything in Starter",
-      "Invoice templates",
-      "Proposal templates",
-      "Pricing calculator"
-    ],
-    cta: "Get Pro",
-    featured: true
+    description: "Everything in Starter plus systems that improve workflow and pricing clarity.",
+    includes: ["Everything in Starter", "Invoice Templates", "Proposal Templates", "Pricing Calculator"],
+    cta: "Buy Now / Get Instant Access"
   },
   {
     id: "premium",
     name: "Premium",
     label: "Freelancer Revenue System",
     price: "$149",
-    description: "The complete growth and protection stack for stronger negotiations and upsell execution.",
-    includes: [
-      "Everything in Pro",
-      "Client acquisition scripts",
-      "Negotiation templates",
-      "Upsell frameworks",
-      "Client communication scripts"
-    ],
-    cta: "Go Premium"
+    description: "Everything in Pro plus growth assets for deal value and closing power.",
+    includes: ["Everything in Pro", "Client Acquisition Scripts", "Negotiation Templates", "Upsell Frameworks", "Communication Scripts"],
+    cta: "Buy Now / Get Instant Access",
+    featured: true
   }
 ];

@@ -1,0 +1,35 @@
+{
+  "highlights": [
+    {
+      "id": "h1",
+      "title": "Revenue Protection Stack",
+      "description": "Contracts, payment terms, and boundary language that reduce risk before the first deliverable."
+    },
+    {
+      "id": "h2",
+      "title": "Client Control Framework",
+      "description": "Onboarding systems and scope control assets that eliminate revision chaos and protect margins."
+    },
+    {
+      "id": "h3",
+      "title": "Authority-First Delivery",
+      "description": "Proposals, scripts, and communication frameworks that help you operate like a premium studio."
+    }
+  ],
+  "deliverables": [
+    "Service agreement templates",
+    "Payment protection terms",
+    "NDA template",
+    "Client onboarding form",
+    "Quick start implementation guide",
+    "Invoice and proposal systems",
+    "Pricing calculator",
+    "Acquisition, negotiation, and upsell scripts"
+  ],
+  "fit": "Ideal for freelancers and boutique studios that want stronger client boundaries, cleaner workflows, and predictable revenue.",
+  "bonuses": [
+    "Kickoff call structure",
+    "Revision policy language bank",
+    "Revenue protection implementation checklist"
+  ]
+}

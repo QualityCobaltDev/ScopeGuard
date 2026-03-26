@@ -37,7 +37,7 @@ export function LeadCapture() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
-            placeholder="you@business.com"
+            placeholder="your email"
             aria-label="Email"
           />
           <Button className="w-full" type="submit">

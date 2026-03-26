@@ -3,7 +3,7 @@ export const siteConfig = {
   tagline: "Freelancer Protection Systems",
   description:
     "ScopeGuard helps freelancers protect revenue, reduce scope creep, and standardize client operations with premium legal and business systems.",
-  url: "https://scopeguard.co",
+  url: "https://elevareai.store",
   nav: [
     { href: "/", label: "Home" },
     { href: "/product", label: "Product" },
