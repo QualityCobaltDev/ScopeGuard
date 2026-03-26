@@ -1,143 +1,110 @@
-# ScopeGuard
+# Elevare AI Admin-Enabled Website
 
-Premium, conversion-focused Next.js marketing website for a freelancer protection digital product business.
+Production website for **https://elevareai.store** with a premium public frontend and a secure Admin User Board.
 
-## 1) Project overview
-ScopeGuard positions freelancer documentation as a **revenue protection system** rather than generic templates. The site is optimized for:
-- direct purchase conversion
-- lead capture
-- authority and trust
-- SEO and performance
-- easy extension for future products/resources
+## 1) Project Overview
+- Next.js App Router + TypeScript + Tailwind CSS
+- Public marketing pages + protected admin dashboard
+- Persistent editable content via `storage/*.json`
+- Session auth with hashed passwords and role checks
 
-## 2) Local development
+## 2) Auth Overview
+- Admin sign-in route: `/admin/signin`
+- Credentials auth with server-side password verification
+- Session cookie: `httpOnly`, `sameSite=strict`, secure in production
+- Roles: `admin`, `user`
+
+## 3) Admin Sign-in Flow
+1. Click **Admin Sign-in** in the header.
+2. Submit `username + password` on `/admin/signin`.
+3. Successful admin sign-in redirects to `/admin`.
+4. Logout invalidates session server-side.
+
+## 4) Admin Dashboard Overview
+Route: `/admin`
+Sections:
+- Overview
+- Pages / Website Content
+- Pricing
+- Testimonials
+- FAQ
+- Products / Offers
+- Resources
+- Navigation
+- Footer
+- Settings
+- Profile
+- Users
+
+Admin can edit content JSON collections, manage users, and publish updates immediately.
+
+## 5) Environment Setup
+Use `.env.example` as template.
+
+## 6) Database Setup
+A Prisma/PostgreSQL schema is included under `prisma/schema.prisma` for migration-ready deployments.
+
+## 7) Migration Steps
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
+
+## 8) Seed Steps
+```bash
+npx prisma db seed
+```
+
+## 9) Initial Admin Credentials (server-side seed only)
+- Username: `QualityCobaltDev`
+- Password: `Banner1234!`
+
+Password is hashed before storage; plaintext is never shipped to frontend code.
+
+## 10) Local Development
 ```bash
 npm install
-cp .env.example .env.local
 npm run dev
 ```
-Open http://localhost:3000.
 
-## 3) Environment setup
-Create `.env.local` (dev) or `.env` (production):
-
-```env
-NEXT_PUBLIC_SITE_URL=https://scopeguard.co
-NEXT_PUBLIC_CONTACT_EMAIL=support@scopeguard.co
-NEXT_PUBLIC_CHECKOUT_STARTER_URL=https://your-checkout-provider.com/starter
-NEXT_PUBLIC_CHECKOUT_PRO_URL=https://your-checkout-provider.com/pro
-NEXT_PUBLIC_CHECKOUT_PREMIUM_URL=https://your-checkout-provider.com/premium
-NEXT_PUBLIC_LEAD_MAGNET_URL=https://your-domain.com/freelancer-protection-checklist
-```
-
-## 4) Production build commands
+## 11) Production Deployment
 ```bash
 npm install
 npm run build
 npm run start
 ```
 
-## 5) VPS deployment (Ubuntu 24.04)
-1. SSH into server.
-2. Install Node.js 22 LTS and Git.
-3. Clone repo to `/var/www/scopeguard`.
-4. Add `.env` file.
-5. Install dependencies and build:
-   ```bash
-   npm ci
-   npm run build
-   ```
-6. Start app with PM2 (below).
-
-## 6) Git pull / update workflow
+## 12) PM2 Commands
 ```bash
-cd /var/www/scopeguard
-git pull origin main
-npm ci
-npm run build
-pm2 restart scopeguard
-```
-
-## 7) PM2 process commands
-```bash
-npm install -g pm2
-cd /var/www/scopeguard
-pm2 start npm --name scopeguard -- start
+pm2 start npm --name elevareai -- start
 pm2 save
 pm2 startup
-pm2 status
-pm2 logs scopeguard
 ```
 
-## 8) Nginx reverse proxy example
-`/etc/nginx/sites-available/scopeguard`
+## 13) Nginx Notes
+Reverse-proxy `elevareai.store` to `http://127.0.0.1:3000`.
 
-```nginx
-server {
-    listen 80;
-    server_name scopeguard.co www.scopeguard.co;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Enable and reload:
+## 14) SSL Notes
 ```bash
-sudo ln -s /etc/nginx/sites-available/scopeguard /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
+sudo certbot --nginx -d elevareai.store
 ```
 
-## 9) Domain DNS setup
-- A record: `@` → `207.180.27.22`
-- A record: `www` → `207.180.27.22`
-- Wait for propagation, then verify with:
-  ```bash
-  dig +short scopeguard.co
-  dig +short www.scopeguard.co
-  ```
+## 15) Security Notes
+- Password hashing with server-side `scrypt`
+- Protected admin routes via middleware + server checks
+- Admin-only mutation guards for content and users
 
-## 10) SSL setup (Certbot)
-```bash
-sudo apt update
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d scopeguard.co -d www.scopeguard.co
-sudo certbot renew --dry-run
-```
+## 16) How Admin Edits Website Content
+- Sign in at `/admin/signin`
+- Open `/admin`
+- Select a section (Pricing, FAQ, Resources, etc.)
+- Edit and click **Save Changes**
 
-## 11) Security best practices
-- Keep Ubuntu and packages updated.
-- Use firewall (`ufw allow OpenSSH`, `ufw allow 'Nginx Full'`).
-- Disable password SSH, use keys.
-- Do not commit `.env` files.
-- Rotate provider/API credentials.
-- Restrict admin access to checkout platforms.
+## 17) How Content Persistence Works
+- `lib/content-store.ts` writes to `storage/*.json`
+- Admin edits persist immediately
+- Public pages read from the same structured store
 
-## 12) How to update branding/copy/testimonials/pricing/checkout URLs
-- **Brand/navigation/stats**: `content/site.ts`
-- **Pricing ladder**: `content/pricing.ts`
-- **Testimonials**: `content/testimonials.ts`
-- **FAQ**: `content/faq.ts`
-- **Product highlights/deliverables**: `content/products.ts`
-- **Checkout links**: `.env` via `lib/checkout.ts`
-
-## 13) Add future products/resources
-- Add new resource cards in `content/resources.ts`
-- Add route pages under `app/` for new products, blog, lead magnets
-- Reuse `SectionTitle`, `Card`, and CTA components for consistency
-- Extend SEO metadata via `lib/seo.ts`
-
-## Optional Docker deployment
-```bash
-docker compose up -d --build
-```
+## Fixed Business Constraints
+- Primary domain remains: `https://elevareai.store`
+- Contact email everywhere: `contact@elevareai.store`
