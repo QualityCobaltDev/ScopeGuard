@@ -85,7 +85,7 @@ Fallback environment values (used only when no saved admin settings exist):
 - `SMTP_PORT=465`
 - `SMTP_SECURE=true`
 - `SMTP_USER=contact@elevareai.store`
-- `SMTP_PASS=Banner1234`
+- `SMTP_PASS=<real mailbox password>`
 - `CONTACT_EMAIL=contact@elevareai.store`
 - `SITE_URL=https://elevareai.store`
 - `SETTINGS_ENCRYPTION_KEY=<long-random-key>`
@@ -143,3 +143,36 @@ sudo certbot --nginx -d elevareai.store
 - Admin sign-in route: `/admin/signin`
 - Session cookie: `httpOnly`, `sameSite=strict`, secure in production
 - Roles: `admin`, `user`
+
+
+## Lead magnet automation
+- Public lead form submits to `/api/lead` with validation, loading/success/error handling.
+- Submissions are persisted in `storage/lead-subscribers.json`.
+- Lead magnet campaign/content settings are persisted in `storage/lead-magnet.json`.
+- Automatic resource delivery emails are sent immediately after successful submission via saved SMTP settings.
+
+### Admin lead magnet management
+- In Admin dashboard, use **Lead Magnet** section to manage:
+  - public heading/description/button/success text
+  - email subject/preview/intro/closing copy
+  - active toggle and resend-on-duplicate behavior
+  - attached resources selected from existing Resources entries
+  - primary resource selection
+- Use **Subscribers** section to:
+  - search/view subscriber records
+  - inspect delivery status and errors
+  - resend delivery email manually
+  - delete subscriber records
+
+### Duplicate handling
+- Existing subscriber for same lead magnet is updated (not duplicated).
+- If `resendOnDuplicate` is enabled, resources are resent automatically.
+- If disabled, user still receives a success message without sending duplicate emails.
+
+### Backups
+- Include these files in backups:
+  - `storage/lead-magnet.json`
+  - `storage/lead-subscribers.json`
+  - `storage/email-settings.json`
+  - `storage/files.json`
+  - `public/uploads/resources`

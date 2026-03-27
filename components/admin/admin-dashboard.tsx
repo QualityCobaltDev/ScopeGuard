@@ -13,6 +13,8 @@ type Section =
   | "Testimonials"
   | "FAQ"
   | "Resources"
+  | "Lead Magnet"
+  | "Subscribers"
   | "Documents / Files"
   | "Email / SMTP"
   | "Navigation"
@@ -28,6 +30,8 @@ const sectionOrder: Section[] = [
   "Testimonials",
   "FAQ",
   "Resources",
+  "Lead Magnet",
+  "Subscribers",
   "Documents / Files",
   "Navigation",
   "Footer",
@@ -68,6 +72,10 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [uploadInfo, setUploadInfo] = useState<{ allowedExtensions: string[]; maxUploadSizeMb: number } | null>(null);
   const [smtpStatus, setSmtpStatus] = useState<Record<string, unknown> | null>(null);
   const [users, setUsers] = useState<UserRecord[]>([]);
+  const [leadMagnet, setLeadMagnet] = useState<any>(null);
+  const [leadMagnetResources, setLeadMagnetResources] = useState<ResourceItem[]>([]);
+  const [leadSubscribers, setLeadSubscribers] = useState<any[]>([]);
+  const [leadMetrics, setLeadMetrics] = useState<any>(null);
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
@@ -94,6 +102,22 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     if (res.ok) setSmtpStatus(await res.json());
   }
 
+  async function loadLeadMagnet() {
+    const res = await fetch("/api/admin/lead-magnet");
+    if (!res.ok) return;
+    const data = await res.json();
+    setLeadMagnet(data.settings);
+    setLeadMagnetResources(data.resources || []);
+    setLeadMetrics(data.metrics || null);
+  }
+
+  async function loadLeadSubscribers() {
+    const res = await fetch("/api/admin/lead-subscribers");
+    if (!res.ok) return;
+    const data = await res.json();
+    setLeadSubscribers(data.subscribers || []);
+  }
+
   async function refreshAll() {
     await Promise.all([
       loadCollection<SiteContent>("site", setSite),
@@ -103,7 +127,9 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       loadCollection<ResourceItem[]>("resources", setResources),
       loadFiles(),
       loadUsers(),
-      loadSmtpStatus()
+      loadSmtpStatus(),
+      loadLeadMagnet(),
+      loadLeadSubscribers()
     ]);
   }
 
@@ -357,6 +383,26 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
             />
           )}
 
+          {section === "Lead Magnet" && leadMagnet && (
+            <LeadMagnetManager
+              settings={leadMagnet}
+              resources={leadMagnetResources}
+              metrics={leadMetrics}
+              onSaved={async () => {
+                await loadLeadMagnet();
+                setStatus("Lead magnet settings saved.");
+              }}
+            />
+          )}
+
+          {section === "Subscribers" && (
+            <SubscriberManager
+              subscribers={leadSubscribers}
+              onRefresh={loadLeadSubscribers}
+              setStatus={setStatus}
+            />
+          )}
+
           {section === "Documents / Files" && (
             <DocumentManager
               files={files}
@@ -507,6 +553,122 @@ function DocumentManager({ files, uploadInfo, onRefresh }: { files: UploadedFile
               <a href={file.publicUrl} target="_blank" className="rounded border border-border px-2 py-1 text-xs">Open</a>
               <label className="cursor-pointer rounded border border-border px-2 py-1 text-xs">Replace<input type="file" className="hidden" onChange={(e) => { const next = e.target.files?.[0]; if (next) replace(file.id, next); }} /></label>
               <button className="rounded border border-border px-2 py-1 text-xs" onClick={() => remove(file.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+function LeadMagnetManager({ settings, resources, metrics, onSaved }: { settings: any; resources: ResourceItem[]; metrics: any; onSaved: () => Promise<void> }) {
+  const [form, setForm] = useState<any>(settings);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => setForm(settings), [settings]);
+
+  async function save() {
+    setSaving(true);
+    await fetch("/api/admin/lead-magnet", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
+    setSaving(false);
+    await onSaved();
+  }
+
+  function toggleResource(id: string) {
+    const current = new Set(form.selectedResourceIds || []);
+    if (current.has(id)) current.delete(id);
+    else current.add(id);
+    setForm({ ...form, selectedResourceIds: Array.from(current) });
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Lead Magnet</h2>
+      <div className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2">
+        <Field label="Internal name" value={form.name || ""} onChange={(value) => setForm({ ...form, name: value })} />
+        <Field label="Slug" value={form.slug || ""} onChange={(value) => setForm({ ...form, slug: value })} />
+        <Field label="Public heading" value={form.publicTitle || ""} onChange={(value) => setForm({ ...form, publicTitle: value })} />
+        <Field label="CTA button label" value={form.buttonLabel || ""} onChange={(value) => setForm({ ...form, buttonLabel: value })} />
+        <Area label="Public subheading" value={form.publicDescription || ""} onChange={(value) => setForm({ ...form, publicDescription: value })} />
+        <Area label="Success message" value={form.successMessage || ""} onChange={(value) => setForm({ ...form, successMessage: value })} />
+      </div>
+
+      <div className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2">
+        <Field label="Email subject" value={form.emailSubject || ""} onChange={(value) => setForm({ ...form, emailSubject: value })} />
+        <Field label="Preview text" value={form.emailPreviewText || ""} onChange={(value) => setForm({ ...form, emailPreviewText: value })} />
+        <Area label="Email intro" value={form.emailIntro || ""} onChange={(value) => setForm({ ...form, emailIntro: value })} />
+        <Area label="Email closing" value={form.emailClosing || ""} onChange={(value) => setForm({ ...form, emailClosing: value })} />
+      </div>
+
+      <div className="grid gap-3 rounded-xl border border-border p-4">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Attached resources</h3>
+        {resources.map((resource) => (
+          <label key={resource.id} className="flex items-center justify-between rounded border border-border p-2 text-sm">
+            <span>{resource.title} <span className="text-muted">({resource.label})</span></span>
+            <input type="checkbox" checked={(form.selectedResourceIds || []).includes(resource.id)} onChange={() => toggleResource(resource.id)} />
+          </label>
+        ))}
+        <Select label="Primary resource" value={form.primaryResourceId || ""} options={["", ...(form.selectedResourceIds || [])]} optionLabel={(id) => id ? resources.find((r) => r.id === id)?.title || id : "None"} onChange={(value) => setForm({ ...form, primaryResourceId: value || undefined })} />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <label><input type="checkbox" checked={Boolean(form.isActive)} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>
+        <label><input type="checkbox" checked={Boolean(form.resendOnDuplicate)} onChange={(e) => setForm({ ...form, resendOnDuplicate: e.target.checked })} /> Resend on duplicate</label>
+      </div>
+
+      <div className="grid gap-2 rounded-xl border border-border p-4 text-sm md:grid-cols-4">
+        <Kpi label="Total submissions" value={String(metrics?.totalSubmissions || 0)} />
+        <Kpi label="Emails sent" value={String(metrics?.sent || 0)} />
+        <Kpi label="Failed sends" value={String(metrics?.failed || 0)} />
+        <Kpi label="Last submission" value={metrics?.lastSubmissionAt ? new Date(metrics.lastSubmissionAt).toLocaleDateString() : "--"} />
+      </div>
+
+      <button disabled={saving} className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={save}>{saving ? "Saving..." : "Save Lead Magnet Settings"}</button>
+    </div>
+  );
+}
+
+function SubscriberManager({ subscribers, onRefresh, setStatus }: { subscribers: any[]; onRefresh: () => Promise<void>; setStatus: (value: string) => void }) {
+  const [query, setQuery] = useState("");
+  const filtered = subscribers.filter((item) => item.email.toLowerCase().includes(query.toLowerCase()));
+
+  async function resend(item: any) {
+    const res = await fetch("/api/admin/lead-subscribers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscriberId: item.id, email: item.email })
+    });
+    const data = await res.json().catch(() => ({}));
+    setStatus(data.message || (res.ok ? "Email resent." : "Resend failed."));
+    await onRefresh();
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm("Delete subscriber record?")) return;
+    await fetch("/api/admin/lead-subscribers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscriberId: id }) });
+    await onRefresh();
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Lead Subscribers</h2>
+      <label className="grid gap-1 text-sm"><span className="text-muted">Search email</span><input className="rounded-lg border border-border bg-background px-3 py-2" value={query} onChange={(e) => setQuery(e.target.value)} /></label>
+      <div className="space-y-2">
+        {filtered.map((item) => (
+          <div key={item.id} className="grid gap-2 rounded-xl border border-border p-3 md:grid-cols-[1fr_auto]">
+            <div>
+              <p className="font-medium">{item.email}</p>
+              <p className="text-xs text-muted">{item.emailDeliveryStatus} · {new Date(item.subscribedAt).toLocaleString()}</p>
+              {item.lastError ? <p className="text-xs text-red-400">{item.lastError}</p> : null}
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="rounded border border-border px-2 py-1 text-xs" onClick={() => resend(item)}>Resend</button>
+              <button className="rounded border border-border px-2 py-1 text-xs" onClick={() => remove(item.id)}>Delete</button>
             </div>
           </div>
         ))}

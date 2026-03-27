@@ -1,0 +1,18 @@
+{
+  "id": "default",
+  "name": "Freelancer Checklist",
+  "slug": "freelancer-protection-checklist",
+  "publicTitle": "Get the Freelancer Protection Checklist",
+  "publicDescription": "A concise pre-client checklist to avoid weak terms, vague scope, and payment friction.",
+  "buttonLabel": "Send me the checklist",
+  "successMessage": "You're in — check your inbox for your resources.",
+  "emailSubject": "Your Freelancer Protection Checklist is here",
+  "emailPreviewText": "Access your ScopeGuard checklist and bonus downloads.",
+  "emailIntro": "Thanks for requesting the Freelancer Protection Checklist. Here are your resources:",
+  "emailClosing": "If you need anything else, reply to this email and we’ll help.",
+  "isActive": true,
+  "resendOnDuplicate": true,
+  "sendAdminNotification": false,
+  "selectedResourceIds": [],
+  "updatedAt": "2026-03-27T00:00:00.000Z"
+}
