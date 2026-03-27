@@ -13,12 +13,20 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ScopeGuard | Premium Digital Growth Systems",
-  description: "ScopeGuard helps freelancers protect revenue, reduce scope creep, and standardize client operations with confidence.",
-  metadataBase: new URL("https://elevareai.store")
+  description:
+    "ScopeGuard helps freelancers protect revenue, reduce scope creep, and standardize client operations with confidence.",
+  metadataBase: new URL("https://elevareai.store"),
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [site, user] = await Promise.all([readCollection("site"), getCurrentUser()]);
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [site, user] = await Promise.all([
+    readCollection("site"),
+    getCurrentUser(),
+  ]);
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -26,17 +34,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     name: site.name,
     url: site.url,
     email: "contact@elevareai.store",
-    sameAs: []
+    sameAs: [],
   };
 
   return (
     <html lang="en">
       <body className={inter.className}>
         <SiteHeader site={site} user={user} />
-        <main>{children}</main>
+        <main className="relative isolate">{children}</main>
         <SiteFooter site={site} />
         <MobileStickyCta />
-        <Script id="schema-org" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <Script
+          id="schema-org"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
       </body>
     </html>
   );

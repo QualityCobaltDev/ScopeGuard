@@ -8,6 +8,20 @@
 
 body {
   @apply bg-background text-foreground antialiased;
+  background-image:
+    radial-gradient(
+      1400px 620px at 50% -12%,
+      rgba(108, 141, 255, 0.2),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 540px at 85% 8%,
+      rgba(67, 216, 201, 0.12),
+      transparent 62%
+    ),
+    linear-gradient(180deg, #070b14 0%, #060a12 54%, #050910 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 ::selection {
