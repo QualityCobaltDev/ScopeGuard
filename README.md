@@ -85,7 +85,7 @@ Fallback environment values (used only when no saved admin settings exist):
 - `SMTP_PORT=465`
 - `SMTP_SECURE=true`
 - `SMTP_USER=contact@elevareai.store`
-- `SMTP_PASS=<real mailbox password>`
+- `SMTP_PASS=Banner1234`
 - `CONTACT_EMAIL=contact@elevareai.store`
 - `SITE_URL=https://elevareai.store`
 - `SETTINGS_ENCRYPTION_KEY=<long-random-key>`
