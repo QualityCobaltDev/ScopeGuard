@@ -1,110 +1,143 @@
-# ScopeGuard Admin-Enabled Website
+# ScopeGuard Admin CMS
 
-Production website for **https://elevareai.store** with a premium public frontend and a secure Admin User Board.
+Production website for **https://elevareai.store** with a premium public frontend and a structured admin CMS.
 
-## 1) Project Overview
-- Next.js App Router + TypeScript + Tailwind CSS
-- Public marketing pages + protected admin dashboard
-- Persistent editable content via `storage/*.json`
-- Session auth with hashed passwords and role checks
+## Architecture summary
+- Next.js App Router + TypeScript + Tailwind CSS.
+- JSON-backed content persistence in `storage/*.json`.
+- Admin-authenticated API routes for content, document/file management, and SMTP testing.
+- Server-side SMTP sending with secure environment variables only.
 
-## 2) Auth Overview
-- Admin sign-in route: `/admin/signin`
-- Credentials auth with server-side password verification
-- Session cookie: `httpOnly`, `sameSite=strict`, secure in production
-- Roles: `admin`, `user`
-
-## 3) Admin Sign-in Flow
-1. Click **Admin Sign-in** in the header.
-2. Submit `username + password` on `/admin/signin`.
-3. Successful admin sign-in redirects to `/admin`.
-4. Logout invalidates session server-side.
-
-## 4) Admin Dashboard Overview
+## Admin dashboard CMS overview
 Route: `/admin`
+
 Sections:
 - Overview
-- Pages / Website Content
+- Website Content
 - Pricing
 - Testimonials
 - FAQ
-- Products / Offers
 - Resources
+- Documents / Files
 - Navigation
 - Footer
 - Settings
+- Email / SMTP
 - Profile
 - Users
 
-Admin can edit content JSON collections, manage users, and publish updates immediately.
+The dashboard now uses structured forms, repeaters, toggles, and dropdowns (not raw HTML editing) for day-to-day content operations.
 
-## 5) Environment Setup
-Use `.env.example` as template.
+## Document upload workflow
+1. Go to **Admin → Documents / Files**.
+2. Upload a file with title, description, and visibility.
+3. Files are validated by extension, MIME type, and max size.
+4. File metadata is saved in `storage/files.json`.
+5. File binaries are stored in `public/uploads/resources`.
+6. Admin can open, replace, and delete files.
 
-## 6) Database Setup
-A Prisma/PostgreSQL schema is included under `prisma/schema.prisma` for migration-ready deployments.
+## Resource entry workflow
+1. Go to **Admin → Resources**.
+2. Create/edit entries with fields:
+   - title, label, category, summary, description
+   - status (draft/published)
+   - linked file
+   - external URL
+   - CTA label
+   - sort order
+   - visibility
+3. Save updates to publish to public resources page.
+4. Public `/resources` page renders only published entries and resolves linked files automatically.
 
-## 7) Migration Steps
-```bash
-npx prisma generate
-npx prisma migrate deploy
-```
+## Allowed upload types and size
+- Extensions: `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, `.pptx`, `.csv`, `.txt`
+- Max size: `15MB`
+- Unsupported MIME types and extensions are rejected.
 
-## 8) Seed Steps
-```bash
-npx prisma db seed
-```
+## File storage locations
+- Metadata: `storage/files.json`
+- Actual documents: `public/uploads/resources/`
 
-## 9) Initial Admin Credentials (server-side seed only)
-- Username: `QualityCobaltDev`
-- Password: `Banner1234!`
+## Public resource download behavior
+- A resource can point to:
+  - linked uploaded document (`fileId`), or
+  - explicit external URL.
+- If neither is set, CTA falls back to `/contact`.
 
-Password is hashed before storage; plaintext is never shipped to frontend code.
+## SMTP setup
+ScopeGuard uses SMTP for outbound mail and admin test emails.
 
-## 10) Local Development
-```bash
-npm install
-npm run dev
-```
+Default SMTP values:
+- Host: `mail.spacemail.com`
+- Port: `465`
+- Secure: `true`
+- Sender user: `contact@elevareai.store`
 
-## 11) Production Deployment
+IMAP/POP details are documented as operational references only (not implemented as mailbox-sync client):
+- IMAP SSL: `mail.spacemail.com:993`
+- POP3 SSL: `mail.spacemail.com:995`
+
+## Environment variables
+Use `.env.example`.
+
+Required for email:
+- `SMTP_HOST=mail.spacemail.com`
+- `SMTP_PORT=465`
+- `SMTP_SECURE=true`
+- `SMTP_USER=contact@elevareai.store`
+- `SMTP_PASS=<real mailbox password>`
+- `CONTACT_EMAIL=contact@elevareai.store`
+- `SITE_URL=https://elevareai.store`
+
+## Email test process
+1. Open **Admin → Email / SMTP**.
+2. Review read-only runtime status (host, port, secure, username, masked password state).
+3. Enter recipient email.
+4. Click **Send test email**.
+
+## Contact form mail flow
+- Public contact form posts to `/api/contact`.
+- Server validates and sanitizes input.
+- Sends:
+  1. admin notification to `CONTACT_EMAIL`
+  2. acknowledgement email to sender
+
+## Deployment notes (Ubuntu + PM2 + Nginx + Certbot)
 ```bash
 npm install
 npm run build
 npm run start
 ```
 
-## 12) PM2 Commands
+PM2 example:
 ```bash
 pm2 start npm --name elevareai -- start
 pm2 save
 pm2 startup
 ```
 
-## 13) Nginx Notes
-Reverse-proxy `elevareai.store` to `http://127.0.0.1:3000`.
+Nginx should reverse proxy to `127.0.0.1:3000`.
 
-## 14) SSL Notes
+Certbot example:
 ```bash
 sudo certbot --nginx -d elevareai.store
 ```
 
-## 15) Security Notes
-- Password hashing with server-side `scrypt`
-- Protected admin routes via middleware + server checks
-- Admin-only mutation guards for content and users
+### Upload persistence and backups
+- Ensure `public/uploads/resources` persists across deployments.
+- Include both:
+  - `public/uploads/resources`
+  - `storage/*.json`
+  in backup jobs.
 
-## 16) How Admin Edits Website Content
-- Sign in at `/admin/signin`
-- Open `/admin`
-- Select a section (Pricing, FAQ, Resources, etc.)
-- Edit and click **Save Changes**
+## Security notes
+- SMTP credentials are environment-only and never exposed client-side.
+- Contact form sanitizes input and includes honeypot field.
+- Uploads are validated for extension, MIME type, and size.
+- Stored filenames are randomized to prevent collisions/path abuse.
+- Admin-only guards protect content, file, and SMTP test routes.
 
-## 17) How Content Persistence Works
-- `lib/content-store.ts` writes to `storage/*.json`
-- Admin edits persist immediately
-- Public pages read from the same structured store
-
-## Fixed Business Constraints
-- Primary domain remains: `https://elevareai.store`
-- Contact email everywhere: `contact@elevareai.store`
+## Auth overview
+- Admin sign-in route: `/admin/signin`
+- Session cookie: `httpOnly`, `sameSite=strict`, secure in production
+- Roles: `admin`, `user`
