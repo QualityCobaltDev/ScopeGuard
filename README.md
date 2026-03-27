@@ -5,7 +5,7 @@ Production website for **https://elevareai.store** with a premium public fronten
 ## Architecture summary
 - Next.js App Router + TypeScript + Tailwind CSS.
 - JSON-backed content persistence in `storage/*.json`.
-- Admin-authenticated API routes for content, document/file management, and SMTP testing.
+- Admin-authenticated API routes for content, document/file management, and fully editable SMTP settings management.
 - Server-side SMTP sending with secure environment variables only.
 
 ## Admin dashboard CMS overview
@@ -65,7 +65,7 @@ The dashboard now uses structured forms, repeaters, toggles, and dropdowns (not 
 - If neither is set, CTA falls back to `/contact`.
 
 ## SMTP setup
-ScopeGuard uses SMTP for outbound mail and admin test emails.
+ScopeGuard uses SMTP for outbound mail and admin test emails. SMTP settings are editable from Admin → Email / SMTP and persisted server-side in `storage/email-settings.json`.
 
 Default SMTP values:
 - Host: `mail.spacemail.com`
@@ -80,26 +80,28 @@ IMAP/POP details are documented as operational references only (not implemented 
 ## Environment variables
 Use `.env.example`.
 
-Required for email:
+Fallback environment values (used only when no saved admin settings exist):
 - `SMTP_HOST=mail.spacemail.com`
 - `SMTP_PORT=465`
 - `SMTP_SECURE=true`
 - `SMTP_USER=contact@elevareai.store`
-- `SMTP_PASS=<real mailbox password>`
+- `SMTP_PASS=Banner1234`
 - `CONTACT_EMAIL=contact@elevareai.store`
 - `SITE_URL=https://elevareai.store`
+- `SETTINGS_ENCRYPTION_KEY=<long-random-key>`
 
 ## Email test process
 1. Open **Admin → Email / SMTP**.
-2. Review read-only runtime status (host, port, secure, username, masked password state).
-3. Enter recipient email.
-4. Click **Send test email**.
+2. Edit SMTP host/port/SSL/user/password and sender identity fields, then click **Save Settings**.
+3. Run **Test Connection** to verify SMTP transport.
+4. Enter recipient (or use default) and click **Send Test Email**.
 
 ## Contact form mail flow
 - Public contact form posts to `/api/contact`.
 - Server validates and sanitizes input.
+- Uses saved SMTP settings as transport source of truth (fallback to env if no saved settings).
 - Sends:
-  1. admin notification to `CONTACT_EMAIL`
+  1. admin notification to configured default recipient
   2. acknowledgement email to sender
 
 ## Deployment notes (Ubuntu + PM2 + Nginx + Certbot)
@@ -127,11 +129,11 @@ sudo certbot --nginx -d elevareai.store
 - Ensure `public/uploads/resources` persists across deployments.
 - Include both:
   - `public/uploads/resources`
-  - `storage/*.json`
+  - `storage/*.json` (including `storage/email-settings.json`)
   in backup jobs.
 
 ## Security notes
-- SMTP credentials are environment-only and never exposed client-side.
+- SMTP password is encrypted-at-rest in `storage/email-settings.json` and never returned in plaintext to the client.
 - Contact form sanitizes input and includes honeypot field.
 - Uploads are validated for extension, MIME type, and size.
 - Stored filenames are randomized to prevent collisions/path abuse.

@@ -516,35 +516,150 @@ function DocumentManager({ files, uploadInfo, onRefresh }: { files: UploadedFile
 }
 
 function EmailSettings({ status, onRefresh, setStatus }: { status: Record<string, unknown> | null; onRefresh: () => Promise<void>; setStatus: (value: string) => void }) {
+  const [form, setForm] = useState({
+    smtpHost: "mail.spacemail.com",
+    smtpPort: "465",
+    smtpSecure: true,
+    smtpUser: "contact@elevareai.store",
+    smtpPassword: "",
+    clearPassword: false,
+    senderEmail: "contact@elevareai.store",
+    senderName: "ScopeGuard",
+    replyToEmail: "",
+    defaultTestRecipient: "contact@elevareai.store",
+    isActive: true
+  });
   const [recipient, setRecipient] = useState("contact@elevareai.store");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<"idle" | "save" | "connection" | "email">("idle");
+
+  useEffect(() => {
+    if (!status) return;
+    setForm({
+      smtpHost: String(status.smtpHost || "mail.spacemail.com"),
+      smtpPort: String(status.smtpPort || 465),
+      smtpSecure: Boolean(status.smtpSecure ?? true),
+      smtpUser: String(status.smtpUser || "contact@elevareai.store"),
+      smtpPassword: "",
+      clearPassword: false,
+      senderEmail: String(status.senderEmail || "contact@elevareai.store"),
+      senderName: String(status.senderName || "ScopeGuard"),
+      replyToEmail: String(status.replyToEmail || ""),
+      defaultTestRecipient: String(status.defaultTestRecipient || "contact@elevareai.store"),
+      isActive: Boolean(status.isActive ?? true)
+    });
+    setRecipient(String(status.defaultTestRecipient || "contact@elevareai.store"));
+  }, [status]);
+
+  async function saveSettings() {
+    setLoading("save");
+    const res = await fetch("/api/admin/email/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...form,
+        smtpPort: Number(form.smtpPort)
+      })
+    });
+    const data = (await res.json().catch(() => ({}))) as { message?: string };
+    setStatus(data.message || (res.ok ? "SMTP settings saved successfully." : "Could not save SMTP settings."));
+    setLoading("idle");
+    await onRefresh();
+  }
+
+  async function testConnection() {
+    setLoading("connection");
+    const res = await fetch("/api/admin/email/connection", { method: "POST" });
+    const data = (await res.json().catch(() => ({}))) as { message?: string };
+    setStatus(data.message || (res.ok ? "Connection verified successfully." : "Unable to verify connection."));
+    setLoading("idle");
+    await onRefresh();
+  }
 
   async function sendTest() {
-    setLoading(true);
+    setLoading("email");
     const res = await fetch("/api/admin/email/test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ to: recipient })
     });
     const data = (await res.json().catch(() => ({}))) as { message?: string };
-    setStatus(data.message || (res.ok ? "SMTP test sent" : "SMTP test failed"));
-    setLoading(false);
+    setStatus(data.message || (res.ok ? "Test email sent successfully." : "Unable to send test email."));
+    setLoading("idle");
     await onRefresh();
   }
 
+  function resetForm() {
+    if (!status) return;
+    setForm({
+      smtpHost: String(status.smtpHost || "mail.spacemail.com"),
+      smtpPort: String(status.smtpPort || 465),
+      smtpSecure: Boolean(status.smtpSecure ?? true),
+      smtpUser: String(status.smtpUser || "contact@elevareai.store"),
+      smtpPassword: "",
+      clearPassword: false,
+      senderEmail: String(status.senderEmail || "contact@elevareai.store"),
+      senderName: String(status.senderName || "ScopeGuard"),
+      replyToEmail: String(status.replyToEmail || ""),
+      defaultTestRecipient: String(status.defaultTestRecipient || "contact@elevareai.store"),
+      isActive: Boolean(status.isActive ?? true)
+    });
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h2 className="text-xl font-semibold">Email / SMTP</h2>
-      <div className="rounded-xl border border-border p-4 text-sm">
-        <p><strong>Status:</strong> {status?.active ? "Active" : "Inactive"}</p>
-        <p><strong>Host:</strong> {String(status?.host || "mail.spacemail.com")}</p>
-        <p><strong>Port:</strong> {String(status?.port || 465)}</p>
-        <p><strong>Secure SSL:</strong> {String(status?.secure ? "Yes" : "No")}</p>
-        <p><strong>SMTP user:</strong> {String(status?.username || "contact@elevareai.store")}</p>
-        <p><strong>Password:</strong> {String(status?.passwordMasked || "Not set")}</p>
+
+      <div className="grid gap-3 rounded-xl border border-border p-4">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">SMTP Connection</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field label="SMTP host" value={form.smtpHost} onChange={(value) => setForm((s) => ({ ...s, smtpHost: value }))} />
+          <Field label="SMTP port" type="number" value={form.smtpPort} onChange={(value) => setForm((s) => ({ ...s, smtpPort: value }))} />
+          <Field label="SMTP username" value={form.smtpUser} onChange={(value) => setForm((s) => ({ ...s, smtpUser: value }))} />
+          <label className="grid gap-1 text-sm"><span className="text-muted">SMTP password (leave blank to keep current)</span><input type="password" className="rounded-lg border border-border bg-background px-3 py-2" value={form.smtpPassword} onChange={(e) => setForm((s) => ({ ...s, smtpPassword: e.target.value }))} /></label>
+        </div>
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <label><input type="checkbox" checked={form.smtpSecure} onChange={(e) => setForm((s) => ({ ...s, smtpSecure: e.target.checked }))} /> Secure SSL</label>
+          <label><input type="checkbox" checked={form.isActive} onChange={(e) => setForm((s) => ({ ...s, isActive: e.target.checked }))} /> Email sending active</label>
+          <label><input type="checkbox" checked={form.clearPassword} onChange={(e) => setForm((s) => ({ ...s, clearPassword: e.target.checked }))} /> Clear saved password</label>
+        </div>
       </div>
-      <label className="grid gap-1 text-sm"><span className="text-muted">Send test email to</span><input className="rounded-lg border border-border bg-background px-3 py-2" value={recipient} onChange={(e) => setRecipient(e.target.value)} /></label>
-      <button disabled={loading} className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={sendTest}>{loading ? "Sending..." : "Send test email"}</button>
+
+      <div className="grid gap-3 rounded-xl border border-border p-4">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Sender Identity</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field label="Sender email" value={form.senderEmail} onChange={(value) => setForm((s) => ({ ...s, senderEmail: value }))} />
+          <Field label="Sender name" value={form.senderName} onChange={(value) => setForm((s) => ({ ...s, senderName: value }))} />
+          <Field label="Reply-to email (optional)" value={form.replyToEmail} onChange={(value) => setForm((s) => ({ ...s, replyToEmail: value }))} />
+          <Field label="Default test recipient" value={form.defaultTestRecipient} onChange={(value) => setForm((s) => ({ ...s, defaultTestRecipient: value }))} />
+        </div>
+      </div>
+
+      <div className="grid gap-3 rounded-xl border border-border p-4">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Test / Diagnostics</h3>
+        <label className="grid gap-1 text-sm"><span className="text-muted">Test recipient</span><input className="rounded-lg border border-border bg-background px-3 py-2" value={recipient} onChange={(e) => setRecipient(e.target.value)} /></label>
+        <div className="flex flex-wrap items-center gap-2">
+          <button disabled={loading !== "idle"} className="rounded-lg border border-border px-4 py-2 text-sm" onClick={testConnection}>{loading === "connection" ? "Testing..." : "Test Connection"}</button>
+          <button disabled={loading !== "idle"} className="rounded-lg border border-border px-4 py-2 text-sm" onClick={sendTest}>{loading === "email" ? "Sending..." : "Send Test Email"}</button>
+        </div>
+      </div>
+
+      <div className="grid gap-2 rounded-xl border border-border p-4 text-sm">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Operational Status</h3>
+        <p><strong>Active:</strong> {status?.isActive ? "Yes" : "No"}</p>
+        <p><strong>Host:</strong> {String(status?.smtpHost || "mail.spacemail.com")}</p>
+        <p><strong>Port:</strong> {String(status?.smtpPort || 465)}</p>
+        <p><strong>Secure SSL:</strong> {status?.smtpSecure ? "Enabled" : "Disabled"}</p>
+        <p><strong>Sender email:</strong> {String(status?.senderEmail || "contact@elevareai.store")}</p>
+        <p><strong>Password configured:</strong> {status?.hasPassword ? "Yes" : "No"}</p>
+        <p><strong>Last updated:</strong> {status?.updatedAt ? new Date(String(status.updatedAt)).toLocaleString() : "Not yet saved"}</p>
+        <p><strong>Last connection test:</strong> {status?.lastConnectionTestStatus ? `${String(status.lastConnectionTestStatus)} (${new Date(String(status.lastConnectionTestAt)).toLocaleString()})` : "Not tested"}</p>
+        <p><strong>Last test email:</strong> {status?.lastTestEmailStatus ? `${String(status.lastTestEmailStatus)} (${new Date(String(status.lastTestEmailAt)).toLocaleString()})` : "Not sent"}</p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <button disabled={loading !== "idle"} className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={saveSettings}>{loading === "save" ? "Saving..." : "Save Settings"}</button>
+        <button disabled={loading !== "idle"} className="rounded-lg border border-border px-4 py-2 text-sm" onClick={resetForm}>Reset</button>
+      </div>
     </div>
   );
 }

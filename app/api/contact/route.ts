@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendMail } from "@/lib/email";
+import { resolveEmailTransport } from "@/lib/email-settings-store";
 
 type Payload = { name?: string; email?: string; message?: string; company?: string };
 
@@ -22,7 +23,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const contactEmail = process.env.CONTACT_EMAIL ?? "contact@elevareai.store";
+    const transport = await resolveEmailTransport();
+    const contactEmail = transport.defaultTestRecipient || process.env.CONTACT_EMAIL || "contact@elevareai.store";
 
     await sendMail({
       to: contactEmail,
