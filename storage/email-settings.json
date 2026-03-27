@@ -1,0 +1,13 @@
+{
+  "smtpHost": "mail.spacemail.com",
+  "smtpPort": 465,
+  "smtpSecure": true,
+  "smtpUser": "contact@elevareai.store",
+  "senderEmail": "contact@elevareai.store",
+  "senderName": "ScopeGuard",
+  "replyToEmail": "contact@elevareai.store",
+  "defaultTestRecipient": "contact@elevareai.store",
+  "isActive": true,
+  "updatedAt": "2026-03-27T00:00:00.000Z",
+  "updatedBy": "system"
+}

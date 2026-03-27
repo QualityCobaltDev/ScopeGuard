@@ -44,26 +44,55 @@ export type PricingTier = {
   description: string;
   includes: string[];
   cta: string;
+  ctaUrl?: string;
   featured?: boolean;
   audience?: string;
   benefit?: string;
+  sortOrder?: number;
+  visible?: boolean;
 };
 
-export type Testimonial = { id: string; quote: string; name: string; role: string };
-export type FaqItem = { id: string; question: string; answer: string };
+export type Testimonial = {
+  id: string;
+  quote: string;
+  name: string;
+  role: string;
+  rating?: number;
+  sortOrder?: number;
+  visible?: boolean;
+};
+
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder?: number;
+  visible?: boolean;
+};
+
 export type ProductContent = {
   highlights: BasicItem[];
   deliverables: string[];
   fit: string;
   bonuses: string[];
 };
+
+export type ResourceVisibility = "public" | "gated" | "internal";
+
 export type ResourceItem = {
   id: string;
   title: string;
-  type: string;
-  description: string;
-  status: string;
-  link: string;
+  label: "Guide" | "Worksheet" | "Template" | "Checklist" | "Download";
+  category: string;
+  summary: string;
+  description?: string;
+  status: "draft" | "published";
+  fileId?: string;
+  externalUrl?: string;
+  ctaLabel: string;
+  sortOrder: number;
+  visibility: ResourceVisibility;
+  thumbnailUrl?: string;
 };
 
 export type ContentMap = {
