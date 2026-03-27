@@ -92,14 +92,14 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-        <PricingSection tiers={pricing} />
+        <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
         <section className="container py-20">
           <SectionTitle
             eyebrow="Testimonials"
             title="Proof from freelancers using ScopeGuard"
           />
           <div className="grid gap-5 md:grid-cols-3">
-            {testimonials.map((item) => (
+            {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
               <Card key={item.id} className="p-6">
                 <p className="text-sm leading-7 text-muted">“{item.quote}”</p>
                 <p className="mt-6 font-medium text-foreground">{item.name}</p>
@@ -112,7 +112,7 @@ export default async function HomePage() {
           <SectionTitle eyebrow="FAQ" title="Questions before you commit" />
           <div className="mx-auto max-w-3xl">
             <Accordion
-              items={faq.map((item) => ({
+              items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({
                 question: item.question,
                 answer: item.answer,
               }))}
