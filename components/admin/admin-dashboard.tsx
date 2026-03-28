@@ -772,7 +772,7 @@ function SimpleNavEditor({ title, items, onChange, onSave, hideSave }: { title: 
       <h2 className="text-xl font-semibold">{title}</h2>
       {items.map((item, index) => (
         <div key={`${item.href}-${index}`} className="grid gap-2 rounded-lg border border-border p-3 md:grid-cols-2">
-          <LocalizedField label="Label" value={item.label as any} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, label: value as any } : entry)))} />
+          <Field label="Label" value={item.label} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, label: value } : entry)))} />
           <Field label="URL" value={item.href} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, href: value } : entry)))} />
         </div>
       ))}
