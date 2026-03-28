@@ -30,7 +30,7 @@ export function PricingSection({ tiers }: { tiers: PricingTier[] }) {
               ))}
             </ul>
             {tier.benefit ? <p className="mt-4 text-sm font-medium text-foreground">{tier.benefit}</p> : null}
-            <LinkButton href={linkMap[tier.id as keyof typeof linkMap] || "/product"} className="mt-7 w-full" variant={tier.featured ? "default" : "secondary"}>{tier.cta}</LinkButton>
+            <LinkButton href={tier.ctaUrl || linkMap[tier.id as keyof typeof linkMap] || "/product"} className="mt-7 w-full" variant={tier.featured ? "default" : "secondary"}>{tier.cta}</LinkButton>
           </Card>
         ))}
       </div>
