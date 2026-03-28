@@ -15,6 +15,30 @@ const defaults = {
   successMessage: "You're in — check your inbox for your resources."
 };
 
+type LeadMagnetPublicConfig = typeof defaults;
+type LeadMagnetPublicResponse = Partial<LeadMagnetPublicConfig> & { [key: string]: unknown };
+type LeadSubmitResponse = { message?: unknown; error?: unknown };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function safeText(value: unknown, fallback: string) {
+  if (typeof value === "string") return value;
+  return fallback;
+}
+
+function toPublicConfig(data: unknown): LeadMagnetPublicConfig {
+  if (!isRecord(data)) return defaults;
+  return {
+    isActive: typeof data.isActive === "boolean" ? data.isActive : defaults.isActive,
+    publicTitle: safeText(data.publicTitle, defaults.publicTitle),
+    publicDescription: safeText(data.publicDescription, defaults.publicDescription),
+    buttonLabel: safeText(data.buttonLabel, defaults.buttonLabel),
+    successMessage: safeText(data.successMessage, defaults.successMessage)
+  };
+}
+
 export function LeadCapture() {
   const [config, setConfig] = useState(defaults);
   const [email, setEmail] = useState("");
@@ -22,9 +46,9 @@ export function LeadCapture() {
   const [message, setMessage] = useState("By subscribing, you agree to receive practical business emails from ScopeGuard.");
 
   useEffect(() => {
-    fetch("/api/admin/lead-magnet")
+    fetch("/api/lead", { method: "GET" })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data) => data?.settings ? setConfig({ ...defaults, ...data.settings }) : null)
+      .then((data: LeadMagnetPublicResponse | null) => setConfig(toPublicConfig(data)))
       .catch(() => null);
   }, []);
 
@@ -37,16 +61,16 @@ export function LeadCapture() {
       body: JSON.stringify({ email, source: "homepage_lead_capture", company: "" })
     });
 
-    const data = (await res.json().catch(() => ({}))) as { message?: string; error?: string };
+    const data = (await res.json().catch(() => ({}))) as LeadSubmitResponse;
     if (res.ok) {
       setStatus("success");
-      setMessage(data.message || config.successMessage);
+      setMessage(safeText(data.message, config.successMessage));
       setEmail("");
       return;
     }
 
     setStatus("error");
-    setMessage(data.error || "Unable to deliver resources right now. Please try again.");
+    setMessage(safeText(data.error, "Unable to deliver resources right now. Please try again."));
   }
 
   return (
