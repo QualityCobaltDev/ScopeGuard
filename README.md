@@ -216,7 +216,25 @@ sudo certbot --nginx -d elevareai.store
 - Page sections are stored in `storage/page-sections.json` and linked by `pageId`.
 - Admin can create/edit/publish/hide/delete pages in **Pages** section.
 - Core system pages are protected via `isSystemPage` and cannot be deleted.
-- Admin can manage sections per selected page in **Page Sections**.
+- Admin can duplicate pages from the Pages editor, including metadata and settings, with automatic safe slug/key suffixing.
+- Page metadata supports SEO + Open Graph (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`) and per-page template type (`standard`, `landing`, `resource`, `legal`, `post`).
+- Navigation sync is automatic via `showInNavigation` and server-side `syncNavigationFromPages()` after create/update/delete.
+- Admin can manage sections per selected page in **Page Sections** with:
+  - section type presets (Hero, Stats, CTA, Pricing Intro/Grid, Testimonials, FAQ, Resources, Lead Magnet, Rich Text, Feature Grid, Custom Info)
+  - add/edit/delete
+  - visibility toggle
+  - move up/down section reordering
+  - explicit order control
+- Public rendering:
+  - `/[slug]` resolves managed published+visible pages from `storage/pages.json`
+  - page sections are rendered in order and filtered by `visible`
+  - metadata is generated from managed page SEO/OG fields.
+- Overview synchronization:
+  - dashboard metrics include `pagesTotal`, `pagesPublished`, `pagesHidden`, `sectionsTotal`, `sectionsVisible`
+  - metrics come from `GET /api/admin/overview`, backed by current storage state.
+- Revalidation/sync:
+  - all page/section/content write APIs trigger `revalidateSiteContent()`
+  - manual sync available at `POST /api/admin/site-sync`.
 
 ### Dynamic page rendering
 - New admin-created pages are rendered by `app/[slug]/page.tsx`.

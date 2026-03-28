@@ -270,6 +270,14 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   }
 
   const filesById = useMemo(() => new Map(files.map((file) => [file.id, file])), [files]);
+  const scopedSections = useMemo(
+    () =>
+      pageSections
+        .map((item, originalIndex) => ({ item, originalIndex }))
+        .filter((entry) => !selectedPageId || entry.item.pageId === selectedPageId)
+        .sort((a, b) => (a.item.order || 0) - (b.item.order || 0)),
+    [pageSections, selectedPageId]
+  );
 
   return (
     <div className="container py-4 sm:py-6 md:py-8">
@@ -539,23 +547,90 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           {section === "Pages" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Pages</h2>
-                <button className="rounded border border-border px-3 py-2 text-sm" onClick={() => setManagedPages([...managedPages, { id: `page-${Date.now()}`, title: "", internalName: "", slug: "", pageKey: `page-${managedPages.length + 1}`, pageType: "standard", seoTitle: "", seoDescription: "", isPublished: false, isVisible: true, showInNavigation: false, isSystemPage: false, sortOrder: managedPages.length + 1 }])}>Add page</button>
+                <div>
+                  <h2 className="text-xl font-semibold">Pages</h2>
+                  <p className="text-sm text-muted">Create, publish, hide, and manage metadata for any managed page.</p>
+                </div>
+                <button
+                  className="rounded border border-border px-3 py-2 text-sm"
+                  onClick={() =>
+                    setManagedPages([
+                      ...managedPages,
+                      {
+                        id: `page-${Date.now()}`,
+                        title: "",
+                        internalName: "",
+                        slug: "",
+                        pageKey: `page-${managedPages.length + 1}`,
+                        pageType: "standard",
+                        seoTitle: "",
+                        seoDescription: "",
+                        ogTitle: "",
+                        ogDescription: "",
+                        isPublished: false,
+                        isVisible: true,
+                        showInNavigation: false,
+                        isSystemPage: false,
+                        sortOrder: managedPages.length + 1
+                      }
+                    ])
+                  }
+                >
+                  Add page
+                </button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Kpi label="Total pages" value={String(managedPages.length)} />
+                <Kpi label="Published" value={String(managedPages.filter((p) => p.isPublished).length)} />
+                <Kpi label="Visible" value={String(managedPages.filter((p) => p.isVisible).length)} />
+                <Kpi label="In navigation" value={String(managedPages.filter((p) => p.showInNavigation).length)} />
               </div>
               {managedPages.map((page, index) => (
                 <div key={page.id} className="grid gap-2 rounded-xl border border-border p-4">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className={`rounded-full border px-2 py-0.5 ${page.isPublished ? "border-emerald-500/60 text-emerald-300" : "border-amber-500/60 text-amber-300"}`}>{page.isPublished ? "Published" : "Draft"}</span>
+                    <span className={`rounded-full border px-2 py-0.5 ${page.isVisible ? "border-sky-500/60 text-sky-300" : "border-zinc-500/60 text-zinc-300"}`}>{page.isVisible ? "Visible" : "Hidden"}</span>
+                    {page.isSystemPage ? <span className="rounded-full border border-purple-500/60 px-2 py-0.5 text-purple-300">System</span> : null}
+                    <span className="rounded-full border border-border px-2 py-0.5 text-muted">{page.pageType || "standard"}</span>
+                    {page.slug ? <a className="underline" href={`/${page.slug}`} target="_blank">View live</a> : null}
+                  </div>
                   <div className="grid gap-2 md:grid-cols-3">
                     <Field label="Page title" value={page.title || ""} onChange={(value) => patchArray(setManagedPages as any, index, { title: value } as any)} />
+                    <Field label="Internal name" value={page.internalName || ""} onChange={(value) => patchArray(setManagedPages as any, index, { internalName: value } as any)} />
                     <Field label="Slug" value={page.slug || ""} onChange={(value) => patchArray(setManagedPages as any, index, { slug: value.replace(/^\//, "") } as any)} />
                     <Field label="Page key" value={page.pageKey || ""} onChange={(value) => patchArray(setManagedPages as any, index, { pageKey: value } as any)} />
                     <Select label="Page type" value={page.pageType || "standard"} options={["standard", "landing", "resource", "legal", "post"]} onChange={(value) => patchArray(setManagedPages as any, index, { pageType: value } as any)} />
+                    <Field label="Sort order" type="number" value={String(page.sortOrder || 0)} onChange={(value) => patchArray(setManagedPages as any, index, { sortOrder: Number(value) || 0 } as any)} />
                     <Field label="SEO title" value={page.seoTitle || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoTitle: value } as any)} />
                     <Field label="SEO description" value={page.seoDescription || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoDescription: value } as any)} />
+                    <Field label="OG title" value={page.ogTitle || ""} onChange={(value) => patchArray(setManagedPages as any, index, { ogTitle: value } as any)} />
+                    <Field label="OG description" value={page.ogDescription || ""} onChange={(value) => patchArray(setManagedPages as any, index, { ogDescription: value } as any)} />
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
                     <label><input type="checkbox" checked={Boolean(page.isPublished)} onChange={(e) => patchArray(setManagedPages as any, index, { isPublished: e.target.checked } as any)} /> Published</label>
                     <label><input type="checkbox" checked={Boolean(page.isVisible)} onChange={(e) => patchArray(setManagedPages as any, index, { isVisible: e.target.checked } as any)} /> Visible</label>
                     <label><input type="checkbox" checked={Boolean(page.showInNavigation)} onChange={(e) => patchArray(setManagedPages as any, index, { showInNavigation: e.target.checked } as any)} /> Show in navigation</label>
+                    <button
+                      className="rounded border border-border px-2 py-1"
+                      onClick={() =>
+                        setManagedPages((current: any[]) => {
+                          const source = current[index];
+                          const duplicate = {
+                            ...source,
+                            id: `page-${Date.now()}`,
+                            isSystemPage: false,
+                            slug: `${source.slug || source.pageKey || "page"}-copy-${Date.now().toString().slice(-4)}`,
+                            pageKey: `${source.pageKey || "page"}-copy-${Date.now().toString().slice(-4)}`,
+                            title: `${source.title || "Untitled"} (Copy)`,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                          };
+                          return [...current, duplicate];
+                        })
+                      }
+                    >
+                      Duplicate
+                    </button>
                     <button className="rounded border border-border px-2 py-1" onClick={async () => {
                       if (page.isSystemPage) return alert("System pages cannot be deleted.");
                       if (!window.confirm("Delete this page and all its sections?")) return;
@@ -564,8 +639,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                       await loadPageSections();
                       await loadOverview();
                     }}>Delete</button>
-                    <a className="underline" href={`/${page.slug}`} target="_blank">View live</a>
                   </div>
+                  <p className="text-xs text-muted">Route preview: /{page.slug || "new-page"}</p>
                 </div>
               ))}
               <div className="flex gap-2">
@@ -632,35 +707,121 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           )}
 
           {section === "Page Sections" && (
-            <ArrayEditor
-              title="Page sections"
-              items={pageSections.filter((section) => !selectedPageId || section.pageId === selectedPageId)}
-              onAdd={() => setPageSections([...pageSections, { id: `section-${Date.now()}`, pageId: selectedPageId || managedPages[0]?.id || "", pageKey: managedPages.find((p) => p.id === selectedPageId)?.pageKey || "", sectionType: "Custom", title: "", subtitle: "", body: "", ctaText: "", ctaUrl: "", order: pageSections.length + 1, visible: true }])}
-              render={(item, index) => (
-                <div className="grid gap-2 rounded-xl border border-border p-4">
-                  <div className="grid gap-2 md:grid-cols-3">
-                    <Select label="Page" value={item.pageId || selectedPageId} options={managedPages.map((page) => page.id)} optionLabel={(value) => managedPages.find((page) => page.id === value)?.title || value} onChange={(value) => patchArray(setPageSections as any, index, { pageId: value, pageKey: managedPages.find((p) => p.id === value)?.pageKey || "" } as any)} />
-                    <Field label="Section type" value={item.sectionType || "Custom"} onChange={(value) => patchArray(setPageSections as any, index, { sectionType: value } as any)} />
-                    <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections as any, index, { order: Number(value) || 0 } as any)} />
-                  </div>
-                  <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPageSections as any, index, { title: value } as any)} />
-                  <Area label="Subtitle" value={item.subtitle || ""} onChange={(value) => patchArray(setPageSections as any, index, { subtitle: value } as any)} />
-                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPageSections as any, index, { body: value } as any)} />
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Field label="CTA text" value={item.ctaText || ""} onChange={(value) => patchArray(setPageSections as any, index, { ctaText: value } as any)} />
-                    <Field label="CTA URL" value={item.ctaUrl || ""} onChange={(value) => patchArray(setPageSections as any, index, { ctaUrl: value } as any)} />
-                  </div>
-                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.visible)} onChange={(e) => patchArray(setPageSections as any, index, { visible: e.target.checked } as any)} /> Visible</label>
-                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPageSections as any, index)}>Delete</button>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold">Page sections</h2>
+                  <p className="text-sm text-muted">Manage modular blocks for each page. Order and visibility control live rendering.</p>
                 </div>
-              )}
-              onSave={async () => {
-                await fetch("/api/admin/page-sections", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: pageSections }) });
-                setStatus("Page sections saved.");
-                await loadPageSections();
-                await loadOverview();
-              }}
-            />
+                <button
+                  className="rounded border border-border px-3 py-2 text-sm"
+                  onClick={() =>
+                    setPageSections([
+                      ...pageSections,
+                      {
+                        id: `section-${Date.now()}`,
+                        pageId: selectedPageId || managedPages[0]?.id || "",
+                        pageKey: managedPages.find((p) => p.id === selectedPageId)?.pageKey || "",
+                        sectionType: "Custom Info Block",
+                        title: "",
+                        subtitle: "",
+                        body: "",
+                        ctaText: "",
+                        ctaUrl: "",
+                        order: scopedSections.length + 1,
+                        visible: true
+                      }
+                    ])
+                  }
+                >
+                  Add section
+                </button>
+              </div>
+              <Select
+                label="Editing sections for page"
+                value={selectedPageId || managedPages[0]?.id || ""}
+                options={managedPages.map((page) => page.id)}
+                optionLabel={(value) => {
+                  const page = managedPages.find((entry) => entry.id === value);
+                  return page ? `${page.title || page.internalName || page.slug || value} (${page.slug || "no-slug"})` : value;
+                }}
+                onChange={(value) => setSelectedPageId(value)}
+              />
+              {scopedSections.map(({ item, originalIndex }, index) => (
+                <div key={item.id} className="grid gap-2 rounded-xl border border-border p-4">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className={`rounded-full border px-2 py-0.5 ${item.visible ? "border-emerald-500/60 text-emerald-300" : "border-zinc-500/60 text-zinc-300"}`}>{item.visible ? "Visible" : "Hidden"}</span>
+                    <span className="rounded-full border border-border px-2 py-0.5 text-muted">Order {item.order || index + 1}</span>
+                  </div>
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Select label="Page" value={item.pageId || selectedPageId} options={managedPages.map((page) => page.id)} optionLabel={(value) => managedPages.find((page) => page.id === value)?.title || value} onChange={(value) => patchArray(setPageSections as any, originalIndex, { pageId: value, pageKey: managedPages.find((p) => p.id === value)?.pageKey || "" } as any)} />
+                    <Select
+                      label="Section type"
+                      value={item.sectionType || "Custom Info Block"}
+                      options={["Hero", "Stats", "CTA", "Pricing Intro", "Pricing Grid", "Testimonial Block", "FAQ Block", "Resource Grid", "Lead Magnet", "Rich Text Block", "Feature Grid", "Custom Info Block"]}
+                      onChange={(value) => patchArray(setPageSections as any, originalIndex, { sectionType: value } as any)}
+                    />
+                    <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections as any, originalIndex, { order: Number(value) || 0 } as any)} />
+                  </div>
+                  <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { title: value } as any)} />
+                  <Area label="Subtitle" value={item.subtitle || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { subtitle: value } as any)} />
+                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { body: value } as any)} />
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Field label="CTA text" value={item.ctaText || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { ctaText: value } as any)} />
+                    <Field label="CTA URL" value={item.ctaUrl || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { ctaUrl: value } as any)} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-sm"><input type="checkbox" checked={Boolean(item.visible)} onChange={(e) => patchArray(setPageSections as any, originalIndex, { visible: e.target.checked } as any)} /> Visible</label>
+                    <button
+                      className="rounded border border-border px-2 py-1 text-sm"
+                      disabled={index === 0}
+                      onClick={() => {
+                        const above = scopedSections[index - 1];
+                        if (!above) return;
+                        setPageSections((current: any[]) =>
+                          current.map((entry, idx) => {
+                            if (idx === originalIndex) return { ...entry, order: (above.item.order || index) };
+                            if (idx === above.originalIndex) return { ...entry, order: (item.order || index + 1) };
+                            return entry;
+                          })
+                        );
+                      }}
+                    >
+                      Move up
+                    </button>
+                    <button
+                      className="rounded border border-border px-2 py-1 text-sm"
+                      disabled={index === scopedSections.length - 1}
+                      onClick={() => {
+                        const below = scopedSections[index + 1];
+                        if (!below) return;
+                        setPageSections((current: any[]) =>
+                          current.map((entry, idx) => {
+                            if (idx === originalIndex) return { ...entry, order: (below.item.order || index + 2) };
+                            if (idx === below.originalIndex) return { ...entry, order: (item.order || index + 1) };
+                            return entry;
+                          })
+                        );
+                      }}
+                    >
+                      Move down
+                    </button>
+                    <button className="w-fit rounded border border-border px-2 py-1 text-sm" onClick={() => removeAt(setPageSections as any, originalIndex)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+              <button
+                className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black"
+                onClick={async () => {
+                  await fetch("/api/admin/page-sections", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: pageSections }) });
+                  setStatus("Page sections saved.");
+                  await loadPageSections();
+                  await loadOverview();
+                }}
+              >
+                Save page sections
+              </button>
+            </div>
           )}
 
           {section === "Documents / Files" && (
