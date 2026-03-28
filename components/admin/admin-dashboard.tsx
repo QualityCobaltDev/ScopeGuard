@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import type { AnalyticsEvent } from "@/lib/analytics-store";
 import type { ContentPost, ManagedPage, PageSectionBlock } from "@/lib/cms-store";
+import { BLOG_BLOCK_TYPES, BlogPostBlock } from "@/lib/post-blocks";
 import type { FaqItem, PricingTier, ProductContent, ResourceItem, SiteContent, Testimonial } from "@/lib/content-types";
 import type { UploadedFileRecord } from "@/lib/file-store";
 import type { LeadMagnetSettings, LeadSubscriber } from "@/lib/lead-magnet-store";
@@ -189,6 +190,41 @@ function toLeadMagnetResources(value: unknown): ResourceItem[] {
     .filter((entry) => Boolean(entry.id));
 }
 
+function slugifyPost(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
+}
+
+function createPostBlock(type: BlogPostBlock["type"]): BlogPostBlock {
+  const id = `block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  if (type === "richText") return { id, type, text: "" };
+  if (type === "heading") return { id, type, text: "", level: 2 };
+  if (type === "image") return { id, type, url: "", alt: "", caption: "" };
+  if (type === "video") return { id, type, url: "", caption: "" };
+  if (type === "download") return { id, type, label: "", url: "", description: "", fileId: undefined };
+  if (type === "cta") return { id, type, text: "", buttonLabel: "", buttonUrl: "" };
+  if (type === "quote") return { id, type, quote: "", attribution: "" };
+  return { id, type: "list", style: "unordered", items: [""] };
+}
+
+function normalizeAdminPost(post: ContentPost): ContentPost {
+  const blocks = Array.isArray(post.blocks) ? post.blocks : [];
+  return {
+    ...post,
+    slug: post.slug || slugifyPost(post.title || ""),
+    body: post.body || "",
+    excerpt: post.excerpt || "",
+    title: post.title || "",
+    blocks,
+    publishDate: post.publishDate || undefined,
+    featuredImageUrl: post.featuredImageUrl || undefined
+  };
+}
+
 export function AdminDashboard({ user }: { user: SessionUser }) {
   const [section, setSection] = useState<Section>("Overview");
   const [status, setStatus] = useState("Ready");
@@ -269,7 +305,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 
   const loadPosts = useCallback(async () => {
     const res = await fetch("/api/admin/posts");
-    if (res.ok) setPosts(normalizeLocalizedValue((await res.json()) as ContentPost[]));
+    if (res.ok) setPosts(normalizeLocalizedValue((await res.json()) as ContentPost[]).map((post) => normalizeAdminPost(post)));
   }, []);
 
 
@@ -876,23 +912,177 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
               title="Content posts"
               items={posts}
               onAdd={() =>
-                setPosts([...posts, { id: `post-${Date.now()}`, slug: "", title: "", excerpt: "", body: "", isPublished: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }])
+                setPosts([
+                  ...posts,
+                  normalizeAdminPost({
+                    id: `post-${Date.now()}`,
+                    slug: "",
+                    title: "",
+                    excerpt: "",
+                    body: "",
+                    blocks: [],
+                    featuredImageUrl: "",
+                    publishDate: new Date().toISOString().slice(0, 10),
+                    isPublished: false,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                  })
+                ])
               }
-              render={(item, index) => (
-                <div className="grid gap-2 rounded-xl border border-border p-4">
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts, index, { title: value })} />
-                    <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts, index, { slug: value })} />
+              render={(item, index) => {
+                const blocks = item.blocks || [];
+                return (
+                  <div className="grid gap-3 rounded-xl border border-border p-4">
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts, index, { title: value, slug: slugifyPost(item.slug || value) })} />
+                      <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts, index, { slug: slugifyPost(value) })} />
+                    </div>
+                    <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts, index, { excerpt: value })} />
+                    <Area label="Body fallback" value={item.body || ""} onChange={(value) => patchArray(setPosts, index, { body: value })} />
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <Field label="Featured image URL" value={item.featuredImageUrl || ""} onChange={(value) => patchArray(setPosts, index, { featuredImageUrl: value })} />
+                      <Field label="Publish date (YYYY-MM-DD)" value={item.publishDate || ""} onChange={(value) => patchArray(setPosts, index, { publishDate: value })} />
+                    </div>
+
+                    <div className="space-y-2 rounded-xl border border-border/70 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-medium">Structured content blocks</p>
+                        <Select
+                          label="Add block type"
+                          value=""
+                          options={["", ...BLOG_BLOCK_TYPES]}
+                          optionLabel={(option) => (option ? option : "Choose block type")}
+                          onChange={(value) => {
+                            if (!value) return;
+                            patchArray(setPosts, index, { blocks: [...blocks, createPostBlock(value as BlogPostBlock["type"])] });
+                          }}
+                        />
+                      </div>
+
+                      {blocks.map((block, blockIndex) => (
+                        <div key={block.id} className="space-y-2 rounded-lg border border-border/60 p-3">
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="rounded-full border border-border px-2 py-0.5">{block.type}</span>
+                            <button
+                              className="rounded border border-border px-2 py-1"
+                              disabled={blockIndex === 0}
+                              onClick={() => {
+                                if (blockIndex === 0) return;
+                                const next = [...blocks];
+                                [next[blockIndex - 1], next[blockIndex]] = [next[blockIndex], next[blockIndex - 1]];
+                                patchArray(setPosts, index, { blocks: next });
+                              }}
+                            >
+                              Move up
+                            </button>
+                            <button
+                              className="rounded border border-border px-2 py-1"
+                              disabled={blockIndex === blocks.length - 1}
+                              onClick={() => {
+                                if (blockIndex >= blocks.length - 1) return;
+                                const next = [...blocks];
+                                [next[blockIndex + 1], next[blockIndex]] = [next[blockIndex], next[blockIndex + 1]];
+                                patchArray(setPosts, index, { blocks: next });
+                              }}
+                            >
+                              Move down
+                            </button>
+                            <button className="rounded border border-border px-2 py-1" onClick={() => patchArray(setPosts, index, { blocks: blocks.filter((entry) => entry.id !== block.id) })}>Delete block</button>
+                          </div>
+
+                          {block.type === "richText" && <Area label="Text" value={block.text} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, text: value } : entry)) })} />}
+                          {block.type === "heading" && (
+                            <>
+                              <Field label="Heading" value={block.text} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, text: value } : entry)) })} />
+                              <Select label="Heading level" value={String(block.level)} options={["2", "3"]} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, level: value === "3" ? 3 : 2 } : entry)) })} />
+                            </>
+                          )}
+                          {block.type === "image" && (
+                            <>
+                              <Field label="Image URL" value={block.url} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, url: value } : entry)) })} />
+                              <Field label="Alt text" value={block.alt} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, alt: value } : entry)) })} />
+                              <Field label="Caption" value={block.caption || ""} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, caption: value } : entry)) })} />
+                            </>
+                          )}
+                          {block.type === "video" && (
+                            <>
+                              <Field label="Video URL (YouTube/Vimeo/embed)" value={block.url} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, url: value } : entry)) })} />
+                              <Field label="Caption" value={block.caption || ""} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, caption: value } : entry)) })} />
+                            </>
+                          )}
+                          {block.type === "download" && (
+                            <>
+                              <Field label="Download label" value={block.label} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, label: value } : entry)) })} />
+                              <Field label="Download URL" value={block.url} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, url: value } : entry)) })} />
+                              <Field label="Description" value={block.description || ""} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, description: value } : entry)) })} />
+                              <Select
+                                label="Link to uploaded file (optional)"
+                                value={block.fileId || ""}
+                                options={["", ...files.map((file) => file.id)]}
+                                optionLabel={(value) => {
+                                  if (!value) return "No uploaded file";
+                                  const file = files.find((entry) => entry.id === value);
+                                  return file ? `${file.title} (${file.originalName})` : value;
+                                }}
+                                onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, fileId: value || undefined } : entry)) })}
+                              />
+                            </>
+                          )}
+                          {block.type === "cta" && (
+                            <>
+                              <Area label="CTA text" value={block.text} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, text: value } : entry)) })} />
+                              <div className="grid gap-2 md:grid-cols-2">
+                                <Field label="Button label" value={block.buttonLabel} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, buttonLabel: value } : entry)) })} />
+                                <Field label="Button URL" value={block.buttonUrl} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, buttonUrl: value } : entry)) })} />
+                              </div>
+                            </>
+                          )}
+                          {block.type === "quote" && (
+                            <>
+                              <Area label="Quote" value={block.quote} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, quote: value } : entry)) })} />
+                              <Field label="Attribution" value={block.attribution || ""} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, attribution: value } : entry)) })} />
+                            </>
+                          )}
+                          {block.type === "list" && (
+                            <>
+                              <Select label="List style" value={block.style} options={["unordered", "ordered"]} onChange={(value) => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id ? { ...entry, style: value === "ordered" ? "ordered" : "unordered" } : entry)) })} />
+                              {block.items.map((listItem, listIndex) => (
+                                <Field
+                                  key={`${block.id}-${listIndex}`}
+                                  label={`Item ${listIndex + 1}`}
+                                  value={listItem}
+                                  onChange={(value) =>
+                                    patchArray(setPosts, index, {
+                                      blocks: blocks.map((entry) => {
+                                        if (entry.id !== block.id || entry.type !== "list") return entry;
+                                        return { ...entry, items: entry.items.map((existing, existingIndex) => (existingIndex === listIndex ? value : existing)) };
+                                      })
+                                    })
+                                  }
+                                />
+                              ))}
+                              <button
+                                className="w-fit rounded border border-border px-2 py-1 text-sm"
+                                onClick={() => patchArray(setPosts, index, { blocks: blocks.map((entry) => (entry.id === block.id && entry.type === "list" ? { ...entry, items: [...entry.items, ""] } : entry)) })}
+                              >
+                                Add list item
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts, index, { isPublished: e.target.checked })} /> Published</label>
+                    <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts, index)}>Delete post</button>
                   </div>
-                  <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts, index, { excerpt: value })} />
-                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPosts, index, { body: value })} />
-                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts, index, { isPublished: e.target.checked })} /> Published</label>
-                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts, index)}>Delete</button>
-                </div>
-              )}
+                );
+              }}
               onSave={async () => {
-                await fetch("/api/admin/posts", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: posts }) });
+                const payload = posts.map((post) => normalizeAdminPost(post));
+                await fetch("/api/admin/posts", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload }) });
                 setStatus("Posts saved.");
+                await loadPosts();
                 await loadOverview();
               }}
             />

@@ -5,6 +5,7 @@ const PUBLIC_PATHS = [
   "/about",
   "/product",
   "/resources",
+  "/blog",
   "/contact",
   "/privacy",
   "/terms",
@@ -17,10 +18,11 @@ export async function revalidateSiteContent() {
   }
   revalidatePath("/[slug]", "page");
   revalidatePath("/resources/posts/[slug]", "page");
+  revalidatePath("/blog/[slug]", "page");
   revalidatePath("/admin", "page");
 
   return {
     revalidatedAt: new Date().toISOString(),
-    paths: PUBLIC_PATHS.length + 3
+    paths: PUBLIC_PATHS.length + 4
   };
 }
