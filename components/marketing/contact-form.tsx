@@ -31,21 +31,21 @@ export function ContactForm() {
 
     if (res.ok) {
       setStatus("success");
-      setMessage(data.message || "Message sent. We'll follow up shortly.");
+      setMessage(data.message || (locale === "km" ? "បានផ្ញើសាររួចហើយ។ យើងនឹងឆ្លើយតបឆាប់ៗនេះ។" : "Message sent. We'll follow up shortly."));
       form.reset();
       return;
     }
 
     setStatus("error");
-    setMessage(data.message || "Unable to send. Please try again.");
+    setMessage(data.message || (locale === "km" ? "មិនអាចផ្ញើបានទេ។ សូមព្យាយាមម្តងទៀត។" : "Unable to send. Please try again."));
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input required name="name" placeholder="Name" className="h-12" />
-      <Input required name="email" type="email" placeholder="Work email" className="h-12" />
+      <Input required name="name" placeholder={dict.contactName} className="h-12" />
+      <Input required name="email" type="email" placeholder={dict.contactEmail} className="h-12" />
       <input name="company" className="hidden" tabIndex={-1} autoComplete="off" />
-      <Textarea required minLength={10} name="message" placeholder="How can we help?" className="min-h-36" />
+      <Textarea required minLength={10} name="message" placeholder={dict.contactMessage} className="min-h-36" />
       <Button className="h-12 w-full" disabled={status === "loading"} type="submit">
         {status === "loading" ? "Sending..." : "Send message"}
       </Button>

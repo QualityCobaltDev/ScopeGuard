@@ -5,6 +5,7 @@ import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({
   title: "Product",
@@ -17,9 +18,9 @@ export default async function ProductPage() {
   return (
     <div className="container py-12 sm:py-16 md:py-20">
       <SectionTitle
-        eyebrow="Product Overview"
-        title="The complete freelancer protection and revenue framework"
-        description="Every asset is designed to tighten boundaries, improve payment reliability, and elevate your client experience."
+        eyebrow={dict.productOverviewEyebrow}
+        title={dict.productOverviewTitle}
+        description={dict.productOverviewDescription}
       />
       <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
         {[

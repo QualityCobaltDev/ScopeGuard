@@ -10,6 +10,7 @@ import { checkoutLinks } from "@/lib/checkout";
 import type { SiteContent } from "@/lib/content-types";
 import type { SessionUser } from "@/lib/auth";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUser | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,8 +64,8 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
               <SessionActions user={user} />
             ) : (
               <>
-                <LinkButton href="/admin/signin" size="sm" variant="secondary">Admin Sign-in</LinkButton>
-                <LinkButton href={checkoutLinks.pro} size="sm">Get Access</LinkButton>
+                <LinkButton href="/admin/signin" size="sm" variant="secondary">{dict.adminSignin}</LinkButton>
+                <LinkButton href={checkoutLinks.pro} size="sm">{dict.getAccess}</LinkButton>
               </>
             )}
           </div>
@@ -92,8 +93,8 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
                 <SessionActions user={user} mobile onAction={closeMenu} />
               ) : (
                 <>
-                  <LinkButton href="/admin/signin" size="default" variant="secondary" className="w-full" onClick={closeMenu}>Admin Sign-in</LinkButton>
-                  <LinkButton href={checkoutLinks.pro} size="default" className="w-full" onClick={closeMenu}>Get Access</LinkButton>
+                  <LinkButton href="/admin/signin" size="default" variant="secondary" className="w-full" onClick={closeMenu}>{dict.adminSignin}</LinkButton>
+                  <LinkButton href={checkoutLinks.pro} size="default" className="w-full" onClick={closeMenu}>{dict.getAccess}</LinkButton>
                 </>
               )}
             </div>

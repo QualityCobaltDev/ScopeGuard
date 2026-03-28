@@ -4,6 +4,7 @@ import { createMetadata } from "@/lib/seo";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { readCollection } from "@/lib/content-store";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({ title: "Contact", description: "Contact ScopeGuard for product and support inquiries.", path: "/contact" });
 

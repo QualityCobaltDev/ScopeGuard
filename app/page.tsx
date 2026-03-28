@@ -10,6 +10,7 @@ import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 import { readPageSections, readPages } from "@/lib/cms-store";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -55,9 +56,9 @@ export default async function HomePage() {
 
         <section className="container py-10 sm:py-12 md:py-14">
           <SectionTitle
-            eyebrow="Pain points"
-            title="Freelancers lose margin in the same 3 places"
-            description="Weak agreements, uncontrolled scope, and fragmented communication quietly erode profit."
+            eyebrow={dict.painPointsEyebrow}
+            title={dict.painPointsTitle}
+            description={dict.painPointsDescription}
           />
           <div className="grid gap-4 md:grid-cols-3">
             {site.painPoints.map((point, index) => {
@@ -75,9 +76,9 @@ export default async function HomePage() {
 
         <section className="container py-10 sm:py-12 md:py-20">
           <SectionTitle
-            eyebrow="Solution"
-            title="A complete freelancer operating system"
-            description="ScopeGuard combines legal protection with execution assets so your process feels authoritative from day one."
+            eyebrow={dict.solutionEyebrow}
+            title={dict.solutionTitle}
+            description={dict.solutionDescription}
           />
           <div className="grid gap-4 md:grid-cols-3">
             {products.highlights.map((item) => (
@@ -93,7 +94,7 @@ export default async function HomePage() {
         <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
 
         <section className="container py-10 sm:py-12 md:py-20">
-          <SectionTitle eyebrow="Testimonials" title="Proof from freelancers using ScopeGuard" />
+          <SectionTitle eyebrow={dict.testimonialsEyebrow} title={dict.testimonialsTitle} />
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
               <Card key={item.id} className="p-5 sm:p-6">
@@ -106,7 +107,7 @@ export default async function HomePage() {
         </section>
 
         <section className="container py-10 sm:py-12 md:py-20">
-          <SectionTitle eyebrow="FAQ" title="Questions before you commit" />
+          <SectionTitle eyebrow={dict.faqEyebrow} title={dict.faqTitle} />
           <div className="mx-auto max-w-3xl">
             <Accordion
               items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({

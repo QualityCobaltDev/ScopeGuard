@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { SiteContent } from "@/lib/content-types";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export function SiteFooter({ site }: { site: SiteContent }) {
   return (
@@ -13,7 +14,7 @@ export function SiteFooter({ site }: { site: SiteContent }) {
           <p className="mt-3 max-w-md text-sm leading-7 text-muted">{localizeText(site.footer.description)}</p>
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Company</p>
+          <p className="text-sm font-medium text-foreground">{dict.navCompany}</p>
           <ul className="mt-3 space-y-1.5 text-sm text-muted sm:mt-4">
             {site.footer.companyLinks.map((item) => (
               <li key={item.href}>
@@ -23,7 +24,7 @@ export function SiteFooter({ site }: { site: SiteContent }) {
           </ul>
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Legal</p>
+          <p className="text-sm font-medium text-foreground">{dict.navLegal}</p>
           <ul className="mt-3 space-y-1.5 text-sm text-muted sm:mt-4">
             {site.footer.legalLinks.map((item) => (
               <li key={item.href}>

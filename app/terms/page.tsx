@@ -1,6 +1,7 @@
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({ title: "Terms", description: "ScopeGuard terms and conditions.", path: "/terms" });
 

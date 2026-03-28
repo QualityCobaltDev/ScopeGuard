@@ -60,6 +60,7 @@ export function ResourcesLibrary({ resources }: { resources: ResourceItem[] }) {
           </Card>
         ))}
       </div>
+      {!filtered.length ? <p className="mt-4 text-sm text-muted">{dict.noResources}</p> : null}
     </div>
   );
 }
