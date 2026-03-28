@@ -17,15 +17,22 @@ function getIpAddress(request: Request) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
 }
 
+function asPublicText(value: unknown, fallback: string) {
+  return typeof value === "string" ? value : fallback;
+}
 
 export async function GET() {
   const settings = await getLeadMagnetSettings();
+  const publicPayload = {
+    isActive: Boolean(settings.isActive),
+    publicTitle: asPublicText(localizeText(settings.publicTitle, undefined, ""), "Get the Freelancer Protection Checklist"),
+    publicDescription: asPublicText(localizeText(settings.publicDescription, undefined, ""), "A concise pre-client checklist to avoid weak terms, vague scope, and payment friction."),
+    buttonLabel: asPublicText(localizeText(settings.buttonLabel, undefined, ""), "Send me the checklist"),
+    successMessage: asPublicText(localizeText(settings.successMessage, undefined, ""), "You're in — check your inbox for your resources.")
+  };
+
   return NextResponse.json({
-    isActive: settings.isActive,
-    publicTitle: settings.publicTitle,
-    publicDescription: settings.publicDescription,
-    buttonLabel: settings.buttonLabel,
-    successMessage: settings.successMessage
+    ...publicPayload
   });
 }
 
