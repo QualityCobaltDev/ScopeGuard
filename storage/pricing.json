@@ -1,53 +1,131 @@
 [
   {
     "id": "starter",
-    "name": "Starter",
-    "label": "Freelancer Protection System",
+    "name": {
+      "en": "Starter",
+      "km": "ចាប់ផ្តើម"
+    },
+    "label": {
+      "en": "Freelancer Protection System",
+      "km": "Freelancer Protection System"
+    },
     "price": "$49",
-    "description": "Entry-level protection to prevent bad-fit clients, scope drift, and payment surprises before work begins.",
+    "description": {
+      "en": "Entry-level protection to prevent bad-fit clients, scope drift, and payment surprises before work begins.",
+      "km": "Entry-level protection to prevent bad-fit clients, scope drift, and payment surprises before work begins."
+    },
     "includes": [
-      "Service Agreement Templates",
-      "Payment Protection Terms",
-      "NDA Template",
-      "Client Onboarding Form",
-      "Quick Start Guide"
+      {
+        "en": "Service Agreement Templates",
+        "km": "Service Agreement Templates"
+      },
+      {
+        "en": "Payment Protection Terms",
+        "km": "Payment Protection Terms"
+      },
+      {
+        "en": "NDA Template",
+        "km": "NDA Template"
+      },
+      {
+        "en": "Client Onboarding Form",
+        "km": "Client Onboarding Form"
+      },
+      {
+        "en": "Quick Start Guide",
+        "km": "Quick Start Guide"
+      }
     ],
-    "cta": "Buy Now / Get Instant Access",
+    "cta": {
+      "en": "Buy Now / Get Instant Access",
+      "km": "ទិញឥឡូវនេះ / ចូលប្រើភ្លាមៗ"
+    },
     "featured": false,
     "audience": "Best for freelancers who need fast legal and scope protection.",
     "benefit": "Implement in under an hour and protect every project from day one."
   },
   {
     "id": "pro",
-    "name": "Pro",
-    "label": "Freelancer Business Toolkit",
+    "name": {
+      "en": "Pro",
+      "km": "វិជ្ជាជីវៈ"
+    },
+    "label": {
+      "en": "Freelancer Business Toolkit",
+      "km": "Freelancer Business Toolkit"
+    },
     "price": "$99",
-    "description": "Everything in Starter plus operational assets that improve workflow, professionalism, and pricing clarity.",
+    "description": {
+      "en": "Everything in Starter plus operational assets that improve workflow, professionalism, and pricing clarity.",
+      "km": "Everything in Starter plus operational assets that improve workflow, professionalism, and pricing clarity."
+    },
     "includes": [
-      "Everything in Starter",
-      "Invoice Templates",
-      "Proposal Templates",
-      "Pricing Calculator"
+      {
+        "en": "Everything in Starter",
+        "km": "Everything in Starter"
+      },
+      {
+        "en": "Invoice Templates",
+        "km": "Invoice Templates"
+      },
+      {
+        "en": "Proposal Templates",
+        "km": "Proposal Templates"
+      },
+      {
+        "en": "Pricing Calculator",
+        "km": "Pricing Calculator"
+      }
     ],
-    "cta": "Buy Now / Get Instant Access",
+    "cta": {
+      "en": "Buy Now / Get Instant Access",
+      "km": "ទិញឥឡូវនេះ / ចូលប្រើភ្លាមៗ"
+    },
     "featured": false,
     "audience": "Best for freelancers scaling delivery and closing with higher confidence.",
     "benefit": "Run a cleaner client process and get paid faster with stronger systems."
   },
   {
     "id": "premium",
-    "name": "Premium",
-    "label": "Freelancer Revenue System",
+    "name": {
+      "en": "Premium",
+      "km": "ពិសេស"
+    },
+    "label": {
+      "en": "Freelancer Revenue System",
+      "km": "Freelancer Revenue System"
+    },
     "price": "$149",
-    "description": "Everything in Pro plus growth assets designed to increase deal value, negotiation control, and closing power.",
+    "description": {
+      "en": "Everything in Pro plus growth assets designed to increase deal value, negotiation control, and closing power.",
+      "km": "Everything in Pro plus growth assets designed to increase deal value, negotiation control, and closing power."
+    },
     "includes": [
-      "Everything in Pro",
-      "Client Acquisition Scripts",
-      "Negotiation Templates",
-      "Upsell Frameworks",
-      "Communication Scripts"
+      {
+        "en": "Everything in Pro",
+        "km": "Everything in Pro"
+      },
+      {
+        "en": "Client Acquisition Scripts",
+        "km": "Client Acquisition Scripts"
+      },
+      {
+        "en": "Negotiation Templates",
+        "km": "Negotiation Templates"
+      },
+      {
+        "en": "Upsell Frameworks",
+        "km": "Upsell Frameworks"
+      },
+      {
+        "en": "Communication Scripts",
+        "km": "Communication Scripts"
+      }
     ],
-    "cta": "Buy Now / Get Instant Access",
+    "cta": {
+      "en": "Buy Now / Get Instant Access",
+      "km": "ទិញឥឡូវនេះ / ចូលប្រើភ្លាមៗ"
+    },
     "featured": true,
     "audience": "Best for high-intent freelancers optimizing revenue and expansion.",
     "benefit": "Position as a premium operator and increase average project value."

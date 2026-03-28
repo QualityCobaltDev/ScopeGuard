@@ -40,16 +40,17 @@ export function LinkButton({
   children,
   className,
   variant,
-  size
+  size,
+  ...props
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
   variant?: VariantProps<typeof buttonVariants>["variant"];
   size?: VariantProps<typeof buttonVariants>["size"];
-}) {
+} & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "className">) {
   return (
-    <Link href={href} className={cn(buttonVariants({ variant, size, className }))}>
+    <Link href={href} className={cn(buttonVariants({ variant, size, className }))} {...props}>
       {children}
     </Link>
   );
