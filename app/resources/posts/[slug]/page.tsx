@@ -11,13 +11,13 @@ export default async function ResourcePostPage({ params }: { params: Promise<{ s
   const post = posts.find((item) => (item.slug === slug || item.id === slug) && item.isPublished);
   if (!post) notFound();
 
-  const linkedResources = resources.filter((resource) => (resource as any).linkedPostId === post.id && resource.status === "published");
+  const linkedResources = resources.filter((resource) => (resource).linkedPostId === post.id && resource.status === "published");
 
   return (
     <div className="container py-12 sm:py-16 md:py-20">
-      <SectionTitle eyebrow="Resource Post" title={localizeText(post.title as any, undefined, post.title)} description={localizeText(post.excerpt as any, undefined, post.excerpt)} />
+      <SectionTitle eyebrow="Resource Post" title={localizeText(post.title, undefined, post.title)} description={localizeText(post.excerpt, undefined, post.excerpt)} />
       <Card className="p-5 sm:p-8">
-        <p className="text-sm leading-7 text-muted">{localizeText(post.body as any, undefined, post.body)}</p>
+        <p className="text-sm leading-7 text-muted">{localizeText(post.body, undefined, post.body)}</p>
       </Card>
       <div className="mt-6 grid gap-4 sm:mt-8 md:grid-cols-2">
         {linkedResources.map((resource) => (

@@ -28,16 +28,16 @@ export default async function ManagedPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="container py-12 sm:py-16 md:py-20">
-      <h1 className="text-balance text-2xl font-semibold sm:text-3xl">{localizeText(page.title as any, undefined, page.title)}</h1>
+      <h1 className="text-balance text-2xl font-semibold sm:text-3xl">{localizeText(page.title, undefined, page.title)}</h1>
       <p className="mt-2 text-sm text-muted">/{page.slug}</p>
       <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {pageSections.map((section) => (
           <Card key={section.id} className="p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
-            <h2 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title as any, undefined, section.title)}</h2>
-            {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle as any, undefined, section.subtitle)}</p> : null}
-            {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body as any, undefined, section.body)}</p> : null}
-            {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm underline" href={section.ctaUrl}>{localizeText(section.ctaText as any, undefined, section.ctaText)}</a> : null}
+            <h2 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title, undefined, section.title)}</h2>
+            {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle, undefined, section.subtitle)}</p> : null}
+            {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body, undefined, section.body)}</p> : null}
+            {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm underline" href={section.ctaUrl}>{localizeText(section.ctaText, undefined, section.ctaText)}</a> : null}
           </Card>
         ))}
       </div>

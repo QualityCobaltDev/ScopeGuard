@@ -53,13 +53,13 @@ export async function POST(request: Request) {
   });
 
   if (duplicate && !settings.resendOnDuplicate) {
-    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage as any, undefined, settings.successMessage), duplicate: true });
+    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage, undefined, settings.successMessage), duplicate: true });
   }
 
   try {
     await sendLeadMagnetEmail(email, subscriber.id);
     await trackEvent("lead_opt_in", settings.slug || settings.id);
-    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage as any, undefined, settings.successMessage), duplicate });
+    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage, undefined, settings.successMessage), duplicate });
   } catch (error) {
     await markSubscriberFailure(subscriber.id, error instanceof Error ? error.message : "Email delivery failed");
     return NextResponse.json({ ok: false, error: "We captured your request, but email delivery failed. Please try again shortly." }, { status: 500 });

@@ -64,10 +64,11 @@ export function t(): (typeof uiDictionary)["en"] {
 
 export function formatCurrency(
   value: number,
-  _locale: Locale = "en",
+  locale: Locale = "en",
   currency: string = "USD",
   options?: Intl.NumberFormatOptions
 ) {
+  void locale;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,

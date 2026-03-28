@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
-import { readPageSections, readPages, writePageSections } from "@/lib/cms-store";
+import { PageSectionBlock, readPageSections, readPages, writePageSections } from "@/lib/cms-store";
 import { revalidateSiteContent } from "@/lib/site-sync";
 
 export async function GET() {
@@ -21,8 +21,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { payload?: any[] };
-  const payload = (body.payload || []).map((item) => ({
+  const body = (await request.json().catch(() => ({}))) as { payload?: PageSectionBlock[] };
+  const payload = (body.payload || []).map((item): PageSectionBlock => ({
     ...item,
     id: item.id || `section-${randomUUID()}`,
     pageId: item.pageId,
