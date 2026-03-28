@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
 import { readPosts, writePosts } from "@/lib/cms-store";
+import { revalidateSiteContent } from "@/lib/site-sync";
 
 export async function GET() {
   try {
@@ -27,5 +28,6 @@ export async function PUT(request: Request) {
     createdAt: item.createdAt || new Date().toISOString()
   }));
   await writePosts(payload);
+  await revalidateSiteContent();
   return NextResponse.json({ ok: true });
 }

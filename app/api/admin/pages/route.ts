@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
 import { deletePageById, readPages, syncNavigationFromPages, writePages } from "@/lib/cms-store";
+import { revalidateSiteContent } from "@/lib/site-sync";
 
 export async function GET() {
   try {
@@ -30,6 +31,7 @@ export async function PUT(request: Request) {
   }));
   await writePages(payload);
   await syncNavigationFromPages();
+  await revalidateSiteContent();
   return NextResponse.json({ ok: true });
 }
 
@@ -46,6 +48,7 @@ export async function DELETE(request: Request) {
   try {
     await deletePageById(body.pageId);
     await syncNavigationFromPages();
+    await revalidateSiteContent();
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json({ message: error instanceof Error ? error.message : "Delete failed" }, { status: 400 });
