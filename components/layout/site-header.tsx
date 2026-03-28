@@ -2,13 +2,14 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
 import { SessionActions } from "@/components/layout/session-actions";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { checkoutLinks } from "@/lib/checkout";
 import type { SiteContent } from "@/lib/content-types";
 import type { SessionUser } from "@/lib/auth";
 
 export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUser | null }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight text-foreground">
           <ShieldCheck className="h-5 w-5 text-brand-soft" />
@@ -19,14 +20,17 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
             <Link key={item.href} href={item.href} className="text-sm text-muted transition hover:text-foreground">{item.label}</Link>
           ))}
         </nav>
-        {user ? (
-          <SessionActions user={user} />
-        ) : (
-          <div className="flex items-center gap-2">
-            <LinkButton href="/admin/signin" size="sm" variant="secondary">Admin Sign-in</LinkButton>
-            <LinkButton href={checkoutLinks.pro} size="sm">Get Access</LinkButton>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {user ? (
+            <SessionActions user={user} />
+          ) : (
+            <>
+              <LinkButton href="/admin/signin" size="sm" variant="secondary">Admin Sign-in</LinkButton>
+              <LinkButton href={checkoutLinks.pro} size="sm">Get Access</LinkButton>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

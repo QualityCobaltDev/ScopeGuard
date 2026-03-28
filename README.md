@@ -226,3 +226,14 @@ sudo certbot --nginx -d elevareai.store
 ### Navigation synchronization
 - Managed pages marked `showInNavigation` are synced into site navigation on page save.
 - Navigation keeps existing static links and merges in visible/published managed pages.
+
+
+## Theme system
+- Global light/dark theme support is provided by `ThemeProvider`.
+- Theme preference follows system default on first visit and persists in localStorage.
+- Theme toggle is available in the header and applies to public + admin surfaces.
+
+## Analytics
+- Lightweight analytics events are persisted in `storage/analytics.json`.
+- Tracked events currently include lead opt-ins and resource downloads.
+- Admin **Analytics** section displays last-30-day summary cards and recent events.

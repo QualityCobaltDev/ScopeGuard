@@ -16,6 +16,7 @@ type Section =
   | "Lead Magnet"
   | "Subscribers"
   | "Pages"
+  | "Analytics"
   | "Posts"
   | "Page Sections"
   | "Documents / Files"
@@ -36,6 +37,7 @@ const sectionOrder: Section[] = [
   "Lead Magnet",
   "Subscribers",
   "Pages",
+  "Analytics",
   "Posts",
   "Page Sections",
   "Documents / Files",
@@ -87,6 +89,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [pageSections, setPageSections] = useState<any[]>([]);
   const [managedPages, setManagedPages] = useState<any[]>([]);
   const [selectedPageId, setSelectedPageId] = useState("");
+  const [analytics, setAnalytics] = useState<any>(null);
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
@@ -139,6 +142,12 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     if (res.ok) setPosts(await res.json());
   }
 
+
+  async function loadAnalytics() {
+    const res = await fetch("/api/admin/analytics");
+    if (res.ok) setAnalytics(await res.json());
+  }
+
   async function loadManagedPages() {
     const res = await fetch("/api/admin/pages");
     if (res.ok) {
@@ -170,6 +179,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       loadOverview(),
       loadPosts(),
       loadManagedPages(),
+      loadAnalytics(),
       loadPageSections()
     ]);
   }
@@ -492,6 +502,24 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                   await loadManagedPages();
                   await loadOverview();
                 }}>Save pages</button>
+              </div>
+            </div>
+          )}
+
+          {section === "Analytics" && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Analytics (last 30 days)</h2>
+              <div className="grid gap-4 md:grid-cols-4">
+                <Kpi label="Page views" value={String(analytics?.pageViews || 0)} />
+                <Kpi label="Lead opt-ins" value={String(analytics?.leadOptIns || 0)} />
+                <Kpi label="Resource downloads" value={String(analytics?.resourceDownloads || 0)} />
+                <Kpi label="CTA clicks" value={String(analytics?.ctaClicks || 0)} />
+              </div>
+              <div className="rounded-xl border border-border p-4">
+                <p className="mb-2 text-sm font-medium">Recent events</p>
+                <div className="space-y-1 text-xs text-muted">
+                  {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
+                </div>
               </div>
             </div>
           )}

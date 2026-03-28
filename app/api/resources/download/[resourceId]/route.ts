@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/content-store";
 import { readFiles } from "@/lib/file-store";
 import { getCurrentUser } from "@/lib/user-store";
+import { trackEvent } from "@/lib/analytics-store";
 
 export async function GET(_: Request, { params }: { params: Promise<{ resourceId: string }> }) {
   const { resourceId } = await params;
@@ -24,5 +25,6 @@ export async function GET(_: Request, { params }: { params: Promise<{ resourceId
   const href = resource.externalUrl || file?.publicUrl;
   if (!href) return NextResponse.json({ message: "Resource file is missing." }, { status: 400 });
 
+  await trackEvent("resource_download", resource.id);
   return NextResponse.redirect(new URL(href, process.env.SITE_URL || "http://localhost:3000"));
 }

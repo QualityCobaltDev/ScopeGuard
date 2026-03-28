@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getLeadMagnetSettings, markSubscriberFailure, sendLeadMagnetEmail, upsertSubscriber } from "@/lib/lead-magnet-store";
+import { trackEvent } from "@/lib/analytics-store";
 
 const blockedDomains = new Set(["mailinator.com", "tempmail.com", "10minutemail.com"]);
 
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
 
   try {
     await sendLeadMagnetEmail(email, subscriber.id);
+    await trackEvent("lead_opt_in", settings.slug || settings.id);
     return NextResponse.json({ ok: true, message: settings.successMessage, duplicate });
   } catch (error) {
     await markSubscriberFailure(subscriber.id, error instanceof Error ? error.message : "Email delivery failed");
