@@ -15,6 +15,7 @@ type Section =
   | "Resources"
   | "Lead Magnet"
   | "Subscribers"
+  | "Pages"
   | "Posts"
   | "Page Sections"
   | "Documents / Files"
@@ -34,6 +35,7 @@ const sectionOrder: Section[] = [
   "Resources",
   "Lead Magnet",
   "Subscribers",
+  "Pages",
   "Posts",
   "Page Sections",
   "Documents / Files",
@@ -83,6 +85,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [overview, setOverview] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [pageSections, setPageSections] = useState<any[]>([]);
+  const [managedPages, setManagedPages] = useState<any[]>([]);
+  const [selectedPageId, setSelectedPageId] = useState("");
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
@@ -135,9 +139,20 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     if (res.ok) setPosts(await res.json());
   }
 
+  async function loadManagedPages() {
+    const res = await fetch("/api/admin/pages");
+    if (res.ok) {
+      const data = await res.json();
+      setManagedPages(data);
+      if (!selectedPageId && data.length) setSelectedPageId(data[0].id);
+    }
+  }
+
   async function loadPageSections() {
     const res = await fetch("/api/admin/page-sections");
-    if (res.ok) setPageSections(await res.json());
+    if (!res.ok) return;
+    const data = await res.json();
+    setPageSections(data.sections || []);
   }
 
   async function refreshAll() {
@@ -154,6 +169,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       loadLeadSubscribers(),
       loadOverview(),
       loadPosts(),
+      loadManagedPages(),
       loadPageSections()
     ]);
   }
@@ -249,6 +265,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                 <Kpi label="Lead Magnet" value={overview?.leadMagnetActive ? "Active" : "Paused"} />
                 <Kpi label="Visible sections" value={`${overview?.sectionsVisible ?? 0}/${overview?.sectionsTotal ?? 0}`} />
                 <Kpi label="Published resources" value={String(overview?.resourcesPublished ?? 0)} />
+                <Kpi label="Pages" value={String(overview?.pagesTotal ?? 0)} />
+                <Kpi label="Published pages" value={String(overview?.pagesPublished ?? 0)} />
               </div>
             </div>
           )}
@@ -435,6 +453,49 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
             />
           )}
 
+          {section === "Pages" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Pages</h2>
+                <button className="rounded border border-border px-3 py-2 text-sm" onClick={() => setManagedPages([...managedPages, { id: `page-${Date.now()}`, title: "", internalName: "", slug: "", pageKey: `page-${managedPages.length + 1}`, pageType: "standard", seoTitle: "", seoDescription: "", isPublished: false, isVisible: true, showInNavigation: false, isSystemPage: false, sortOrder: managedPages.length + 1 }])}>Add page</button>
+              </div>
+              {managedPages.map((page, index) => (
+                <div key={page.id} className="grid gap-2 rounded-xl border border-border p-4">
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Field label="Page title" value={page.title || ""} onChange={(value) => patchArray(setManagedPages as any, index, { title: value } as any)} />
+                    <Field label="Slug" value={page.slug || ""} onChange={(value) => patchArray(setManagedPages as any, index, { slug: value.replace(/^\//, "") } as any)} />
+                    <Field label="Page key" value={page.pageKey || ""} onChange={(value) => patchArray(setManagedPages as any, index, { pageKey: value } as any)} />
+                    <Select label="Page type" value={page.pageType || "standard"} options={["standard", "landing", "resource", "legal", "post"]} onChange={(value) => patchArray(setManagedPages as any, index, { pageType: value } as any)} />
+                    <Field label="SEO title" value={page.seoTitle || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoTitle: value } as any)} />
+                    <Field label="SEO description" value={page.seoDescription || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoDescription: value } as any)} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    <label><input type="checkbox" checked={Boolean(page.isPublished)} onChange={(e) => patchArray(setManagedPages as any, index, { isPublished: e.target.checked } as any)} /> Published</label>
+                    <label><input type="checkbox" checked={Boolean(page.isVisible)} onChange={(e) => patchArray(setManagedPages as any, index, { isVisible: e.target.checked } as any)} /> Visible</label>
+                    <label><input type="checkbox" checked={Boolean(page.showInNavigation)} onChange={(e) => patchArray(setManagedPages as any, index, { showInNavigation: e.target.checked } as any)} /> Show in navigation</label>
+                    <button className="rounded border border-border px-2 py-1" onClick={async () => {
+                      if (page.isSystemPage) return alert("System pages cannot be deleted.");
+                      if (!window.confirm("Delete this page and all its sections?")) return;
+                      await fetch("/api/admin/pages", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pageId: page.id }) });
+                      await loadManagedPages();
+                      await loadPageSections();
+                      await loadOverview();
+                    }}>Delete</button>
+                    <a className="underline" href={`/${page.slug}`} target="_blank">View live</a>
+                  </div>
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={async () => {
+                  await fetch("/api/admin/pages", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: managedPages }) });
+                  setStatus("Pages saved.");
+                  await loadManagedPages();
+                  await loadOverview();
+                }}>Save pages</button>
+              </div>
+            </div>
+          )}
+
           {section === "Posts" && (
             <ArrayEditor
               title="Content posts"
@@ -463,12 +524,12 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           {section === "Page Sections" && (
             <ArrayEditor
               title="Page sections"
-              items={pageSections}
-              onAdd={() => setPageSections([...pageSections, { id: `section-${Date.now()}`, pageKey: "home", sectionType: "Custom", title: "", subtitle: "", body: "", ctaText: "", ctaUrl: "", order: pageSections.length + 1, visible: true }])}
+              items={pageSections.filter((section) => !selectedPageId || section.pageId === selectedPageId)}
+              onAdd={() => setPageSections([...pageSections, { id: `section-${Date.now()}`, pageId: selectedPageId || managedPages[0]?.id || "", pageKey: managedPages.find((p) => p.id === selectedPageId)?.pageKey || "", sectionType: "Custom", title: "", subtitle: "", body: "", ctaText: "", ctaUrl: "", order: pageSections.length + 1, visible: true }])}
               render={(item, index) => (
                 <div className="grid gap-2 rounded-xl border border-border p-4">
                   <div className="grid gap-2 md:grid-cols-3">
-                    <Field label="Page key" value={item.pageKey || "home"} onChange={(value) => patchArray(setPageSections as any, index, { pageKey: value } as any)} />
+                    <Select label="Page" value={item.pageId || selectedPageId} options={managedPages.map((page) => page.id)} optionLabel={(value) => managedPages.find((page) => page.id === value)?.title || value} onChange={(value) => patchArray(setPageSections as any, index, { pageId: value, pageKey: managedPages.find((p) => p.id === value)?.pageKey || "" } as any)} />
                     <Field label="Section type" value={item.sectionType || "Custom"} onChange={(value) => patchArray(setPageSections as any, index, { sectionType: value } as any)} />
                     <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections as any, index, { order: Number(value) || 0 } as any)} />
                   </div>
@@ -486,6 +547,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
               onSave={async () => {
                 await fetch("/api/admin/page-sections", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: pageSections }) });
                 setStatus("Page sections saved.");
+                await loadPageSections();
                 await loadOverview();
               }}
             />

@@ -10,6 +10,7 @@
     "ctaUrl": "/resources",
     "order": 1,
     "visible": true,
-    "updatedAt": "2026-03-28T00:00:00.000Z"
+    "updatedAt": "2026-03-28T00:00:00.000Z",
+    "pageId": "page-home"
   }
 ]

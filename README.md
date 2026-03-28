@@ -209,3 +209,20 @@ sudo certbot --nginx -d elevareai.store
 - Posts: `storage/posts.json`.
 - Page sections: `storage/page-sections.json`.
 - Lead magnet settings/subscribers and SMTP settings remain in dedicated storage files.
+
+
+## Page management system
+- Managed pages are stored in `storage/pages.json`.
+- Page sections are stored in `storage/page-sections.json` and linked by `pageId`.
+- Admin can create/edit/publish/hide/delete pages in **Pages** section.
+- Core system pages are protected via `isSystemPage` and cannot be deleted.
+- Admin can manage sections per selected page in **Page Sections**.
+
+### Dynamic page rendering
+- New admin-created pages are rendered by `app/[slug]/page.tsx`.
+- Rendering respects page publish/visibility state and section order/visibility.
+- SEO metadata uses managed page metadata fields.
+
+### Navigation synchronization
+- Managed pages marked `showInNavigation` are synced into site navigation on page save.
+- Navigation keeps existing static links and merges in visible/published managed pages.

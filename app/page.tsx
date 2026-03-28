@@ -8,7 +8,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
-import { readPageSections } from "@/lib/cms-store";
+import { readPageSections, readPages } from "@/lib/cms-store";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -18,13 +18,14 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
-  const [site, faq, testimonials, products, pricing, pageSections] = await Promise.all([
+  const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
     readCollection("testimonials"),
     readCollection("products"),
     readCollection("pricing"),
     readPageSections(),
+    readPages(),
   ]);
 
   return (
@@ -145,7 +146,7 @@ export default async function HomePage() {
         </section>
 
         {pageSections
-          .filter((section) => section.pageKey === "home" && section.visible)
+          .filter((section) => { const home = pages.find((p) => p.pageKey === "home"); return (section.pageId === home?.id || section.pageKey === "home") && section.visible; })
           .sort((a, b) => (a.order || 0) - (b.order || 0))
           .map((section) => (
             <section key={section.id} className="container py-10">
