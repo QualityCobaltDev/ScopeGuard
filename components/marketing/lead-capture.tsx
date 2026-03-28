@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { localizeText } from "@/lib/localized";
+import { Reveal } from "@/components/ui/reveal";
 
 const defaults = {
   isActive: true,
@@ -75,20 +76,22 @@ export function LeadCapture() {
 
   return (
     <section className="container pb-16 sm:pb-20 md:pb-24">
-      <Card className="grid gap-6 p-5 sm:p-6 md:grid-cols-[1.2fr_1fr] md:items-center md:p-8">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Lead Magnet</p>
-          <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{localizeText(config.publicTitle)}</h3>
-          <p className="mt-2 text-sm leading-7 text-muted">{localizeText(config.publicDescription)}</p>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-3">
-          <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="your@email.com" aria-label="Email" className="h-12" />
-          <Button className="h-12 w-full" disabled={status === "loading" || !config.isActive} type="submit">
-            {status === "loading" ? "Sending..." : localizeText(config.buttonLabel)}
-          </Button>
-          <p className={`text-xs leading-6 ${status === "error" ? "text-red-400" : "text-muted"}`}>{message}</p>
-        </form>
-      </Card>
+      <Reveal>
+        <Card className="grid gap-7 p-6 sm:p-7 md:grid-cols-[1.2fr_1fr] md:items-center md:p-9">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Lead Magnet</p>
+            <h3 className="mt-2 text-balance text-2xl font-semibold text-foreground sm:text-3xl">{localizeText(config.publicTitle)}</h3>
+            <p className="mt-3 text-sm leading-7 text-muted">{localizeText(config.publicDescription)}</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-3">
+            <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="your@email.com" aria-label="Email" className="h-12" />
+            <Button className="h-12 w-full" disabled={status === "loading" || !config.isActive} type="submit">
+              {status === "loading" ? "Sending..." : localizeText(config.buttonLabel)}
+            </Button>
+            <p className={`text-xs leading-6 ${status === "error" ? "text-red-400" : "text-muted"}`}>{message}</p>
+          </form>
+        </Card>
+      </Reveal>
     </section>
   );
 }

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import type { ResourceItem } from "@/lib/content-types";
 import { localizeText } from "@/lib/localized";
 import { t } from "@/lib/i18n";
+import { Reveal } from "@/components/ui/reveal";
 
 export function ResourcesLibrary({ resources }: { resources: ResourceItem[] }) {
   const dict = t();
@@ -30,36 +31,38 @@ export function ResourcesLibrary({ resources }: { resources: ResourceItem[] }) {
 
   return (
     <div>
-      <div className="mb-5 grid gap-3 rounded-xl border border-border bg-card p-4 md:grid-cols-[1fr_220px]">
+      <Reveal className="mb-6 grid gap-3 rounded-2xl border border-border bg-card/85 p-4 shadow-[0_12px_28px_rgba(13,34,72,0.08)] md:grid-cols-[1fr_220px]">
         <label className="grid gap-1 text-sm">
           <span className="text-muted">Search resources</span>
-          <input className="h-11 rounded-lg border border-border bg-background px-3" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by title or summary" />
+          <input className="h-11 rounded-xl border border-border bg-background px-3.5" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by title or summary" />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-muted">Category</span>
-          <select className="h-11 rounded-lg border border-border bg-background px-3" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <select className="h-11 rounded-xl border border-border bg-background px-3.5" value={category} onChange={(e) => setCategory(e.target.value)}>
             {categories.map((entry) => (
               <option key={entry} value={entry}>{entry === "all" ? "all" : entry}</option>
             ))}
           </select>
         </label>
-      </div>
+      </Reveal>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        {filtered.map((item) => (
-          <Card key={item.id} className="p-5 sm:p-6">
-            <BookOpenText className="h-5 w-5 text-brand-soft" />
-            <p className="mt-4 text-xs uppercase tracking-[0.14em] text-brand-soft">{item.label}</p>
-            <h3 className="mt-2 text-base font-semibold sm:text-lg">{localizeText(item.title)}</h3>
-            <p className="mt-2 text-sm leading-7 text-muted">{localizeText(item.summary)}</p>
-            <p className="mt-2 text-xs text-muted">Category: {localizeText(item.category)}</p>
-            <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-              {item.accessType === "account_required" ? <><Lock className="h-3 w-3" /> Account required</> : "Public download"}
-            </p>
-            <a href={`/api/resources/download/${item.id}`} className="mt-5 inline-flex min-h-10 items-center gap-1 text-sm text-foreground">
-              {localizeText(item.ctaLabel) || "Open resource"} <ArrowUpRight className="h-4 w-4" />
-            </a>
-          </Card>
+        {filtered.map((item, idx) => (
+          <Reveal key={item.id} delay={idx * 0.05}>
+            <Card className="h-full p-5 sm:p-6">
+              <BookOpenText className="h-5 w-5 text-brand-soft" />
+              <p className="mt-4 text-xs uppercase tracking-[0.14em] text-brand-soft">{item.label}</p>
+              <h3 className="mt-2 text-base font-semibold sm:text-lg">{localizeText(item.title)}</h3>
+              <p className="mt-2 text-sm leading-7 text-muted">{localizeText(item.summary)}</p>
+              <p className="mt-2 text-xs text-muted">Category: {localizeText(item.category)}</p>
+              <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
+                {item.accessType === "account_required" ? <><Lock className="h-3 w-3" /> Account required</> : "Public download"}
+              </p>
+              <a href={`/api/resources/download/${item.id}`} className="mt-5 inline-flex min-h-10 items-center gap-1 text-sm font-medium text-foreground transition hover:text-brand-soft">
+                {localizeText(item.ctaLabel) || "Open resource"} <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </Card>
+          </Reveal>
         ))}
       </div>
       {!filtered.length ? <p className="mt-4 text-sm text-muted">{dict.noResources}</p> : null}

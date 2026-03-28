@@ -6,6 +6,7 @@ import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 import { localizeText } from "@/lib/localized";
 import { isPageLive, readManagedPageContent } from "@/lib/managed-page-rendering";
+import { Reveal } from "@/components/ui/reveal";
 
 const defaultAboutMetadata = {
   title: "About",
@@ -28,14 +29,16 @@ export default async function AboutPage() {
 
   return (
     <>
-      <div className="container py-12 sm:py-16 md:py-20">
+      <div className="container py-14 sm:py-18 md:py-24">
         <SectionTitle eyebrow={localizeText(site.about.eyebrow)} title={localizeText(site.about.title)} description={localizeText(site.about.description)} />
         <div className="mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-2">
-          {site.about.sections.map((section) => (
-            <Card key={section.id} className="p-5 sm:p-7">
-              <h2 className="text-xl font-semibold">{localizeText(section.title)}</h2>
-              <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body)}</p>
-            </Card>
+          {site.about.sections.map((section, idx) => (
+            <Reveal key={section.id} delay={idx * 0.06}>
+              <Card className="h-full p-6 sm:p-7">
+                <h2 className="text-2xl font-semibold">{localizeText(section.title)}</h2>
+                <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body)}</p>
+              </Card>
+            </Reveal>
           ))}
         </div>
       </div>
