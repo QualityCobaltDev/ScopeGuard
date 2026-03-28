@@ -1,0 +1,36 @@
+[
+  {
+    "id": "page-home",
+    "title": "Home",
+    "internalName": "Homepage",
+    "slug": "",
+    "pageKey": "home",
+    "pageType": "landing",
+    "seoTitle": "ScopeGuard - Freelancer Protection Systems",
+    "seoDescription": "Protect every client engagement with ScopeGuard systems.",
+    "isPublished": true,
+    "isVisible": true,
+    "showInNavigation": true,
+    "isSystemPage": true,
+    "sortOrder": 1,
+    "createdAt": "2026-03-28T00:00:00.000Z",
+    "updatedAt": "2026-03-28T00:00:00.000Z"
+  },
+  {
+    "id": "page-resources",
+    "title": "Resources",
+    "internalName": "Resources",
+    "slug": "resources",
+    "pageKey": "resources",
+    "pageType": "resource",
+    "seoTitle": "ScopeGuard Resources",
+    "seoDescription": "Guides, worksheets, and templates for freelancers.",
+    "isPublished": true,
+    "isVisible": true,
+    "showInNavigation": true,
+    "isSystemPage": true,
+    "sortOrder": 2,
+    "createdAt": "2026-03-28T00:00:00.000Z",
+    "updatedAt": "2026-03-28T00:00:00.000Z"
+  }
+]

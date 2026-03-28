@@ -6,6 +6,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileStickyCta } from "@/components/layout/mobile-sticky-cta";
+import { ThemeProvider } from "@/components/theme-provider";
 import { readCollection } from "@/lib/content-store";
 import { getCurrentUser } from "@/lib/user-store";
 
@@ -40,10 +41,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SiteHeader site={site} user={user} />
-        <main className="relative isolate">{children}</main>
-        <SiteFooter site={site} />
-        <MobileStickyCta />
+        <ThemeProvider>
+          <SiteHeader site={site} user={user} />
+          <main className="relative isolate pb-24 md:pb-0">{children}</main>
+          <SiteFooter site={site} />
+          <MobileStickyCta />
+        </ThemeProvider>
         <Script
           id="schema-org"
           type="application/ld+json"

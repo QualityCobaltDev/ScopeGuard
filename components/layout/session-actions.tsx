@@ -3,18 +3,30 @@
 import { LinkButton } from "@/components/ui/button";
 import type { SessionUser } from "@/lib/auth";
 
-export function SessionActions({ user }: { user: SessionUser }) {
+export function SessionActions({
+  user,
+  mobile = false,
+  onAction
+}: {
+  user: SessionUser;
+  mobile?: boolean;
+  onAction?: () => void;
+}) {
   async function logout() {
     await fetch("/api/auth/signout", { method: "POST" });
+    onAction?.();
     window.location.href = "/";
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <LinkButton href={user.role === "admin" ? "/admin" : "/dashboard"} size="sm">
+    <div className={`flex ${mobile ? "flex-col items-stretch" : "items-center"} gap-2`}>
+      <LinkButton href={user.role === "admin" ? "/admin" : "/dashboard"} size="sm" onClick={onAction} className={mobile ? "h-11 w-full" : undefined}>
         {user.role === "admin" ? "Admin Dashboard" : "Dashboard"}
       </LinkButton>
-      <button onClick={logout} className="rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-brand/60">
+      <button
+        onClick={logout}
+        className={`rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-brand/60 ${mobile ? "h-11 w-full" : ""}`}
+      >
         Logout
       </button>
     </div>

@@ -8,6 +8,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
+import { readPageSections, readPages } from "@/lib/cms-store";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -17,12 +18,14 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
-  const [site, faq, testimonials, products, pricing] = await Promise.all([
+  const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
     readCollection("testimonials"),
     readCollection("products"),
     readCollection("pricing"),
+    readPageSections(),
+    readPages(),
   ]);
 
   return (
@@ -37,19 +40,19 @@ export default async function HomePage() {
       />
       <div className="relative z-10">
         <Hero site={site} />
-        <section className="container pb-20 pt-8">
-          <div className="grid gap-4 sm:grid-cols-3">
+
+        <section className="container pb-10 pt-4 sm:pb-14 sm:pt-6 md:pb-20 md:pt-8">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {site.stats.map((stat) => (
-              <Card key={stat.label} className="p-6">
-                <p className="text-3xl font-semibold text-foreground">
-                  {stat.value}
-                </p>
-                <p className="mt-2 text-sm text-muted">{stat.label}</p>
+              <Card key={stat.label} className="p-5 sm:p-6">
+                <p className="text-2xl font-semibold text-foreground sm:text-3xl">{stat.value}</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{stat.label}</p>
               </Card>
             ))}
           </div>
         </section>
-        <section className="container py-8">
+
+        <section className="container py-10 sm:py-12 md:py-14">
           <SectionTitle
             eyebrow="Pain points"
             title="Freelancers lose margin in the same 3 places"
@@ -59,20 +62,17 @@ export default async function HomePage() {
             {site.painPoints.map((point, index) => {
               const Icon = [Wallet, Shield, Sparkles][index] || Sparkles;
               return (
-                <Card key={point.id} className="p-6">
+                <Card key={point.id} className="p-5 sm:p-6">
                   <Icon className="h-5 w-5 text-brand-soft" />
-                  <h3 className="mt-4 text-lg font-semibold text-foreground">
-                    {point.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">
-                    {point.description}
-                  </p>
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">{point.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-muted">{point.description}</p>
                 </Card>
               );
             })}
           </div>
         </section>
-        <section className="container py-20">
+
+        <section className="container py-10 sm:py-12 md:py-20">
           <SectionTitle
             eyebrow="Solution"
             title="A complete freelancer operating system"
@@ -80,67 +80,69 @@ export default async function HomePage() {
           />
           <div className="grid gap-4 md:grid-cols-3">
             {products.highlights.map((item) => (
-              <Card key={item.id} className="p-6">
+              <Card key={item.id} className="p-5 sm:p-6">
                 <BadgeCheck className="h-5 w-5 text-accent" />
-                <h3 className="mt-4 text-lg font-semibold text-foreground">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-muted">
-                  {item.description}
-                </p>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{item.description}</p>
               </Card>
             ))}
           </div>
         </section>
-        <PricingSection tiers={pricing} />
-        <section className="container py-20">
-          <SectionTitle
-            eyebrow="Testimonials"
-            title="Proof from freelancers using ScopeGuard"
-          />
-          <div className="grid gap-5 md:grid-cols-3">
-            {testimonials.map((item) => (
-              <Card key={item.id} className="p-6">
+
+        <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
+
+        <section className="container py-10 sm:py-12 md:py-20">
+          <SectionTitle eyebrow="Testimonials" title="Proof from freelancers using ScopeGuard" />
+          <div className="grid gap-4 md:grid-cols-3 md:gap-5">
+            {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
+              <Card key={item.id} className="p-5 sm:p-6">
                 <p className="text-sm leading-7 text-muted">“{item.quote}”</p>
-                <p className="mt-6 font-medium text-foreground">{item.name}</p>
+                <p className="mt-5 font-medium text-foreground">{item.name}</p>
                 <p className="text-xs text-muted">{item.role}</p>
               </Card>
             ))}
           </div>
         </section>
-        <section className="container py-20">
+
+        <section className="container py-10 sm:py-12 md:py-20">
           <SectionTitle eyebrow="FAQ" title="Questions before you commit" />
           <div className="mx-auto max-w-3xl">
             <Accordion
-              items={faq.map((item) => ({
+              items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({
                 question: item.question,
                 answer: item.answer,
               }))}
             />
           </div>
         </section>
-        <section className="container pb-14">
-          <Card className="flex flex-col items-start justify-between gap-6 p-8 md:flex-row md:items-center">
+
+        <section className="container pb-10 sm:pb-12 md:pb-14">
+          <Card className="flex flex-col items-stretch justify-between gap-5 p-5 sm:p-7 md:flex-row md:items-center md:p-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">
-                Final CTA
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold text-foreground">
-                {site.finalCta.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted">
-                {site.finalCta.description}
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Final CTA</p>
+              <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{site.finalCta.title}</h3>
+              <p className="mt-2 text-sm leading-7 text-muted">{site.finalCta.description}</p>
             </div>
-            <LinkButton
-              href={site.finalCta.buttonLink}
-              size="lg"
-              className="gap-2"
-            >
+            <LinkButton href={site.finalCta.buttonLink} size="lg" className="h-12 w-full gap-2 md:w-auto">
               {site.finalCta.buttonLabel} <ArrowRight className="h-4 w-4" />
             </LinkButton>
           </Card>
         </section>
+
+        {pageSections
+          .filter((section) => { const home = pages.find((p) => p.pageKey === "home"); return (section.pageId === home?.id || section.pageKey === "home") && section.visible; })
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+          .map((section) => (
+            <section key={section.id} className="container py-6 sm:py-8 md:py-10">
+              <Card className="p-5 sm:p-6 md:p-8">
+                <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
+                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{section.title}</h3>
+                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{section.subtitle}</p> : null}
+                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p> : null}
+                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
+              </Card>
+            </section>
+          ))}
         <LeadCapture />
       </div>
     </div>
