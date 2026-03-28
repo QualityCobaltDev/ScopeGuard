@@ -553,6 +553,15 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                   {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
                 </div>
               </div>
+              <div className="rounded-xl border border-border p-4">
+                <p className="mb-2 text-sm font-medium">Recent events</p>
+                <div className="space-y-1 text-xs text-muted">
+                  {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
+                </div>
+              </div>
+              <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
+                Save website content
+              </button>
             </div>
           )}
 
