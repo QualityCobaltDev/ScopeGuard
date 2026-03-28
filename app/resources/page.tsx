@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/marketing/section-title";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
+import { readFiles } from "@/lib/file-store";
 
 export const metadata = createMetadata({
   title: "Resources",
