@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import type { Locale } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
+import { localizeText } from "@/lib/localized";
 
 type LeadConfig = {
   isActive: boolean;
@@ -22,7 +25,7 @@ const defaults: LeadConfig = {
   successMessage: "You're in — check your inbox for your resources."
 };
 
-export function LeadCapture() {
+export function LeadCapture({ locale }: { locale: Locale }) {
   const [email, setEmail] = useState("");
   const [config, setConfig] = useState<LeadConfig>(defaults);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -57,18 +60,19 @@ export function LeadCapture() {
     setMessage(data.error || "Unable to deliver resources right now. Please try again.");
   }
 
+  const dict = t(locale);
   return (
     <section className="container pb-16 sm:pb-20 md:pb-24">
       <Card className="grid gap-6 p-5 sm:p-6 md:grid-cols-[1.2fr_1fr] md:items-center md:p-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Lead Magnet</p>
-          <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{config.publicTitle}</h3>
-          <p className="mt-2 text-sm leading-7 text-muted">{config.publicDescription}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">{dict.leadMagnet}</p>
+          <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{localizeText(config.publicTitle as any, locale, config.publicTitle)}</h3>
+          <p className="mt-2 text-sm leading-7 text-muted">{localizeText(config.publicDescription as any, locale, config.publicDescription)}</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-3">
           <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="your@email.com" aria-label="Email" className="h-12" />
           <Button className="h-12 w-full" disabled={status === "loading" || !config.isActive} type="submit">
-            {status === "loading" ? "Sending..." : config.buttonLabel}
+            {status === "loading" ? dict.sending : localizeText(config.buttonLabel as any, locale, config.buttonLabel)}
           </Button>
           <p className={`text-xs leading-6 ${status === "error" ? "text-red-400" : "text-muted"}`}>{message}</p>
         </form>

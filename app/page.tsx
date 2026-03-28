@@ -9,6 +9,8 @@ import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
 import { readPageSections, readPages } from "@/lib/cms-store";
+import { getServerLocale } from "@/lib/i18n-server";
+import { localizeText } from "@/lib/localized";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -18,6 +20,7 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
+  const locale = await getServerLocale();
   const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
@@ -39,14 +42,14 @@ export default async function HomePage() {
         aria-hidden
       />
       <div className="relative z-10">
-        <Hero site={site} />
+        <Hero site={site} locale={locale} />
 
         <section className="container pb-10 pt-4 sm:pb-14 sm:pt-6 md:pb-20 md:pt-8">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {site.stats.map((stat) => (
               <Card key={stat.label} className="p-5 sm:p-6">
-                <p className="text-2xl font-semibold text-foreground sm:text-3xl">{stat.value}</p>
-                <p className="mt-2 text-sm leading-6 text-muted">{stat.label}</p>
+                <p className="text-2xl font-semibold text-foreground sm:text-3xl">{localizeText(stat.value, locale)}</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{localizeText(stat.label, locale)}</p>
               </Card>
             ))}
           </div>
@@ -64,8 +67,8 @@ export default async function HomePage() {
               return (
                 <Card key={point.id} className="p-5 sm:p-6">
                   <Icon className="h-5 w-5 text-brand-soft" />
-                  <h3 className="mt-4 text-lg font-semibold text-foreground">{point.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">{point.description}</p>
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">{localizeText(point.title, locale)}</h3>
+                  <p className="mt-2 text-sm leading-7 text-muted">{localizeText(point.description, locale)}</p>
                 </Card>
               );
             })}
@@ -82,23 +85,23 @@ export default async function HomePage() {
             {products.highlights.map((item) => (
               <Card key={item.id} className="p-5 sm:p-6">
                 <BadgeCheck className="h-5 w-5 text-accent" />
-                <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-muted">{item.description}</p>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">{localizeText(item.title, locale)}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{localizeText(item.description, locale)}</p>
               </Card>
             ))}
           </div>
         </section>
 
-        <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
+        <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} locale={locale} />
 
         <section className="container py-10 sm:py-12 md:py-20">
           <SectionTitle eyebrow="Testimonials" title="Proof from freelancers using ScopeGuard" />
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
               <Card key={item.id} className="p-5 sm:p-6">
-                <p className="text-sm leading-7 text-muted">“{item.quote}”</p>
-                <p className="mt-5 font-medium text-foreground">{item.name}</p>
-                <p className="text-xs text-muted">{item.role}</p>
+                <p className="text-sm leading-7 text-muted">“{localizeText(item.quote, locale)}”</p>
+                <p className="mt-5 font-medium text-foreground">{localizeText(item.name, locale)}</p>
+                <p className="text-xs text-muted">{localizeText(item.role, locale)}</p>
               </Card>
             ))}
           </div>
@@ -109,8 +112,8 @@ export default async function HomePage() {
           <div className="mx-auto max-w-3xl">
             <Accordion
               items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({
-                question: item.question,
-                answer: item.answer,
+                question: localizeText(item.question, locale),
+                answer: localizeText(item.answer, locale),
               }))}
             />
           </div>
@@ -120,11 +123,11 @@ export default async function HomePage() {
           <Card className="flex flex-col items-stretch justify-between gap-5 p-5 sm:p-7 md:flex-row md:items-center md:p-8">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Final CTA</p>
-              <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{site.finalCta.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-muted">{site.finalCta.description}</p>
+              <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{localizeText(site.finalCta.title, locale)}</h3>
+              <p className="mt-2 text-sm leading-7 text-muted">{localizeText(site.finalCta.description, locale)}</p>
             </div>
             <LinkButton href={site.finalCta.buttonLink} size="lg" className="h-12 w-full gap-2 md:w-auto">
-              {site.finalCta.buttonLabel} <ArrowRight className="h-4 w-4" />
+              {localizeText(site.finalCta.buttonLabel, locale)} <ArrowRight className="h-4 w-4" />
             </LinkButton>
           </Card>
         </section>
@@ -136,14 +139,14 @@ export default async function HomePage() {
             <section key={section.id} className="container py-6 sm:py-8 md:py-10">
               <Card className="p-5 sm:p-6 md:p-8">
                 <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
-                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{section.title}</h3>
-                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{section.subtitle}</p> : null}
-                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p> : null}
-                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
+                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title as any, locale, section.title)}</h3>
+                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle as any, locale, section.subtitle)}</p> : null}
+                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body as any, locale, section.body)}</p> : null}
+                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{localizeText(section.ctaText as any, locale, section.ctaText)}</a> : null}
               </Card>
             </section>
           ))}
-        <LeadCapture />
+        <LeadCapture locale={locale} />
       </div>
     </div>
   );

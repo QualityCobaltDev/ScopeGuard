@@ -1,13 +1,28 @@
 [
   {
     "id": "r1",
-    "title": "Premium Offer Positioning Blueprint",
+    "title": {
+      "en": "Premium Offer Positioning Blueprint",
+      "km": "Premium Offer Positioning Blueprint"
+    },
     "label": "Guide",
-    "category": "Positioning",
-    "summary": "A practical workflow for clarifying your offer promise and category position.",
-    "description": "Use this guide to define a strong market angle and improve conversion quality.",
+    "category": {
+      "en": "Positioning",
+      "km": "Positioning"
+    },
+    "summary": {
+      "en": "A practical workflow for clarifying your offer promise and category position.",
+      "km": "A practical workflow for clarifying your offer promise and category position."
+    },
+    "description": {
+      "en": "Use this guide to define a strong market angle and improve conversion quality.",
+      "km": "Use this guide to define a strong market angle and improve conversion quality."
+    },
     "status": "published",
-    "ctaLabel": "Read guide",
+    "ctaLabel": {
+      "en": "Read guide",
+      "km": "Read guide"
+    },
     "sortOrder": 1,
     "visibility": "public",
     "externalUrl": "https://elevareai.store/resources",
@@ -16,26 +31,56 @@
   },
   {
     "id": "r2",
-    "title": "Pricing Ladder Design Worksheet",
+    "title": {
+      "en": "Pricing Ladder Design Worksheet",
+      "km": "Pricing Ladder Design Worksheet"
+    },
     "label": "Worksheet",
-    "category": "Pricing",
-    "summary": "Design Starter/Pro/Premium offers with clean upgrade logic.",
-    "description": "A worksheet to map offer ladders and package differentiation.",
+    "category": {
+      "en": "Pricing",
+      "km": "Pricing"
+    },
+    "summary": {
+      "en": "Design Starter/Pro/Premium offers with clean upgrade logic.",
+      "km": "Design Starter/Pro/Premium offers with clean upgrade logic."
+    },
+    "description": {
+      "en": "A worksheet to map offer ladders and package differentiation.",
+      "km": "A worksheet to map offer ladders and package differentiation."
+    },
     "status": "published",
-    "ctaLabel": "Download worksheet",
+    "ctaLabel": {
+      "en": "Download worksheet",
+      "km": "Download worksheet"
+    },
     "sortOrder": 2,
     "visibility": "public",
     "accessType": "account_required"
   },
   {
     "id": "r3",
-    "title": "Conversion Narrative Map",
+    "title": {
+      "en": "Conversion Narrative Map",
+      "km": "Conversion Narrative Map"
+    },
     "label": "Template",
-    "category": "Messaging",
-    "summary": "Structure your page flow for authority, clarity, and buyer momentum.",
-    "description": "A reusable narrative template for high-converting page sections.",
+    "category": {
+      "en": "Messaging",
+      "km": "Messaging"
+    },
+    "summary": {
+      "en": "Structure your page flow for authority, clarity, and buyer momentum.",
+      "km": "Structure your page flow for authority, clarity, and buyer momentum."
+    },
+    "description": {
+      "en": "A reusable narrative template for high-converting page sections.",
+      "km": "A reusable narrative template for high-converting page sections."
+    },
     "status": "draft",
-    "ctaLabel": "Open template",
+    "ctaLabel": {
+      "en": "Open template",
+      "km": "Open template"
+    },
     "sortOrder": 3,
     "visibility": "internal",
     "accessType": "public"

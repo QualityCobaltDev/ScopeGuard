@@ -1,39 +1,117 @@
 {
-  "name": "ScopeGuard",
+  "name": {
+    "en": "ScopeGuard",
+    "km": "ស្កូបហ្គាដ"
+  },
   "tagline": "Freelancer Protection Systems",
   "description": "ScopeGuard helps freelancers protect income, reduce scope creep, and standardize client operations with premium frameworks.",
   "url": "https://elevareai.store",
   "contactEmail": "contact@elevareai.store",
   "nav": [
-    { "href": "/", "label": "Home" },
-    { "href": "/product", "label": "Product" },
-    { "href": "/resources", "label": "Resources" },
-    { "href": "/about", "label": "About" },
-    { "href": "/contact", "label": "Contact" }
+    {
+      "href": "/",
+      "label": {
+        "en": "Home",
+        "km": "ទំព័រដើម"
+      }
+    },
+    {
+      "href": "/product",
+      "label": {
+        "en": "Product",
+        "km": "ផលិតផល"
+      }
+    },
+    {
+      "href": "/resources",
+      "label": {
+        "en": "Resources",
+        "km": "ធនធាន"
+      }
+    },
+    {
+      "href": "/about",
+      "label": {
+        "en": "About",
+        "km": "អំពី"
+      }
+    },
+    {
+      "href": "/contact",
+      "label": {
+        "en": "Contact",
+        "km": "ទំនាក់ទំនង"
+      }
+    }
   ],
   "stats": [
-    { "label": "Estimated payout leakage recovered", "value": "$2.1M+" },
-    { "label": "Freelancers served by framework concepts", "value": "9,000+" },
-    { "label": "Average onboarding setup time", "value": "45 min" }
+    {
+      "label": "Estimated payout leakage recovered",
+      "value": "$2.1M+"
+    },
+    {
+      "label": "Freelancers served by framework concepts",
+      "value": "9,000+"
+    },
+    {
+      "label": "Average onboarding setup time",
+      "value": "45 min"
+    }
   ],
   "hero": {
-    "badge": "Freelancer income protection",
-    "title": "Protect Every Client Engagement Before It Erodes Your Revenue",
-    "description": "Contracts, proposals, invoicing systems, and communication frameworks designed to protect your freelance income and elevate your business.",
-    "primaryCtaLabel": "Buy Now / Get Instant Access",
+    "badge": {
+      "en": "Freelancer income protection",
+      "km": "ការពារចំណូលអ្នកសេរី"
+    },
+    "title": {
+      "en": "Protect Every Client Engagement Before It Erodes Your Revenue",
+      "km": "ការពារគម្រោងអតិថិជនរាល់ដង មុនពេលចំណូលរបស់អ្នកធ្លាក់ចុះ"
+    },
+    "description": {
+      "en": "Contracts, proposals, invoicing systems, and communication frameworks designed to protect your freelance income and elevate your business.",
+      "km": "កិច្ចសន្យា សំណើ វិក្កយបត្រ និងស្គ្រីបទំនាក់ទំនង ដើម្បីការពារចំណូល និងលើកកម្ពស់អាជីវកម្មរបស់អ្នក។"
+    },
+    "primaryCtaLabel": {
+      "en": "Buy Now / Get Instant Access",
+      "km": "ទិញឥឡូវនេះ / ចូលប្រើភ្លាមៗ"
+    },
     "primaryCtaLink": "https://elevareai.store/product",
-    "secondaryCtaLabel": "Download Free Freelancer Protection Checklist",
+    "secondaryCtaLabel": {
+      "en": "Download Free Freelancer Protection Checklist",
+      "km": "ទាញយកបញ្ជីត្រួតពិនិត្យឥតគិតថ្លៃ"
+    },
     "secondaryCtaLink": "https://elevareai.store/resources"
   },
   "painPoints": [
-    { "id": "pp1", "title": "Late or unpaid invoices", "description": "Weak payment terms leave your cashflow exposed and force reactive collection." },
-    { "id": "pp2", "title": "Scope creep loops", "description": "Projects expand while budget stays fixed, quietly eroding your margin." },
-    { "id": "pp3", "title": "Low-authority process", "description": "Inconsistent documents attract difficult clients and reduce close confidence." }
+    {
+      "id": "pp1",
+      "title": "Late or unpaid invoices",
+      "description": "Weak payment terms leave your cashflow exposed and force reactive collection."
+    },
+    {
+      "id": "pp2",
+      "title": "Scope creep loops",
+      "description": "Projects expand while budget stays fixed, quietly eroding your margin."
+    },
+    {
+      "id": "pp3",
+      "title": "Low-authority process",
+      "description": "Inconsistent documents attract difficult clients and reduce close confidence."
+    }
   ],
   "finalCta": {
-    "title": "Protect your next project before it starts.",
-    "description": "Deploy ScopeGuard once, then run every client engagement with confidence.",
-    "buttonLabel": "Buy Now / Get Instant Access",
+    "title": {
+      "en": "Protect your next project before it starts.",
+      "km": "ការពារគម្រោងបន្ទាប់របស់អ្នក មុនពេលចាប់ផ្តើម"
+    },
+    "description": {
+      "en": "Deploy ScopeGuard once, then run every client engagement with confidence.",
+      "km": "ដំឡើង ScopeGuard ម្តង ហើយដំណើរការគម្រោងអតិថិជនទាំងអស់ដោយទំនុកចិត្ត។"
+    },
+    "buttonLabel": {
+      "en": "Buy Now / Get Instant Access",
+      "km": "ទិញឥឡូវនេះ / ចូលប្រើភ្លាមៗ"
+    },
     "buttonLink": "https://elevareai.store/product"
   },
   "about": {
@@ -41,29 +119,75 @@
     "title": "Built for freelancers who treat protection as strategy",
     "description": "ScopeGuard was created to solve the operational weak points that quietly drain freelance businesses.",
     "sections": [
-      { "id": "ab1", "title": "Why we exist", "body": "Too many freelancers lose income because their client process is improvised. ScopeGuard turns proven legal and operational standards into practical systems." },
-      { "id": "ab2", "title": "What we solve", "body": "We solve late payments, scope creep, weak negotiation posture, and inconsistent onboarding with assets built for real client engagements." },
-      { "id": "ab3", "title": "Mission", "body": "Help freelancers protect revenue, reduce admin drag, and operate with premium authority." },
-      { "id": "ab4", "title": "Standard", "body": "Direct, practical, premium tools that improve business outcomes without fluff." }
+      {
+        "id": "ab1",
+        "title": "Why we exist",
+        "body": "Too many freelancers lose income because their client process is improvised. ScopeGuard turns proven legal and operational standards into practical systems."
+      },
+      {
+        "id": "ab2",
+        "title": "What we solve",
+        "body": "We solve late payments, scope creep, weak negotiation posture, and inconsistent onboarding with assets built for real client engagements."
+      },
+      {
+        "id": "ab3",
+        "title": "Mission",
+        "body": "Help freelancers protect revenue, reduce admin drag, and operate with premium authority."
+      },
+      {
+        "id": "ab4",
+        "title": "Standard",
+        "body": "Direct, practical, premium tools that improve business outcomes without fluff."
+      }
     ]
   },
   "footer": {
-    "description": "Premium freelancer protection systems for stronger contracts, cleaner onboarding, and predictable revenue.",
+    "description": {
+      "en": "Premium freelancer protection systems for stronger contracts, cleaner onboarding, and predictable revenue.",
+      "km": "ប្រព័ន្ធការពារអ្នកសេរីកម្រិតពិសេស សម្រាប់កិច្ចសន្យារឹងមាំ និងចំណូលទៀងទាត់។"
+    },
     "companyLinks": [
-      { "href": "/about", "label": "About" },
-      { "href": "/resources", "label": "Resources" },
-      { "href": "/contact", "label": "Contact" }
+      {
+        "href": "/about",
+        "label": "About"
+      },
+      {
+        "href": "/resources",
+        "label": "Resources"
+      },
+      {
+        "href": "/contact",
+        "label": "Contact"
+      }
     ],
     "legalLinks": [
-      { "href": "/privacy", "label": "Privacy" },
-      { "href": "/terms", "label": "Terms" },
-      { "href": "/refund-policy", "label": "Refund Policy" }
+      {
+        "href": "/privacy",
+        "label": "Privacy"
+      },
+      {
+        "href": "/terms",
+        "label": "Terms"
+      },
+      {
+        "href": "/refund-policy",
+        "label": "Refund Policy"
+      }
     ]
   },
   "contact": {
-    "headline": "Talk to ScopeGuard",
-    "description": "Ask product questions, partnership requests, or support inquiries. We reply with clear, practical guidance.",
-    "responseWindow": "1–2 business days"
+    "headline": {
+      "en": "Talk to ScopeGuard",
+      "km": "ទាក់ទងមក ScopeGuard"
+    },
+    "description": {
+      "en": "Ask product questions, partnership requests, or support inquiries. We reply with clear, practical guidance.",
+      "km": "សួរអំពីផលិតផល ការសហការ ឬជំនួយបច្ចេកទេស។ យើងឆ្លើយតបយ៉ាងច្បាស់លាស់។"
+    },
+    "responseWindow": {
+      "en": "1–2 business days",
+      "km": "១–២ ថ្ងៃធ្វើការ"
+    }
   },
   "legal": {
     "privacy": [

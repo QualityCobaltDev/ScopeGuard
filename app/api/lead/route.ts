@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getLeadMagnetSettings, markSubscriberFailure, sendLeadMagnetEmail, upsertSubscriber } from "@/lib/lead-magnet-store";
 import { trackEvent } from "@/lib/analytics-store";
+import { isLocale } from "@/lib/i18n";
+import { localizeText } from "@/lib/localized";
 
 const blockedDomains = new Set(["mailinator.com", "tempmail.com", "10minutemail.com"]);
 
@@ -29,6 +31,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const localeCookie = request.headers.get("cookie")?.split("; ").find((entry) => entry.startsWith("scopeguard-locale="))?.split("=")[1];
+  const locale = isLocale(localeCookie) ? localeCookie : "en";
   const body = (await request.json().catch(() => ({}))) as { email?: string; source?: string; company?: string };
   const email = (body.email || "").trim().toLowerCase();
 
@@ -52,13 +56,13 @@ export async function POST(request: Request) {
   });
 
   if (duplicate && !settings.resendOnDuplicate) {
-    return NextResponse.json({ ok: true, message: settings.successMessage, duplicate: true });
+    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage as any, locale, settings.successMessage), duplicate: true });
   }
 
   try {
     await sendLeadMagnetEmail(email, subscriber.id);
     await trackEvent("lead_opt_in", settings.slug || settings.id);
-    return NextResponse.json({ ok: true, message: settings.successMessage, duplicate });
+    return NextResponse.json({ ok: true, message: localizeText(settings.successMessage as any, locale, settings.successMessage), duplicate });
   } catch (error) {
     await markSubscriberFailure(subscriber.id, error instanceof Error ? error.message : "Email delivery failed");
     return NextResponse.json({ ok: false, error: "We captured your request, but email delivery failed. Please try again shortly." }, { status: 500 });
