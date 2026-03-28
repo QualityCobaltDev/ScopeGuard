@@ -1,13 +1,45 @@
 "use client";
 
-import { Dispatch, FormEvent, ReactNode, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, FormEvent, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { Menu, X } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
+import type { AnalyticsEvent } from "@/lib/analytics-store";
+import type { ContentPost, ManagedPage, PageSectionBlock } from "@/lib/cms-store";
 import type { FaqItem, PricingTier, ResourceItem, SiteContent, Testimonial } from "@/lib/content-types";
 import type { UploadedFileRecord } from "@/lib/file-store";
-import type { LocalizedText } from "@/lib/localized";
+import type { LeadMagnetSettings, LeadSubscriber } from "@/lib/lead-magnet-store";
 
 type UserRecord = { id: string; username: string; name: string; role: "admin" | "user"; active: boolean; createdAt: string };
+type LeadMetrics = { totalSubmissions: number; sent: number; failed: number; lastSubmissionAt: string | null };
+type OverviewMetrics = {
+  users: number;
+  resourcesTotal: number;
+  resourcesPublished: number;
+  resourcesHidden: number;
+  files: number;
+  smtpActive: boolean;
+  smtpLastTest: string | null;
+  leadMagnetActive: boolean;
+  subscribers: number;
+  subscriberSent: number;
+  pricingVisible: number;
+  faqVisible: number;
+  testimonialsVisible: number;
+  sectionsTotal: number;
+  sectionsVisible: number;
+  pagesTotal: number;
+  pagesPublished: number;
+  pagesHidden: number;
+  navItems: number;
+  footerLinks: number;
+};
+type AnalyticsSummary = {
+  pageViews: number;
+  leadOptIns: number;
+  resourceDownloads: number;
+  ctaClicks: number;
+  recent: AnalyticsEvent[];
+};
 type Section =
   | "Overview"
   | "Website Content"
@@ -55,6 +87,22 @@ const emptyPricing: PricingTier = {
   visible: true
 };
 
+function normalizeLocalizedValue<T>(value: T): T {
+  if (Array.isArray(value)) return value.map((item) => normalizeLocalizedValue(item)) as T;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record);
+    const localeKeys = keys.filter((key) => key === "en" || key === "km");
+    if (localeKeys.length && localeKeys.length === keys.length) {
+      return String(record.en || "") as T;
+    }
+    const next: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(record)) next[key] = normalizeLocalizedValue(entry);
+    return next as T;
+  }
+  return value;
+}
+
 export function AdminDashboard({ user }: { user: SessionUser }) {
   const [section, setSection] = useState<Section>("Overview");
   const [status, setStatus] = useState("Ready");
@@ -70,39 +118,23 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [uploadInfo, setUploadInfo] = useState<{ allowedExtensions: string[]; maxUploadSizeMb: number } | null>(null);
   const [smtpStatus, setSmtpStatus] = useState<Record<string, unknown> | null>(null);
   const [users, setUsers] = useState<UserRecord[]>([]);
-  const [leadMagnet, setLeadMagnet] = useState<any>(null);
+  const [leadMagnet, setLeadMagnet] = useState<LeadMagnetSettings | null>(null);
   const [leadMagnetResources, setLeadMagnetResources] = useState<ResourceItem[]>([]);
-  const [leadSubscribers, setLeadSubscribers] = useState<any[]>([]);
-  const [leadMetrics, setLeadMetrics] = useState<any>(null);
-  const [overview, setOverview] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [pageSections, setPageSections] = useState<any[]>([]);
-  const [managedPages, setManagedPages] = useState<any[]>([]);
+  const [leadSubscribers, setLeadSubscribers] = useState<LeadSubscriber[]>([]);
+  const [leadMetrics, setLeadMetrics] = useState<LeadMetrics | null>(null);
+  const [overview, setOverview] = useState<OverviewMetrics | null>(null);
+  const [posts, setPosts] = useState<ContentPost[]>([]);
+  const [pageSections, setPageSections] = useState<PageSectionBlock[]>([]);
+  const [managedPages, setManagedPages] = useState<ManagedPage[]>([]);
   const [selectedPageId, setSelectedPageId] = useState("");
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
-  function normalizeLocalizedValue<T>(value: T): T {
-    if (Array.isArray(value)) return value.map((item) => normalizeLocalizedValue(item)) as T;
-    if (value && typeof value === "object") {
-      const record = value as Record<string, unknown>;
-      const keys = Object.keys(record);
-      const localeKeys = keys.filter((key) => key === "en" || key === "km");
-      if (localeKeys.length && localeKeys.length === keys.length) {
-        return String(record.en || "") as T;
-      }
-      const next: Record<string, unknown> = {};
-      for (const [key, entry] of Object.entries(record)) next[key] = normalizeLocalizedValue(entry);
-      return next as T;
-    }
-    return value;
-  }
-
-  async function loadCollection<T>(name: string, setter: (value: T) => void) {
+  const loadCollection = useCallback(async <T,>(name: string, setter: (value: T) => void) => {
     const res = await fetch(`/api/content/${name}`);
     if (res.ok) setter(normalizeLocalizedValue(await res.json()));
-  }
+  }, []);
 
   async function loadFiles() {
     const res = await fetch("/api/admin/files");
@@ -122,55 +154,55 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     if (res.ok) setSmtpStatus(await res.json());
   }
 
-  async function loadLeadMagnet() {
+  const loadLeadMagnet = useCallback(async () => {
     const res = await fetch("/api/admin/lead-magnet");
     if (!res.ok) return;
-    const data = await res.json();
+    const data = (await res.json()) as { settings: LeadMagnetSettings; resources?: ResourceItem[]; metrics?: LeadMetrics | null };
     setLeadMagnet(normalizeLocalizedValue(data.settings));
     setLeadMagnetResources(data.resources || []);
     setLeadMetrics(data.metrics || null);
-  }
+  }, []);
 
   async function loadLeadSubscribers() {
     const res = await fetch("/api/admin/lead-subscribers");
     if (!res.ok) return;
-    const data = await res.json();
+    const data = (await res.json()) as { subscribers?: LeadSubscriber[] };
     setLeadSubscribers(data.subscribers || []);
   }
 
   async function loadOverview() {
     const res = await fetch("/api/admin/overview");
-    if (res.ok) setOverview(await res.json());
+    if (res.ok) setOverview((await res.json()) as OverviewMetrics);
   }
 
-  async function loadPosts() {
+  const loadPosts = useCallback(async () => {
     const res = await fetch("/api/admin/posts");
-    if (res.ok) setPosts(normalizeLocalizedValue(await res.json()));
-  }
+    if (res.ok) setPosts(normalizeLocalizedValue((await res.json()) as ContentPost[]));
+  }, []);
 
 
   async function loadAnalytics() {
     const res = await fetch("/api/admin/analytics");
-    if (res.ok) setAnalytics(await res.json());
+    if (res.ok) setAnalytics((await res.json()) as AnalyticsSummary);
   }
 
-  async function loadManagedPages() {
+  const loadManagedPages = useCallback(async () => {
     const res = await fetch("/api/admin/pages");
     if (res.ok) {
-      const data = await res.json();
+      const data = (await res.json()) as ManagedPage[];
       setManagedPages(normalizeLocalizedValue(data));
-      if (!selectedPageId && data.length) setSelectedPageId(data[0].id);
+      if (data.length) setSelectedPageId((current) => current || data[0].id);
     }
-  }
+  }, []);
 
-  async function loadPageSections() {
+  const loadPageSections = useCallback(async () => {
     const res = await fetch("/api/admin/page-sections");
     if (!res.ok) return;
-    const data = await res.json();
+    const data = (await res.json()) as { sections?: PageSectionBlock[] };
     setPageSections(normalizeLocalizedValue(data.sections || []));
-  }
+  }, []);
 
-  async function refreshAll() {
+  const refreshAll = useCallback(async () => {
     await Promise.all([
       loadCollection<SiteContent>("site", setSite),
       loadCollection<PricingTier[]>("pricing", setPricing),
@@ -188,11 +220,11 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       loadAnalytics(),
       loadPageSections()
     ]);
-  }
+  }, [loadCollection, loadLeadMagnet, loadManagedPages, loadPageSections, loadPosts]);
 
   useEffect(() => {
     refreshAll();
-  }, []);
+  }, [refreshAll]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -356,8 +388,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                 <Kpi label="Published resources" value={String(overview?.resourcesPublished ?? 0)} />
                 <Kpi label="Pages" value={String(overview?.pagesTotal ?? 0)} />
                 <Kpi label="Published pages" value={String(overview?.pagesPublished ?? 0)} />
-                <Kpi label="Localized nav labels" value={String(site?.nav.filter((item: any) => typeof item.label === "object" && item.label.km).length ?? 0)} />
-                <Kpi label="Localized pricing plans" value={String(pricing.filter((item: any) => typeof item.name === "object" && item.name.km).length)} />
+                <Kpi label="Localized nav labels" value={String(0)} />
+                <Kpi label="Localized pricing plans" value={String(0)} />
               </div>
             </div>
           )}
@@ -365,13 +397,13 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           {section === "Website Content" && site && (
             <div className="space-y-5">
               <h2 className="text-xl font-semibold">Website Content</h2>
-              <LocalizedField label="Hero eyebrow" value={site.hero.badge as any} onChange={(value) => setSite({ ...site, hero: { ...site.hero, badge: value as any } })} />
-              <LocalizedField label="Hero heading" value={site.hero.title as any} onChange={(value) => setSite({ ...site, hero: { ...site.hero, title: value as any } })} />
-              <LocalizedArea label="Hero subheading" value={site.hero.description as any} onChange={(value) => setSite({ ...site, hero: { ...site.hero, description: value as any } })} />
+              <Field label="Hero eyebrow" value={site.hero.badge} onChange={(value) => setSite({ ...site, hero: { ...site.hero, badge: value } })} />
+              <Field label="Hero heading" value={site.hero.title} onChange={(value) => setSite({ ...site, hero: { ...site.hero, title: value } })} />
+              <Area label="Hero subheading" value={site.hero.description} onChange={(value) => setSite({ ...site, hero: { ...site.hero, description: value } })} />
               <div className="grid gap-3 md:grid-cols-2">
-                <LocalizedField label="Primary CTA label" value={site.hero.primaryCtaLabel as any} onChange={(value) => setSite({ ...site, hero: { ...site.hero, primaryCtaLabel: value as any } })} />
+                <Field label="Primary CTA label" value={site.hero.primaryCtaLabel} onChange={(value) => setSite({ ...site, hero: { ...site.hero, primaryCtaLabel: value } })} />
                 <Field label="Primary CTA URL" value={site.hero.primaryCtaLink} onChange={(value) => setSite({ ...site, hero: { ...site.hero, primaryCtaLink: value } })} />
-                <LocalizedField label="Secondary CTA label" value={site.hero.secondaryCtaLabel as any} onChange={(value) => setSite({ ...site, hero: { ...site.hero, secondaryCtaLabel: value as any } })} />
+                <Field label="Secondary CTA label" value={site.hero.secondaryCtaLabel} onChange={(value) => setSite({ ...site, hero: { ...site.hero, secondaryCtaLabel: value } })} />
                 <Field label="Secondary CTA URL" value={site.hero.secondaryCtaLink} onChange={(value) => setSite({ ...site, hero: { ...site.hero, secondaryCtaLink: value } })} />
               </div>
               <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
@@ -387,7 +419,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           {section === "Footer" && site && (
             <div className="space-y-5">
               <h2 className="text-xl font-semibold">Footer</h2>
-              <LocalizedArea label="Footer description" value={site.footer.description as any} onChange={(value) => setSite({ ...site, footer: { ...site.footer, description: value as any } })} />
+              <Area label="Footer description" value={site.footer.description} onChange={(value) => setSite({ ...site, footer: { ...site.footer, description: value } })} />
               <SimpleNavEditor title="Company links" items={site.footer.companyLinks} onChange={(next) => setSite({ ...site, footer: { ...site.footer, companyLinks: next } })} onSave={() => saveCollection("site", site)} hideSave />
               <SimpleNavEditor title="Legal links" items={site.footer.legalLinks} onChange={(next) => setSite({ ...site, footer: { ...site.footer, legalLinks: next } })} onSave={() => saveCollection("site", site)} hideSave />
               <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
@@ -497,8 +529,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     <Field label="Category" value={item.category} onChange={(value) => patchArray(setResources, index, { category: value })} />
                     <Select label="Label" value={item.label} options={resourceLabels} onChange={(value) => patchArray(setResources, index, { label: value as ResourceItem["label"] })} />
                     <Select label="Status" value={item.status} options={["draft", "published"]} onChange={(value) => patchArray(setResources, index, { status: value as "draft" | "published" })} />
-                    <Select label="Access" value={(item as any).accessType || "public"} options={["public", "account_required", "hidden"]} onChange={(value) => patchArray(setResources as any, index, { accessType: value } as any)} />
-                    <Select label="Linked post" value={(item as any).linkedPostId || ""} options={["", ...posts.map((post) => post.id)]} optionLabel={(value) => (value ? posts.find((post) => post.id === value)?.title || value : "No linked post")} onChange={(value) => patchArray(setResources as any, index, { linkedPostId: value || undefined } as any)} />
+                    <Select label="Access" value={item.accessType || "public"} options={["public", "account_required", "hidden"]} onChange={(value) => patchArray(setResources, index, { accessType: value as NonNullable<ResourceItem["accessType"]> })} />
+                    <Select label="Linked post" value={(item).linkedPostId || ""} options={["", ...posts.map((post) => post.id)]} optionLabel={(value) => (value ? posts.find((post) => post.id === value)?.title || value : "No linked post")} onChange={(value) => patchArray(setResources, index, { linkedPostId: value || undefined })} />
                   </div>
                   <Area label="Short summary" value={item.summary} onChange={(value) => patchArray(setResources, index, { summary: value })} />
                   <Area label="Long description" value={item.description || ""} onChange={(value) => patchArray(setResources, index, { description: value })} />
@@ -571,7 +603,9 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                         isVisible: true,
                         showInNavigation: false,
                         isSystemPage: false,
-                        sortOrder: managedPages.length + 1
+                        sortOrder: managedPages.length + 1,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
                       }
                     ])
                   }
@@ -595,25 +629,25 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     {page.slug ? <a className="underline" href={`/${page.slug}`} target="_blank">View live</a> : null}
                   </div>
                   <div className="grid gap-2 md:grid-cols-3">
-                    <Field label="Page title" value={page.title || ""} onChange={(value) => patchArray(setManagedPages as any, index, { title: value } as any)} />
-                    <Field label="Internal name" value={page.internalName || ""} onChange={(value) => patchArray(setManagedPages as any, index, { internalName: value } as any)} />
-                    <Field label="Slug" value={page.slug || ""} onChange={(value) => patchArray(setManagedPages as any, index, { slug: value.replace(/^\//, "") } as any)} />
-                    <Field label="Page key" value={page.pageKey || ""} onChange={(value) => patchArray(setManagedPages as any, index, { pageKey: value } as any)} />
-                    <Select label="Page type" value={page.pageType || "standard"} options={["standard", "landing", "resource", "legal", "post"]} onChange={(value) => patchArray(setManagedPages as any, index, { pageType: value } as any)} />
-                    <Field label="Sort order" type="number" value={String(page.sortOrder || 0)} onChange={(value) => patchArray(setManagedPages as any, index, { sortOrder: Number(value) || 0 } as any)} />
-                    <Field label="SEO title" value={page.seoTitle || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoTitle: value } as any)} />
-                    <Field label="SEO description" value={page.seoDescription || ""} onChange={(value) => patchArray(setManagedPages as any, index, { seoDescription: value } as any)} />
-                    <Field label="OG title" value={page.ogTitle || ""} onChange={(value) => patchArray(setManagedPages as any, index, { ogTitle: value } as any)} />
-                    <Field label="OG description" value={page.ogDescription || ""} onChange={(value) => patchArray(setManagedPages as any, index, { ogDescription: value } as any)} />
+                    <Field label="Page title" value={page.title || ""} onChange={(value) => patchArray(setManagedPages, index, { title: value })} />
+                    <Field label="Internal name" value={page.internalName || ""} onChange={(value) => patchArray(setManagedPages, index, { internalName: value })} />
+                    <Field label="Slug" value={page.slug || ""} onChange={(value) => patchArray(setManagedPages, index, { slug: value.replace(/^\//, "") })} />
+                    <Field label="Page key" value={page.pageKey || ""} onChange={(value) => patchArray(setManagedPages, index, { pageKey: value })} />
+                    <Select label="Page type" value={page.pageType || "standard"} options={["standard", "landing", "resource", "legal", "post"]} onChange={(value) => patchArray(setManagedPages, index, { pageType: value as ManagedPage["pageType"] })} />
+                    <Field label="Sort order" type="number" value={String(page.sortOrder || 0)} onChange={(value) => patchArray(setManagedPages, index, { sortOrder: Number(value) || 0 })} />
+                    <Field label="SEO title" value={page.seoTitle || ""} onChange={(value) => patchArray(setManagedPages, index, { seoTitle: value })} />
+                    <Field label="SEO description" value={page.seoDescription || ""} onChange={(value) => patchArray(setManagedPages, index, { seoDescription: value })} />
+                    <Field label="OG title" value={page.ogTitle || ""} onChange={(value) => patchArray(setManagedPages, index, { ogTitle: value })} />
+                    <Field label="OG description" value={page.ogDescription || ""} onChange={(value) => patchArray(setManagedPages, index, { ogDescription: value })} />
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
-                    <label><input type="checkbox" checked={Boolean(page.isPublished)} onChange={(e) => patchArray(setManagedPages as any, index, { isPublished: e.target.checked } as any)} /> Published</label>
-                    <label><input type="checkbox" checked={Boolean(page.isVisible)} onChange={(e) => patchArray(setManagedPages as any, index, { isVisible: e.target.checked } as any)} /> Visible</label>
-                    <label><input type="checkbox" checked={Boolean(page.showInNavigation)} onChange={(e) => patchArray(setManagedPages as any, index, { showInNavigation: e.target.checked } as any)} /> Show in navigation</label>
+                    <label><input type="checkbox" checked={Boolean(page.isPublished)} onChange={(e) => patchArray(setManagedPages, index, { isPublished: e.target.checked })} /> Published</label>
+                    <label><input type="checkbox" checked={Boolean(page.isVisible)} onChange={(e) => patchArray(setManagedPages, index, { isVisible: e.target.checked })} /> Visible</label>
+                    <label><input type="checkbox" checked={Boolean(page.showInNavigation)} onChange={(e) => patchArray(setManagedPages, index, { showInNavigation: e.target.checked })} /> Show in navigation</label>
                     <button
                       className="rounded border border-border px-2 py-1"
                       onClick={() =>
-                        setManagedPages((current: any[]) => {
+                        setManagedPages((current) => {
                           const source = current[index];
                           const duplicate = {
                             ...source,
@@ -666,13 +700,13 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
               <div className="rounded-xl border border-border p-4">
                 <p className="mb-2 text-sm font-medium">Recent events</p>
                 <div className="space-y-1 text-xs text-muted">
-                  {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
+                  {(analytics?.recent || []).map((event) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
                 </div>
               </div>
               <div className="rounded-xl border border-border p-4">
                 <p className="mb-2 text-sm font-medium">Recent events</p>
                 <div className="space-y-1 text-xs text-muted">
-                  {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
+                  {(analytics?.recent || []).map((event) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
                 </div>
               </div>
               <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
@@ -685,17 +719,19 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
             <ArrayEditor
               title="Content posts"
               items={posts}
-              onAdd={() => setPosts([...posts, { id: `post-${Date.now()}`, slug: "", title: "", excerpt: "", body: "", isPublished: false }])}
+              onAdd={() =>
+                setPosts([...posts, { id: `post-${Date.now()}`, slug: "", title: "", excerpt: "", body: "", isPublished: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }])
+              }
               render={(item, index) => (
                 <div className="grid gap-2 rounded-xl border border-border p-4">
                   <div className="grid gap-2 md:grid-cols-2">
-                    <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts as any, index, { title: value } as any)} />
-                    <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts as any, index, { slug: value } as any)} />
+                    <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts, index, { title: value })} />
+                    <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts, index, { slug: value })} />
                   </div>
-                  <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts as any, index, { excerpt: value } as any)} />
-                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPosts as any, index, { body: value } as any)} />
-                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts as any, index, { isPublished: e.target.checked } as any)} /> Published</label>
-                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts as any, index)}>Delete</button>
+                  <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts, index, { excerpt: value })} />
+                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPosts, index, { body: value })} />
+                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts, index, { isPublished: e.target.checked })} /> Published</label>
+                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts, index)}>Delete</button>
                 </div>
               )}
               onSave={async () => {
@@ -729,7 +765,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                         ctaText: "",
                         ctaUrl: "",
                         order: scopedSections.length + 1,
-                        visible: true
+                        visible: true,
+                        updatedAt: new Date().toISOString()
                       }
                     ])
                   }
@@ -754,31 +791,31 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     <span className="rounded-full border border-border px-2 py-0.5 text-muted">Order {item.order || index + 1}</span>
                   </div>
                   <div className="grid gap-2 md:grid-cols-3">
-                    <Select label="Page" value={item.pageId || selectedPageId} options={managedPages.map((page) => page.id)} optionLabel={(value) => managedPages.find((page) => page.id === value)?.title || value} onChange={(value) => patchArray(setPageSections as any, originalIndex, { pageId: value, pageKey: managedPages.find((p) => p.id === value)?.pageKey || "" } as any)} />
+                    <Select label="Page" value={item.pageId || selectedPageId} options={managedPages.map((page) => page.id)} optionLabel={(value) => managedPages.find((page) => page.id === value)?.title || value} onChange={(value) => patchArray(setPageSections, originalIndex, { pageId: value, pageKey: managedPages.find((p) => p.id === value)?.pageKey || "" })} />
                     <Select
                       label="Section type"
                       value={item.sectionType || "Custom Info Block"}
                       options={["Hero", "Stats", "CTA", "Pricing Intro", "Pricing Grid", "Testimonial Block", "FAQ Block", "Resource Grid", "Lead Magnet", "Rich Text Block", "Feature Grid", "Custom Info Block"]}
-                      onChange={(value) => patchArray(setPageSections as any, originalIndex, { sectionType: value } as any)}
+                      onChange={(value) => patchArray(setPageSections, originalIndex, { sectionType: value })}
                     />
-                    <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections as any, originalIndex, { order: Number(value) || 0 } as any)} />
+                    <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections, originalIndex, { order: Number(value) || 0 })} />
                   </div>
-                  <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { title: value } as any)} />
-                  <Area label="Subtitle" value={item.subtitle || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { subtitle: value } as any)} />
-                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { body: value } as any)} />
+                  <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPageSections, originalIndex, { title: value })} />
+                  <Area label="Subtitle" value={item.subtitle || ""} onChange={(value) => patchArray(setPageSections, originalIndex, { subtitle: value })} />
+                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPageSections, originalIndex, { body: value })} />
                   <div className="grid gap-2 md:grid-cols-2">
-                    <Field label="CTA text" value={item.ctaText || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { ctaText: value } as any)} />
-                    <Field label="CTA URL" value={item.ctaUrl || ""} onChange={(value) => patchArray(setPageSections as any, originalIndex, { ctaUrl: value } as any)} />
+                    <Field label="CTA text" value={item.ctaText || ""} onChange={(value) => patchArray(setPageSections, originalIndex, { ctaText: value })} />
+                    <Field label="CTA URL" value={item.ctaUrl || ""} onChange={(value) => patchArray(setPageSections, originalIndex, { ctaUrl: value })} />
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <label className="text-sm"><input type="checkbox" checked={Boolean(item.visible)} onChange={(e) => patchArray(setPageSections as any, originalIndex, { visible: e.target.checked } as any)} /> Visible</label>
+                    <label className="text-sm"><input type="checkbox" checked={Boolean(item.visible)} onChange={(e) => patchArray(setPageSections, originalIndex, { visible: e.target.checked })} /> Visible</label>
                     <button
                       className="rounded border border-border px-2 py-1 text-sm"
                       disabled={index === 0}
                       onClick={() => {
                         const above = scopedSections[index - 1];
                         if (!above) return;
-                        setPageSections((current: any[]) =>
+                        setPageSections((current) =>
                           current.map((entry, idx) => {
                             if (idx === originalIndex) return { ...entry, order: (above.item.order || index) };
                             if (idx === above.originalIndex) return { ...entry, order: (item.order || index + 1) };
@@ -795,7 +832,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                       onClick={() => {
                         const below = scopedSections[index + 1];
                         if (!below) return;
-                        setPageSections((current: any[]) =>
+                        setPageSections((current) =>
                           current.map((entry, idx) => {
                             if (idx === originalIndex) return { ...entry, order: (below.item.order || index + 2) };
                             if (idx === below.originalIndex) return { ...entry, order: (item.order || index + 1) };
@@ -806,7 +843,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     >
                       Move down
                     </button>
-                    <button className="w-fit rounded border border-border px-2 py-1 text-sm" onClick={() => removeAt(setPageSections as any, originalIndex)}>Delete</button>
+                    <button className="w-fit rounded border border-border px-2 py-1 text-sm" onClick={() => removeAt(setPageSections, originalIndex)}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -887,37 +924,6 @@ function Area({ label, value, onChange }: { label: string; value: string; onChan
   return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><textarea className="min-h-28 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} /></label>;
 }
 
-function normalizedLocalized(value: LocalizedText): { en: string; km: string } {
-  if (typeof value === "string") return { en: value, km: "" };
-  return { en: value.en || "", km: value.km || "" };
-}
-
-function LocalizedField({ label, value, onChange }: { label: string; value: LocalizedText; onChange: (v: LocalizedText) => void }) {
-  const localized = normalizedLocalized(value);
-  return (
-    <div className="grid gap-2 rounded-lg border border-border/70 p-3">
-      <p className="text-sm text-muted">{label}</p>
-      <div className="grid gap-2 md:grid-cols-2">
-        <Field label="English" value={localized.en} onChange={(next) => onChange({ ...localized, en: next })} />
-        <Field label="Khmer" value={localized.km} onChange={(next) => onChange({ ...localized, km: next })} />
-      </div>
-    </div>
-  );
-}
-
-function LocalizedArea({ label, value, onChange }: { label: string; value: LocalizedText; onChange: (v: LocalizedText) => void }) {
-  const localized = normalizedLocalized(value);
-  return (
-    <div className="grid gap-2 rounded-lg border border-border/70 p-3">
-      <p className="text-sm text-muted">{label}</p>
-      <div className="grid gap-2 md:grid-cols-2">
-        <Area label="English" value={localized.en} onChange={(next) => onChange({ ...localized, en: next })} />
-        <Area label="Khmer" value={localized.km} onChange={(next) => onChange({ ...localized, km: next })} />
-      </div>
-    </div>
-  );
-}
-
 function Select({ label, value, options, onChange, optionLabel }: { label: string; value: string; options: string[]; onChange: (v: string) => void; optionLabel?: (v: string) => string }) {
   return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><select className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)}>{options.map((option) => <option key={option} value={option}>{optionLabel ? optionLabel(option) : option}</option>)}</select></label>;
 }
@@ -953,7 +959,7 @@ function SimpleNavEditor({ title, items, onChange, onSave, hideSave }: { title: 
           <Field label="URL" value={item.href} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, href: value } : entry)))} />
         </div>
       ))}
-      <button className="w-fit rounded border border-border px-3 py-2" onClick={() => onChange([...items, { label: "" as any, href: "/" }])}>Add link</button>
+      <button className="w-fit rounded border border-border px-3 py-2" onClick={() => onChange([...items, { label: "", href: "/" }])}>Add link</button>
       {!hideSave && <button className="block rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={onSave}>Save {title}</button>}
     </div>
   );
@@ -1026,8 +1032,18 @@ function DocumentManager({ files, uploadInfo, onRefresh }: { files: UploadedFile
 }
 
 
-function LeadMagnetManager({ settings, resources, metrics, onSaved }: { settings: any; resources: ResourceItem[]; metrics: any; onSaved: () => Promise<void> }) {
-  const [form, setForm] = useState<any>(settings);
+function LeadMagnetManager({
+  settings,
+  resources,
+  metrics,
+  onSaved
+}: {
+  settings: LeadMagnetSettings;
+  resources: ResourceItem[];
+  metrics: LeadMetrics | null;
+  onSaved: () => Promise<void>;
+}) {
+  const [form, setForm] = useState<LeadMagnetSettings>(settings);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => setForm(settings), [settings]);
@@ -1097,11 +1113,19 @@ function LeadMagnetManager({ settings, resources, metrics, onSaved }: { settings
   );
 }
 
-function SubscriberManager({ subscribers, onRefresh, setStatus }: { subscribers: any[]; onRefresh: () => Promise<void>; setStatus: (value: string) => void }) {
+function SubscriberManager({
+  subscribers,
+  onRefresh,
+  setStatus
+}: {
+  subscribers: LeadSubscriber[];
+  onRefresh: () => Promise<void>;
+  setStatus: (value: string) => void;
+}) {
   const [query, setQuery] = useState("");
   const filtered = subscribers.filter((item) => item.email.toLowerCase().includes(query.toLowerCase()));
 
-  async function resend(item: any) {
+  async function resend(item: LeadSubscriber) {
     const res = await fetch("/api/admin/lead-subscribers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

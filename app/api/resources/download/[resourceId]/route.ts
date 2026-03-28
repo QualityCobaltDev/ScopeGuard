@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/content-store";
+import type { ResourceAccessType } from "@/lib/content-types";
 import { readFiles } from "@/lib/file-store";
 import { getCurrentUser } from "@/lib/user-store";
 import { trackEvent } from "@/lib/analytics-store";
@@ -10,7 +11,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ resourceId
   const resource = resources.find((item) => item.id === resourceId && item.status === "published");
   if (!resource) return NextResponse.json({ message: "Resource not found." }, { status: 404 });
 
-  const accessType = (resource as any).accessType || "public";
+  const accessType: ResourceAccessType = resource.accessType || "public";
   if (accessType === "hidden") return NextResponse.json({ message: "Resource unavailable." }, { status: 404 });
 
   if (accessType === "account_required") {

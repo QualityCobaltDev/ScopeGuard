@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
-import { deletePageById, readPages, syncNavigationFromPages, writePages } from "@/lib/cms-store";
+import { deletePageById, ManagedPage, readPages, syncNavigationFromPages, writePages } from "@/lib/cms-store";
 import { revalidateSiteContent } from "@/lib/site-sync";
+
+type PageBodyPayload = Partial<ManagedPage>;
 
 export async function GET() {
   try {
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { action?: "create" | "duplicate"; payload?: any; pageId?: string };
+  const body = (await request.json().catch(() => ({}))) as { action?: "create" | "duplicate"; payload?: PageBodyPayload; pageId?: string };
   const pages = await readPages();
 
   if (body.action === "duplicate") {
@@ -42,8 +44,8 @@ export async function POST(request: Request) {
     return NextResponse.json(copy);
   }
 
-  const payload = body.payload || {};
-  const created = {
+  const payload: PageBodyPayload = body.payload || {};
+  const created: ManagedPage = {
     id: `page-${randomUUID()}`,
     title: String(payload.title || ""),
     internalName: String(payload.internalName || ""),
@@ -75,8 +77,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { payload?: any[] };
-  const payload = (body.payload || []).map((item, index) => ({
+  const body = (await request.json().catch(() => ({}))) as { payload?: ManagedPage[] };
+  const payload = (body.payload || []).map((item, index): ManagedPage => ({
     ...item,
     id: item.id || `page-${randomUUID()}`,
     pageKey: item.pageKey || item.slug || `page-${index + 1}`,

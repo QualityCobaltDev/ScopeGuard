@@ -43,16 +43,16 @@ export default async function ProductPage() {
           <ul className="mt-5 space-y-3">
             {products.deliverables.map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm leading-7 text-muted">
-                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />{localizeText(item as any, undefined, String(item))}
+                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />{localizeText(item, undefined, String(item))}
               </li>
             ))}
           </ul>
         </Card>
         <Card className="p-5 sm:p-8">
           <h3 className="text-xl font-semibold">Who this is for</h3>
-          <p className="mt-4 text-sm leading-7 text-muted">{localizeText(products.fit as any, undefined, String(products.fit))}</p>
+          <p className="mt-4 text-sm leading-7 text-muted">{localizeText(products.fit, undefined, String(products.fit))}</p>
           <h4 className="mt-6 font-medium text-foreground">Bonus items</h4>
-          <ul className="mt-3 space-y-2 text-sm leading-7 text-muted">{products.bonuses.map((bonus) => <li key={typeof bonus === "string" ? bonus : JSON.stringify(bonus)}>• {localizeText(bonus as any, undefined, String(bonus))}</li>)}</ul>
+          <ul className="mt-3 space-y-2 text-sm leading-7 text-muted">{products.bonuses.map((bonus) => <li key={typeof bonus === "string" ? bonus : JSON.stringify(bonus)}>• {localizeText(bonus, undefined, String(bonus))}</li>)}</ul>
         </Card>
       </section>
 
@@ -64,10 +64,10 @@ export default async function ProductPage() {
             <tbody>
               {pricing.map((tier) => (
                 <tr key={tier.id} className="border-t border-border/70">
-                  <td className="p-4 font-medium text-foreground">{localizeText(tier.name as any, undefined, String(tier.name))}</td>
-                  <td className="p-4 text-muted">{localizeText((tier.benefit || tier.description) as any, undefined, String(tier.benefit || tier.description || ""))}</td>
-                  <td className="p-4 text-foreground">{localizeText(tier.price as any, undefined, String(tier.price))}</td>
-                  <td className="p-4"><LinkButton href="/contact" size="sm" variant="secondary">{localizeText(tier.cta as any, undefined, String(tier.cta))}</LinkButton></td>
+                  <td className="p-4 font-medium text-foreground">{localizeText(tier.name, undefined, String(tier.name))}</td>
+                  <td className="p-4 text-muted">{localizeText((tier.benefit || tier.description), undefined, String(tier.benefit || tier.description || ""))}</td>
+                  <td className="p-4 text-foreground">{localizeText(tier.price, undefined, String(tier.price))}</td>
+                  <td className="p-4"><LinkButton href="/contact" size="sm" variant="secondary">{localizeText(tier.cta, undefined, String(tier.cta))}</LinkButton></td>
                 </tr>
               ))}
             </tbody>

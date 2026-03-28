@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
-import { readPosts, writePosts } from "@/lib/cms-store";
+import { ContentPost, readPosts, writePosts } from "@/lib/cms-store";
 import { revalidateSiteContent } from "@/lib/site-sync";
 
 export async function GET() {
@@ -20,8 +20,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { payload?: any[] };
-  const payload = (body.payload || []).map((item) => ({
+  const body = (await request.json().catch(() => ({}))) as { payload?: ContentPost[] };
+  const payload = (body.payload || []).map((item): ContentPost => ({
     ...item,
     id: item.id || randomUUID(),
     updatedAt: new Date().toISOString(),

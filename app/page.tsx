@@ -139,10 +139,10 @@ export default async function HomePage() {
             <section key={section.id} className="container py-6 sm:py-8 md:py-10">
               <Card className="p-5 sm:p-6 md:p-8">
                 <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
-                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title as any, undefined, section.title)}</h3>
-                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle as any, undefined, section.subtitle)}</p> : null}
-                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body as any, undefined, section.body)}</p> : null}
-                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{localizeText(section.ctaText as any, undefined, section.ctaText)}</a> : null}
+                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title, undefined, section.title)}</h3>
+                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle, undefined, section.subtitle)}</p> : null}
+                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body, undefined, section.body)}</p> : null}
+                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{localizeText(section.ctaText, undefined, section.ctaText)}</a> : null}
               </Card>
             </section>
           ))}
