@@ -13,6 +13,7 @@ import { localizeText } from "@/lib/localized";
 import { t } from "@/lib/i18n";
 
 export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUser | null }) {
+  const dict = t();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {

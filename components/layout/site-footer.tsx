@@ -6,6 +6,7 @@ import { localizeText } from "@/lib/localized";
 import { t } from "@/lib/i18n";
 
 export function SiteFooter({ site }: { site: SiteContent }) {
+  const dict = t();
   return (
     <footer className="mt-16 border-t border-border/60 bg-[#060a13] sm:mt-20 md:mt-24">
       <div className="container grid gap-8 py-10 sm:py-12 md:grid-cols-4 md:gap-10 md:py-14">

@@ -14,6 +14,7 @@ export const metadata = createMetadata({
 });
 
 export default async function ProductPage() {
+  const dict = t();
   const [products, pricing] = await Promise.all([readCollection("products"), readCollection("pricing")]);
   return (
     <div className="container py-12 sm:py-16 md:py-20">

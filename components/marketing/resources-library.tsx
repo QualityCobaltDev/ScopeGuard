@@ -5,8 +5,10 @@ import { ArrowUpRight, BookOpenText, Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import type { ResourceItem } from "@/lib/content-types";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export function ResourcesLibrary({ resources }: { resources: ResourceItem[] }) {
+  const dict = t();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
