@@ -6,30 +6,41 @@ import { SectionTitle } from "@/components/marketing/section-title";
 import { Card } from "@/components/ui/card";
 import { Accordion } from "@/components/ui/accordion";
 import { LinkButton } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
-import { readPageSections, readPages } from "@/lib/cms-store";
+import { readManagedPageContent, isPageLive } from "@/lib/managed-page-rendering";
+import { ManagedPageSections } from "@/components/marketing/managed-page-sections";
 import { localizeText } from "@/lib/localized";
 import { t } from "@/lib/i18n";
 
-export const metadata = createMetadata({
+const defaultHomeMetadata = {
   title: "Freelancer Protection Systems",
-  description:
-    "ScopeGuard combines contracts, proposals, invoicing systems, and communication frameworks to protect freelance revenue.",
-  path: "/",
-});
+  description: "ScopeGuard combines contracts, proposals, invoicing systems, and communication frameworks to protect freelance revenue.",
+  path: "/"
+};
+
+export async function generateMetadata() {
+  const { page } = await readManagedPageContent("home");
+  return createMetadata({
+    ...defaultHomeMetadata,
+    title: page?.seoTitle || defaultHomeMetadata.title,
+    description: page?.seoDescription || defaultHomeMetadata.description
+  });
+}
 
 export default async function HomePage() {
   const dict = t();
-  const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
+  const [{ page, sections }, site, faq, testimonials, products, pricing] = await Promise.all([
+    readManagedPageContent("home"),
     readCollection("site"),
     readCollection("faq"),
     readCollection("testimonials"),
     readCollection("products"),
-    readCollection("pricing"),
-    readPageSections(),
-    readPages(),
+    readCollection("pricing")
   ]);
+
+  if (!isPageLive(page)) notFound();
 
   return (
     <div className="relative overflow-hidden">
@@ -132,20 +143,7 @@ export default async function HomePage() {
           </Card>
         </section>
 
-        {pageSections
-          .filter((section) => { const home = pages.find((p) => p.pageKey === "home"); return (section.pageId === home?.id || section.pageKey === "home") && section.visible; })
-          .sort((a, b) => (a.order || 0) - (b.order || 0))
-          .map((section) => (
-            <section key={section.id} className="container py-6 sm:py-8 md:py-10">
-              <Card className="p-5 sm:p-6 md:p-8">
-                <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
-                <h3 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{localizeText(section.title, undefined, section.title)}</h3>
-                {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{localizeText(section.subtitle, undefined, section.subtitle)}</p> : null}
-                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{localizeText(section.body, undefined, section.body)}</p> : null}
-                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm text-foreground underline" href={section.ctaUrl}>{localizeText(section.ctaText, undefined, section.ctaText)}</a> : null}
-              </Card>
-            </section>
-          ))}
+        <ManagedPageSections sections={sections} />
         <LeadCapture />
       </div>
     </div>
