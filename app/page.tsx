@@ -11,6 +11,7 @@ import { readCollection } from "@/lib/content-store";
 import { readPageSections, readPages } from "@/lib/cms-store";
 import { getServerLocale } from "@/lib/i18n-server";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -21,6 +22,7 @@ export const metadata = createMetadata({
 
 export default async function HomePage() {
   const locale = await getServerLocale();
+  const dict = t(locale);
   const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
@@ -57,9 +59,9 @@ export default async function HomePage() {
 
         <section className="container py-10 sm:py-12 md:py-14">
           <SectionTitle
-            eyebrow="Pain points"
-            title="Freelancers lose margin in the same 3 places"
-            description="Weak agreements, uncontrolled scope, and fragmented communication quietly erode profit."
+            eyebrow={dict.painPointsEyebrow}
+            title={dict.painPointsTitle}
+            description={dict.painPointsDescription}
           />
           <div className="grid gap-4 md:grid-cols-3">
             {site.painPoints.map((point, index) => {
@@ -77,9 +79,9 @@ export default async function HomePage() {
 
         <section className="container py-10 sm:py-12 md:py-20">
           <SectionTitle
-            eyebrow="Solution"
-            title="A complete freelancer operating system"
-            description="ScopeGuard combines legal protection with execution assets so your process feels authoritative from day one."
+            eyebrow={dict.solutionEyebrow}
+            title={dict.solutionTitle}
+            description={dict.solutionDescription}
           />
           <div className="grid gap-4 md:grid-cols-3">
             {products.highlights.map((item) => (
@@ -95,7 +97,7 @@ export default async function HomePage() {
         <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} locale={locale} />
 
         <section className="container py-10 sm:py-12 md:py-20">
-          <SectionTitle eyebrow="Testimonials" title="Proof from freelancers using ScopeGuard" />
+          <SectionTitle eyebrow={dict.testimonialsEyebrow} title={dict.testimonialsTitle} />
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
               <Card key={item.id} className="p-5 sm:p-6">
@@ -108,7 +110,7 @@ export default async function HomePage() {
         </section>
 
         <section className="container py-10 sm:py-12 md:py-20">
-          <SectionTitle eyebrow="FAQ" title="Questions before you commit" />
+          <SectionTitle eyebrow={dict.faqEyebrow} title={dict.faqTitle} />
           <div className="mx-auto max-w-3xl">
             <Accordion
               items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({
@@ -122,7 +124,7 @@ export default async function HomePage() {
         <section className="container pb-10 sm:pb-12 md:pb-14">
           <Card className="flex flex-col items-stretch justify-between gap-5 p-5 sm:p-7 md:flex-row md:items-center md:p-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Final CTA</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">{dict.homeFinalCta}</p>
               <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{localizeText(site.finalCta.title, locale)}</h3>
               <p className="mt-2 text-sm leading-7 text-muted">{localizeText(site.finalCta.description, locale)}</p>
             </div>
