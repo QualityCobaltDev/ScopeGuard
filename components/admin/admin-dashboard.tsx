@@ -553,6 +553,9 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                   {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
                 </div>
               </div>
+              <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
+                Save website content
+              </button>
             </div>
           )}
 
