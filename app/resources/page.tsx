@@ -31,7 +31,7 @@ export default async function ResourcesPage() {
 
   return (
     <>
-      <div className="container py-12 sm:py-16 md:py-20">
+      <div className="container py-14 sm:py-18 md:py-24">
         <SectionTitle eyebrow="Resources" title="Build your premium growth library" description="Search, filter, and unlock structured downloads built for freelancers." />
         <ResourcesLibrary resources={published} />
       </div>
