@@ -29,24 +29,24 @@ export const uiDictionary = {
     pricingChoose: "Choose your protection level"
   },
   km: {
-    localeLabel: "ភាសា",
+    localeLabel: "Language",
     english: "EN",
     khmer: "KM",
-    searchResources: "ស្វែងរកឯកសារ",
-    category: "ប្រភេទ",
-    all: "ទាំងអស់",
-    accountRequired: "ត្រូវការគណនី",
-    publicDownload: "ទាញយកសាធារណៈ",
-    openResource: "បើកឯកសារ",
-    leadMagnet: "ឯកសារឥតគិតថ្លៃ",
-    sending: "កំពុងផ្ញើ...",
-    contactSend: "ផ្ញើសារ",
-    contactSending: "កំពុងផ្ញើ...",
-    contactSafety: "សូមកុំបញ្ចូលទិន្នន័យរសើប ឬឯកសារផ្នែកច្បាប់ក្នុងទម្រង់នេះ។",
-    homeFinalCta: "អំពាវនាវចុងក្រោយ",
-    pricingBestValue: "ជម្រើសល្អបំផុត",
-    pricingOfferLadder: "កម្រិតផលិតផល",
-    pricingChoose: "ជ្រើសរើសកម្រិតការពាររបស់អ្នក"
+    searchResources: "Search resources",
+    category: "Category",
+    all: "all",
+    accountRequired: "Account required",
+    publicDownload: "Public download",
+    openResource: "Open resource",
+    leadMagnet: "Lead Magnet",
+    sending: "Sending...",
+    contactSend: "Send message",
+    contactSending: "Sending...",
+    contactSafety: "No sensitive data, legal documents, or credentials in this form.",
+    homeFinalCta: "Final CTA",
+    pricingBestValue: "Best Value",
+    pricingOfferLadder: "Offer Ladder",
+    pricingChoose: "Choose your protection level"
   }
 } as const;
 
@@ -60,7 +60,7 @@ export function formatCurrency(
   currency: string = "USD",
   options?: Intl.NumberFormatOptions
 ) {
-  const localeTag = locale === "km" ? "km-KH" : "en-US";
+  const localeTag = locale === "km" ? "en-US" : "en-US";
   return new Intl.NumberFormat(localeTag, {
     style: "currency",
     currency,

@@ -28,26 +28,12 @@ type Section =
   | "Profile"
   | "Users";
 
-const sectionOrder: Section[] = [
-  "Overview",
-  "Website Content",
-  "Pricing",
-  "Testimonials",
-  "FAQ",
-  "Resources",
-  "Lead Magnet",
-  "Subscribers",
-  "Pages",
-  "Analytics",
-  "Posts",
-  "Page Sections",
-  "Documents / Files",
-  "Navigation",
-  "Footer",
-  "Settings",
-  "Email / SMTP",
-  "Profile",
-  "Users"
+const sectionGroups: { heading: string; sections: Section[] }[] = [
+  { heading: "Control Center", sections: ["Overview"] },
+  { heading: "Content", sections: ["Website Content", "Pages", "Page Sections", "Posts", "Navigation", "Footer"] },
+  { heading: "Commerce / Product", sections: ["Pricing", "Testimonials", "Resources", "Lead Magnet", "Documents / Files"] },
+  { heading: "Audience / Operations", sections: ["Subscribers", "Analytics", "Email / SMTP"] },
+  { heading: "System / Account", sections: ["Settings", "Users", "Profile"] }
 ];
 
 const resourceLabels: ResourceItem["label"][] = ["Guide", "Worksheet", "Template", "Checklist", "Download"];
@@ -71,6 +57,7 @@ const emptyPricing: PricingTier = {
 export function AdminDashboard({ user }: { user: SessionUser }) {
   const [section, setSection] = useState<Section>("Overview");
   const [status, setStatus] = useState("Ready");
+  const [syncingSite, setSyncingSite] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [site, setSite] = useState<SiteContent | null>(null);
@@ -212,7 +199,20 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       body: JSON.stringify(method === "PUT" ? { payload } : payload)
     });
     setStatus(res.ok ? "Saved successfully." : "Could not save changes.");
-    if (res.ok) await loadOverview();
+    if (res.ok) await refreshAll();
+  }
+
+  async function syncSite() {
+    setSyncingSite(true);
+    setStatus("Syncing website cache and revalidation...");
+    const res = await fetch("/api/admin/site-sync", { method: "POST" });
+    setSyncingSite(false);
+    if (!res.ok) {
+      setStatus("Could not sync site right now.");
+      return;
+    }
+    setStatus("Site refreshed successfully.");
+    await refreshAll();
   }
 
   async function createUser(e: FormEvent) {
@@ -273,18 +273,25 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
         <aside className={`rounded-2xl border border-border bg-card p-4 ${mobileNavOpen ? "fixed inset-x-3 top-16 z-50 max-h-[70vh] overflow-y-auto" : "hidden lg:block"}`}>
           <p className="text-sm text-muted">Admin: {user.username}</p>
-          <nav className="mt-4 space-y-2">
-            {sectionOrder.map((item) => (
-              <button
-                key={item}
-                onClick={() => {
-                  setSection(item);
-                  setMobileNavOpen(false);
-                }}
-                className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${section === item ? "bg-brand text-black" : "border border-border hover:border-brand/60"}`}
-              >
-                {item}
-              </button>
+          <nav className="mt-4 space-y-4">
+            {sectionGroups.map((group) => (
+              <div key={group.heading}>
+                <p className="mb-2 px-1 text-[11px] uppercase tracking-[0.14em] text-muted">{group.heading}</p>
+                <div className="space-y-2">
+                  {group.sections.map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        setSection(item);
+                        setMobileNavOpen(false);
+                      }}
+                      className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${section === item ? "bg-brand text-black" : "border border-border hover:border-brand/60"}`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
           <button onClick={logout} className="mt-6 min-h-11 w-full rounded-lg border border-border px-3 py-2 text-sm hover:border-brand/60">
@@ -297,7 +304,22 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 
           {section === "Overview" && (
             <div>
-              <h1 className="text-2xl font-semibold">ScopeGuard CMS Dashboard</h1>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-semibold">ScopeGuard CMS Dashboard</h1>
+                  <p className="mt-1 text-sm text-muted">Unified operations hub for multilingual content, publishing, and system health.</p>
+                </div>
+                {user.role === "admin" ? (
+                  <button
+                    type="button"
+                    onClick={syncSite}
+                    disabled={syncingSite}
+                    className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:border-brand/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {syncingSite ? "Syncing…" : "Sync Website"}
+                  </button>
+                ) : null}
+              </div>
               <div className="mt-5 grid gap-4 md:grid-cols-4">
                 <Kpi label="Users" value={String(overview?.users ?? users.length ?? 0)} />
                 <Kpi label="Subscribers" value={String(overview?.subscribers ?? 0)} />
@@ -715,7 +737,7 @@ function SimpleNavEditor({ title, items, onChange, onSave, hideSave }: { title: 
     <div className="space-y-3">
       <h2 className="text-xl font-semibold">{title}</h2>
       {items.map((item, index) => (
-        <div key={`${item.label}-${index}`} className="grid gap-2 rounded-lg border border-border p-3 md:grid-cols-2">
+        <div key={`${item.href}-${index}`} className="grid gap-2 rounded-lg border border-border p-3 md:grid-cols-2">
           <Field label="Label" value={item.label} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, label: value } : entry)))} />
           <Field label="URL" value={item.href} onChange={(value) => onChange(items.map((entry, idx) => (idx === index ? { ...entry, href: value } : entry)))} />
         </div>
