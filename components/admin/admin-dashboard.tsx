@@ -15,6 +15,8 @@ type Section =
   | "Resources"
   | "Lead Magnet"
   | "Subscribers"
+  | "Posts"
+  | "Page Sections"
   | "Documents / Files"
   | "Email / SMTP"
   | "Navigation"
@@ -32,6 +34,8 @@ const sectionOrder: Section[] = [
   "Resources",
   "Lead Magnet",
   "Subscribers",
+  "Posts",
+  "Page Sections",
   "Documents / Files",
   "Navigation",
   "Footer",
@@ -76,6 +80,9 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [leadMagnetResources, setLeadMagnetResources] = useState<ResourceItem[]>([]);
   const [leadSubscribers, setLeadSubscribers] = useState<any[]>([]);
   const [leadMetrics, setLeadMetrics] = useState<any>(null);
+  const [overview, setOverview] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [pageSections, setPageSections] = useState<any[]>([]);
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
@@ -118,6 +125,21 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     setLeadSubscribers(data.subscribers || []);
   }
 
+  async function loadOverview() {
+    const res = await fetch("/api/admin/overview");
+    if (res.ok) setOverview(await res.json());
+  }
+
+  async function loadPosts() {
+    const res = await fetch("/api/admin/posts");
+    if (res.ok) setPosts(await res.json());
+  }
+
+  async function loadPageSections() {
+    const res = await fetch("/api/admin/page-sections");
+    if (res.ok) setPageSections(await res.json());
+  }
+
   async function refreshAll() {
     await Promise.all([
       loadCollection<SiteContent>("site", setSite),
@@ -129,7 +151,10 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       loadUsers(),
       loadSmtpStatus(),
       loadLeadMagnet(),
-      loadLeadSubscribers()
+      loadLeadSubscribers(),
+      loadOverview(),
+      loadPosts(),
+      loadPageSections()
     ]);
   }
 
@@ -146,6 +171,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
       body: JSON.stringify(method === "PUT" ? { payload } : payload)
     });
     setStatus(res.ok ? "Saved successfully." : "Could not save changes.");
+    if (res.ok) await loadOverview();
   }
 
   async function createUser(e: FormEvent) {
@@ -215,10 +241,14 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
             <div>
               <h1 className="text-2xl font-semibold">ScopeGuard CMS Dashboard</h1>
               <div className="mt-5 grid gap-4 md:grid-cols-4">
-                <Kpi label="Users" value={String(users.length || 0)} />
-                <Kpi label="Resources" value={String(resources.length || 0)} />
-                <Kpi label="Uploaded files" value={String(files.length || 0)} />
-                <Kpi label="SMTP" value={smtpStatus?.active ? "Active" : "Inactive"} />
+                <Kpi label="Users" value={String(overview?.users ?? users.length ?? 0)} />
+                <Kpi label="Subscribers" value={String(overview?.subscribers ?? 0)} />
+                <Kpi label="Resources" value={String(overview?.resourcesTotal ?? resources.length ?? 0)} />
+                <Kpi label="Uploaded files" value={String(overview?.files ?? files.length ?? 0)} />
+                <Kpi label="SMTP" value={overview?.smtpActive ? "Healthy" : "Needs setup"} />
+                <Kpi label="Lead Magnet" value={overview?.leadMagnetActive ? "Active" : "Paused"} />
+                <Kpi label="Visible sections" value={`${overview?.sectionsVisible ?? 0}/${overview?.sectionsTotal ?? 0}`} />
+                <Kpi label="Published resources" value={String(overview?.resourcesPublished ?? 0)} />
               </div>
             </div>
           )}
@@ -358,6 +388,8 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     <Field label="Category" value={item.category} onChange={(value) => patchArray(setResources, index, { category: value })} />
                     <Select label="Label" value={item.label} options={resourceLabels} onChange={(value) => patchArray(setResources, index, { label: value as ResourceItem["label"] })} />
                     <Select label="Status" value={item.status} options={["draft", "published"]} onChange={(value) => patchArray(setResources, index, { status: value as "draft" | "published" })} />
+                    <Select label="Access" value={(item as any).accessType || "public"} options={["public", "account_required", "hidden"]} onChange={(value) => patchArray(setResources as any, index, { accessType: value } as any)} />
+                    <Select label="Linked post" value={(item as any).linkedPostId || ""} options={["", ...posts.map((post) => post.id)]} optionLabel={(value) => (value ? posts.find((post) => post.id === value)?.title || value : "No linked post")} onChange={(value) => patchArray(setResources as any, index, { linkedPostId: value || undefined } as any)} />
                   </div>
                   <Area label="Short summary" value={item.summary} onChange={(value) => patchArray(setResources, index, { summary: value })} />
                   <Area label="Long description" value={item.description || ""} onChange={(value) => patchArray(setResources, index, { description: value })} />
@@ -400,6 +432,62 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
               subscribers={leadSubscribers}
               onRefresh={loadLeadSubscribers}
               setStatus={setStatus}
+            />
+          )}
+
+          {section === "Posts" && (
+            <ArrayEditor
+              title="Content posts"
+              items={posts}
+              onAdd={() => setPosts([...posts, { id: `post-${Date.now()}`, slug: "", title: "", excerpt: "", body: "", isPublished: false }])}
+              render={(item, index) => (
+                <div className="grid gap-2 rounded-xl border border-border p-4">
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts as any, index, { title: value } as any)} />
+                    <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts as any, index, { slug: value } as any)} />
+                  </div>
+                  <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts as any, index, { excerpt: value } as any)} />
+                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPosts as any, index, { body: value } as any)} />
+                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts as any, index, { isPublished: e.target.checked } as any)} /> Published</label>
+                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts as any, index)}>Delete</button>
+                </div>
+              )}
+              onSave={async () => {
+                await fetch("/api/admin/posts", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: posts }) });
+                setStatus("Posts saved.");
+                await loadOverview();
+              }}
+            />
+          )}
+
+          {section === "Page Sections" && (
+            <ArrayEditor
+              title="Page sections"
+              items={pageSections}
+              onAdd={() => setPageSections([...pageSections, { id: `section-${Date.now()}`, pageKey: "home", sectionType: "Custom", title: "", subtitle: "", body: "", ctaText: "", ctaUrl: "", order: pageSections.length + 1, visible: true }])}
+              render={(item, index) => (
+                <div className="grid gap-2 rounded-xl border border-border p-4">
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Field label="Page key" value={item.pageKey || "home"} onChange={(value) => patchArray(setPageSections as any, index, { pageKey: value } as any)} />
+                    <Field label="Section type" value={item.sectionType || "Custom"} onChange={(value) => patchArray(setPageSections as any, index, { sectionType: value } as any)} />
+                    <Field label="Order" type="number" value={String(item.order || 0)} onChange={(value) => patchArray(setPageSections as any, index, { order: Number(value) || 0 } as any)} />
+                  </div>
+                  <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPageSections as any, index, { title: value } as any)} />
+                  <Area label="Subtitle" value={item.subtitle || ""} onChange={(value) => patchArray(setPageSections as any, index, { subtitle: value } as any)} />
+                  <Area label="Body" value={item.body || ""} onChange={(value) => patchArray(setPageSections as any, index, { body: value } as any)} />
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Field label="CTA text" value={item.ctaText || ""} onChange={(value) => patchArray(setPageSections as any, index, { ctaText: value } as any)} />
+                    <Field label="CTA URL" value={item.ctaUrl || ""} onChange={(value) => patchArray(setPageSections as any, index, { ctaUrl: value } as any)} />
+                  </div>
+                  <label className="text-sm"><input type="checkbox" checked={Boolean(item.visible)} onChange={(e) => patchArray(setPageSections as any, index, { visible: e.target.checked } as any)} /> Visible</label>
+                  <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPageSections as any, index)}>Delete</button>
+                </div>
+              )}
+              onSave={async () => {
+                await fetch("/api/admin/page-sections", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload: pageSections }) });
+                setStatus("Page sections saved.");
+                await loadOverview();
+              }}
             />
           )}
 

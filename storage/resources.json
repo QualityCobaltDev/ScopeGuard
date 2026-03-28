@@ -10,7 +10,9 @@
     "ctaLabel": "Read guide",
     "sortOrder": 1,
     "visibility": "public",
-    "externalUrl": "https://elevareai.store/resources"
+    "externalUrl": "https://elevareai.store/resources",
+    "accessType": "public",
+    "linkedPostId": "post-1"
   },
   {
     "id": "r2",
@@ -22,7 +24,8 @@
     "status": "published",
     "ctaLabel": "Download worksheet",
     "sortOrder": 2,
-    "visibility": "public"
+    "visibility": "public",
+    "accessType": "account_required"
   },
   {
     "id": "r3",
@@ -34,6 +37,7 @@
     "status": "draft",
     "ctaLabel": "Open template",
     "sortOrder": 3,
-    "visibility": "internal"
+    "visibility": "internal",
+    "accessType": "public"
   }
 ]

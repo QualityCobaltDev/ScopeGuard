@@ -78,6 +78,7 @@ export type ProductContent = {
 };
 
 export type ResourceVisibility = "public" | "gated" | "internal";
+export type ResourceAccessType = "public" | "account_required" | "hidden";
 
 export type ResourceItem = {
   id: string;
@@ -92,6 +93,8 @@ export type ResourceItem = {
   ctaLabel: string;
   sortOrder: number;
   visibility: ResourceVisibility;
+  accessType?: ResourceAccessType;
+  linkedPostId?: string;
   thumbnailUrl?: string;
 };
 

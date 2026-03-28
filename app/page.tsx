@@ -8,6 +8,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
+import { readPageSections } from "@/lib/cms-store";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -17,12 +18,13 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
-  const [site, faq, testimonials, products, pricing] = await Promise.all([
+  const [site, faq, testimonials, products, pricing, pageSections] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
     readCollection("testimonials"),
     readCollection("products"),
     readCollection("pricing"),
+    readPageSections(),
   ]);
 
   return (
@@ -141,6 +143,21 @@ export default async function HomePage() {
             </LinkButton>
           </Card>
         </section>
+
+        {pageSections
+          .filter((section) => section.pageKey === "home" && section.visible)
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+          .map((section) => (
+            <section key={section.id} className="container py-10">
+              <Card className="p-8">
+                <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
+                <h3 className="mt-2 text-2xl font-semibold">{section.title}</h3>
+                {section.subtitle ? <p className="mt-2 text-sm text-muted">{section.subtitle}</p> : null}
+                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p> : null}
+                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-block text-sm text-foreground underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
+              </Card>
+            </section>
+          ))}
         <LeadCapture />
       </div>
     </div>

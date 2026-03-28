@@ -176,3 +176,36 @@ sudo certbot --nginx -d elevareai.store
   - `storage/email-settings.json`
   - `storage/files.json`
   - `public/uploads/resources`
+
+
+## Dashboard synchronization and operations
+- Overview metrics are computed from real data sources via `GET /api/admin/overview` (users, resources, files, subscribers, SMTP state, lead magnet state, pricing/FAQ/testimonials visibility, page section visibility, nav/footer counts).
+- Save actions in admin trigger refresh flows so Overview reflects latest persisted values.
+
+## Modular page sections (boxes)
+- Admin can manage modular sections in **Page Sections**:
+  - add section blocks
+  - choose `pageKey` and `sectionType`
+  - edit title/subtitle/body/CTA fields
+  - set order
+  - toggle visible/hidden
+  - delete sections
+- Public home page renders visible `home` sections in configured order.
+
+## Posts and resource linking
+- Admin can manage lightweight posts in **Posts**.
+- Resources can be linked to posts via `linkedPostId` in Resources editor.
+- Public post page route: `/resources/posts/[slug-or-id]` displays linked published resources.
+
+## Account-required downloads
+- Resource `accessType` supports:
+  - `public`
+  - `account_required`
+  - `hidden`
+- Download route `/api/resources/download/[resourceId]` enforces auth for `account_required` resources and redirects unauthenticated users to sign in, then back to intended resource.
+
+## Save/persistence model
+- Content collections: `storage/*.json` via content store and dedicated stores.
+- Posts: `storage/posts.json`.
+- Page sections: `storage/page-sections.json`.
+- Lead magnet settings/subscribers and SMTP settings remain in dedicated storage files.
