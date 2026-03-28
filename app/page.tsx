@@ -20,6 +20,7 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
+  const dict = t();
   const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),

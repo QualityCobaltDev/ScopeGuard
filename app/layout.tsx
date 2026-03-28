@@ -1,8 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter } from "next/font/google";
-import { Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -11,9 +9,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { readCollection } from "@/lib/content-store";
 import { getCurrentUser } from "@/lib/user-store";
 import { localizeText } from "@/lib/localized";
-
-const inter = Inter({ subsets: ["latin"] });
-const notoSansKhmer = Noto_Sans_Khmer({ subsets: ["khmer"], variable: "--font-khmer", weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "ScopeGuard | Premium Digital Growth Systems",
@@ -43,7 +38,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <ThemeProvider>
           <SiteHeader site={site} user={user} />
           <main className="relative isolate pb-24 md:pb-0">{children}</main>
