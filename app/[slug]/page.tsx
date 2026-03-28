@@ -26,17 +26,17 @@ export default async function ManagedPage({ params }: { params: Promise<{ slug: 
   const pageSections = sections.filter((item) => item.pageId === page.id && item.visible).sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
-    <div className="container py-20">
-      <h1 className="text-3xl font-semibold">{page.title}</h1>
+    <div className="container py-12 sm:py-16 md:py-20">
+      <h1 className="text-balance text-2xl font-semibold sm:text-3xl">{page.title}</h1>
       <p className="mt-2 text-sm text-muted">/{page.slug}</p>
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {pageSections.map((section) => (
-          <Card key={section.id} className="p-6">
+          <Card key={section.id} className="p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
-            <h2 className="mt-2 text-2xl font-semibold">{section.title}</h2>
-            {section.subtitle ? <p className="mt-2 text-sm text-muted">{section.subtitle}</p> : null}
+            <h2 className="mt-2 text-balance text-xl font-semibold sm:text-2xl">{section.title}</h2>
+            {section.subtitle ? <p className="mt-2 text-sm leading-7 text-muted">{section.subtitle}</p> : null}
             {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p> : null}
-            {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-block underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
+            {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-flex min-h-10 items-center text-sm underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
           </Card>
         ))}
       </div>

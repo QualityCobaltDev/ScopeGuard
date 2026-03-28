@@ -18,7 +18,7 @@ export default async function ResourcesPage() {
     .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
   return (
-    <div className="container py-20">
+    <div className="container py-12 sm:py-16 md:py-20">
       <SectionTitle eyebrow="Resources" title="Build your premium growth library" description="Search, filter, and unlock structured downloads built for freelancers." />
       <ResourcesLibrary resources={published} />
     </div>

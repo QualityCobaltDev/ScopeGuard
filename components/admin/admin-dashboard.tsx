@@ -1,6 +1,7 @@
 "use client";
 
 import { Dispatch, FormEvent, ReactNode, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Menu, X } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import type { FaqItem, PricingTier, ResourceItem, SiteContent, Testimonial } from "@/lib/content-types";
 import type { UploadedFileRecord } from "@/lib/file-store";
@@ -70,6 +71,7 @@ const emptyPricing: PricingTier = {
 export function AdminDashboard({ user }: { user: SessionUser }) {
   const [section, setSection] = useState<Section>("Overview");
   const [status, setStatus] = useState("Ready");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [site, setSite] = useState<SiteContent | null>(null);
   const [pricing, setPricing] = useState<PricingTier[]>([]);
@@ -188,6 +190,19 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     refreshAll();
   }, []);
 
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    };
+    document.addEventListener("keydown", onEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onEscape);
+      document.body.style.overflow = "";
+    };
+  }, [mobileNavOpen]);
+
   async function saveCollection(name: string, payload: unknown) {
     setStatus("Saving changes...");
     const method = Array.isArray(payload) ? "PUT" : "POST";
@@ -240,27 +255,44 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const filesById = useMemo(() => new Map(files.map((file) => [file.id, file])), [files]);
 
   return (
-    <div className="container py-8">
-      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside className="rounded-2xl border border-border bg-card p-4">
+    <div className="container py-4 sm:py-6 md:py-8">
+      <div className="mb-3 flex items-center justify-between gap-2 lg:hidden">
+        <p className="text-sm text-muted">Admin: {user.username}</p>
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground"
+          aria-label={mobileNavOpen ? "Close admin sections" : "Open admin sections"}
+          onClick={() => setMobileNavOpen((open) => !open)}
+        >
+          {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {mobileNavOpen ? <button className="fixed inset-0 z-40 bg-black/50 lg:hidden" aria-label="Close admin menu" onClick={() => setMobileNavOpen(false)} /> : null}
+
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
+        <aside className={`rounded-2xl border border-border bg-card p-4 ${mobileNavOpen ? "fixed inset-x-3 top-16 z-50 max-h-[70vh] overflow-y-auto" : "hidden lg:block"}`}>
           <p className="text-sm text-muted">Admin: {user.username}</p>
           <nav className="mt-4 space-y-2">
             {sectionOrder.map((item) => (
               <button
                 key={item}
-                onClick={() => setSection(item)}
-                className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${section === item ? "bg-brand text-black" : "border border-border hover:border-brand/60"}`}
+                onClick={() => {
+                  setSection(item);
+                  setMobileNavOpen(false);
+                }}
+                className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${section === item ? "bg-brand text-black" : "border border-border hover:border-brand/60"}`}
               >
                 {item}
               </button>
             ))}
           </nav>
-          <button onClick={logout} className="mt-6 w-full rounded-lg border border-border px-3 py-2 text-sm hover:border-brand/60">
+          <button onClick={logout} className="mt-6 min-h-11 w-full rounded-lg border border-border px-3 py-2 text-sm hover:border-brand/60">
             Logout
           </button>
         </aside>
 
-        <section className="rounded-2xl border border-border bg-card p-6">
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 md:p-6">
           <div className="mb-4 text-xs text-muted">{status}</div>
 
           {section === "Overview" && (
@@ -521,6 +553,9 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                   {(analytics?.recent || []).map((event: any) => <p key={event.id}>{event.type} · {event.key} · {new Date(event.at).toLocaleString()}</p>)}
                 </div>
               </div>
+              <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
+                Save website content
+              </button>
             </div>
           )}
 
@@ -597,17 +632,29 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
           {section === "Users" && (
             <div>
               <h2 className="text-xl font-semibold">Users</h2>
-              <form onSubmit={createUser} className="mt-4 grid gap-3 md:grid-cols-4">
-                <input className="rounded-lg border border-border bg-background px-3 py-2" placeholder="Username" value={newUser.username} onChange={(e) => setNewUser((s) => ({ ...s, username: e.target.value }))} required minLength={4} />
-                <input className="rounded-lg border border-border bg-background px-3 py-2" placeholder="Display name" value={newUser.name} onChange={(e) => setNewUser((s) => ({ ...s, name: e.target.value }))} required />
-                <input className="rounded-lg border border-border bg-background px-3 py-2" placeholder="Password" type="password" minLength={8} value={newUser.password} onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))} required />
-                <select className="rounded-lg border border-border bg-background px-3 py-2" value={newUser.role} onChange={(e) => setNewUser((s) => ({ ...s, role: e.target.value as "admin" | "user" }))}><option value="user">User</option><option value="admin">Admin</option></select>
-                <button className="rounded-lg bg-brand px-4 py-2 font-semibold text-black md:col-span-4">Create New</button>
+              <form onSubmit={createUser} className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <input className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" placeholder="Username" value={newUser.username} onChange={(e) => setNewUser((s) => ({ ...s, username: e.target.value }))} required minLength={4} />
+                <input className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" placeholder="Display name" value={newUser.name} onChange={(e) => setNewUser((s) => ({ ...s, name: e.target.value }))} required />
+                <input className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" placeholder="Password" type="password" minLength={8} value={newUser.password} onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))} required />
+                <select className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" value={newUser.role} onChange={(e) => setNewUser((s) => ({ ...s, role: e.target.value as "admin" | "user" }))}><option value="user">User</option><option value="admin">Admin</option></select>
+                <button className="min-h-11 rounded-lg bg-brand px-4 py-2 font-semibold text-black md:col-span-2 xl:col-span-4">Create New</button>
               </form>
-              <div className="mt-6 overflow-hidden rounded-xl border border-border">
+              <div className="mt-6 hidden overflow-hidden rounded-xl border border-border md:block">
                 <table className="min-w-full text-sm"><thead className="bg-white/5"><tr><th className="p-3 text-left">Username</th><th className="p-3 text-left">Name</th><th className="p-3 text-left">Role</th><th className="p-3 text-left">Actions</th></tr></thead>
-                  <tbody>{users.map((u) => <tr key={u.id} className="border-t border-border/70"><td className="p-3">{u.username}</td><td className="p-3">{u.name}</td><td className="p-3"><select value={u.role} className="rounded border border-border bg-background px-2 py-1" onChange={(e) => updateUserRole(u.id, e.target.value as "admin" | "user")}><option value="user">user</option><option value="admin">admin</option></select></td><td className="p-3"><button className="rounded border border-border px-2 py-1" onClick={() => deleteUser(u.id)}>Delete</button></td></tr>)}</tbody>
+                  <tbody>{users.map((u) => <tr key={u.id} className="border-t border-border/70"><td className="p-3">{u.username}</td><td className="p-3">{u.name}</td><td className="p-3"><select value={u.role} className="min-h-9 rounded border border-border bg-background px-2 py-1" onChange={(e) => updateUserRole(u.id, e.target.value as "admin" | "user")}><option value="user">user</option><option value="admin">admin</option></select></td><td className="p-3"><button className="rounded border border-border px-2 py-1" onClick={() => deleteUser(u.id)}>Delete</button></td></tr>)}</tbody>
                 </table>
+              </div>
+              <div className="mt-6 space-y-2 md:hidden">
+                {users.map((u) => (
+                  <div key={u.id} className="rounded-xl border border-border p-3 text-sm">
+                    <p className="font-medium text-foreground">{u.username}</p>
+                    <p className="text-muted">{u.name}</p>
+                    <div className="mt-3 flex items-center gap-2">
+                      <select value={u.role} className="min-h-10 flex-1 rounded border border-border bg-background px-2 py-1" onChange={(e) => updateUserRole(u.id, e.target.value as "admin" | "user")}><option value="user">user</option><option value="admin">admin</option></select>
+                      <button className="min-h-10 rounded border border-border px-3 py-1.5" onClick={() => deleteUser(u.id)}>Delete</button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -621,19 +668,19 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 }
 
 function Kpi({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-xl border border-border p-4"><p className="text-xs text-muted">{label}</p><p className="text-2xl font-semibold">{value}</p></div>;
+  return <div className="rounded-xl border border-border p-4"><p className="text-xs text-muted">{label}</p><p className="text-xl font-semibold sm:text-2xl">{value}</p></div>;
 }
 
 function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
-  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><input type={type} className="rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} /></label>;
+  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><input type={type} className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} /></label>;
 }
 
 function Area({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><textarea className="min-h-24 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} /></label>;
+  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><textarea className="min-h-28 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} /></label>;
 }
 
 function Select({ label, value, options, onChange, optionLabel }: { label: string; value: string; options: string[]; onChange: (v: string) => void; optionLabel?: (v: string) => string }) {
-  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><select className="rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)}>{options.map((option) => <option key={option} value={option}>{optionLabel ? optionLabel(option) : option}</option>)}</select></label>;
+  return <label className="grid gap-1 text-sm"><span className="text-muted">{label}</span><select className="min-h-11 rounded-lg border border-border bg-background px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)}>{options.map((option) => <option key={option} value={option}>{optionLabel ? optionLabel(option) : option}</option>)}</select></label>;
 }
 
 function ArrayEditor<T>({ title, items, render, onAdd, onSave }: { title: string; items: T[]; render: (item: T, index: number) => ReactNode; onAdd: () => void; onSave: () => void }) {

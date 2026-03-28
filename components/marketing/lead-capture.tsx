@@ -58,19 +58,19 @@ export function LeadCapture() {
   }
 
   return (
-    <section className="container pb-24">
-      <Card className="grid gap-6 p-8 md:grid-cols-[1.4fr_1fr] md:items-center">
+    <section className="container pb-16 sm:pb-20 md:pb-24">
+      <Card className="grid gap-6 p-5 sm:p-6 md:grid-cols-[1.2fr_1fr] md:items-center md:p-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Lead Magnet</p>
-          <h3 className="mt-2 text-2xl font-semibold text-foreground">{config.publicTitle}</h3>
-          <p className="mt-2 text-sm text-muted">{config.publicDescription}</p>
+          <h3 className="mt-2 text-balance text-xl font-semibold text-foreground sm:text-2xl">{config.publicTitle}</h3>
+          <p className="mt-2 text-sm leading-7 text-muted">{config.publicDescription}</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-3">
-          <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="your email" aria-label="Email" />
-          <Button className="w-full" disabled={status === "loading" || !config.isActive} type="submit">
+          <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="your@email.com" aria-label="Email" className="h-12" />
+          <Button className="h-12 w-full" disabled={status === "loading" || !config.isActive} type="submit">
             {status === "loading" ? "Sending..." : config.buttonLabel}
           </Button>
-          <p className={`text-xs ${status === "error" ? "text-red-400" : "text-muted"}`}>{message}</p>
+          <p className={`text-xs leading-6 ${status === "error" ? "text-red-400" : "text-muted"}`}>{message}</p>
         </form>
       </Card>
     </section>

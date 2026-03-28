@@ -43,7 +43,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <SiteHeader site={site} user={user} />
-          <main className="relative isolate">{children}</main>
+          <main className="relative isolate pb-24 md:pb-0">{children}</main>
           <SiteFooter site={site} />
           <MobileStickyCta />
         </ThemeProvider>

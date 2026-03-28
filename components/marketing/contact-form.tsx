@@ -42,14 +42,14 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input required name="name" placeholder="Name" />
-      <Input required name="email" type="email" placeholder="Work email" />
+      <Input required name="name" placeholder="Name" className="h-12" />
+      <Input required name="email" type="email" placeholder="Work email" className="h-12" />
       <input name="company" className="hidden" tabIndex={-1} autoComplete="off" />
-      <Textarea required minLength={10} name="message" placeholder="How can we help?" />
-      <Button className="w-full" disabled={status === "loading"} type="submit">
+      <Textarea required minLength={10} name="message" placeholder="How can we help?" className="min-h-36" />
+      <Button className="h-12 w-full" disabled={status === "loading"} type="submit">
         {status === "loading" ? "Sending..." : "Send message"}
       </Button>
-      <p className="text-xs text-muted">{message}</p>
+      <p className="text-xs leading-6 text-muted">{message}</p>
     </form>
   );
 }

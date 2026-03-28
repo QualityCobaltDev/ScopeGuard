@@ -9,28 +9,28 @@ const linkMap = { starter: checkoutLinks.starter, pro: checkoutLinks.pro, premiu
 
 export function PricingSection({ tiers }: { tiers: PricingTier[] }) {
   return (
-    <section className="container py-20" id="pricing">
+    <section className="container py-12 sm:py-16 md:py-20" id="pricing">
       <SectionTitle
         eyebrow="Offer Ladder"
         title="Choose your protection level"
         description="Start with core protection or deploy the full freelancer revenue system. Every tier builds on the previous level."
       />
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
         {tiers.map((tier) => (
-          <Card key={tier.id} className={`p-6 ${tier.featured ? "border-brand/70 bg-gradient-to-b from-brand/15 via-card/90 to-card/80 shadow-glow" : ""}`}>
+          <Card key={tier.id} className={`p-5 sm:p-6 ${tier.featured ? "border-brand/70 bg-gradient-to-b from-brand/15 via-card/90 to-card/80 shadow-glow" : ""}`}>
             {tier.featured ? <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Best Value</p> : null}
             <p className="text-sm font-medium text-brand-soft">{tier.name}</p>
             <h3 className="mt-1 text-xl font-semibold text-foreground">{tier.label}</h3>
             <p className="mt-3 text-3xl font-semibold text-foreground">{tier.price}</p>
             <p className="mt-3 text-sm leading-6 text-muted">{tier.description}</p>
-            {tier.audience ? <p className="mt-2 text-xs text-muted">{tier.audience}</p> : null}
-            <ul className="mt-6 space-y-3">
+            {tier.audience ? <p className="mt-2 text-xs leading-6 text-muted">{tier.audience}</p> : null}
+            <ul className="mt-5 space-y-2.5">
               {tier.includes.map((line) => (
-                <li key={line} className="flex items-start gap-2 text-sm text-muted"><Check className="mt-0.5 h-4 w-4 text-accent" /><span>{line}</span></li>
+                <li key={line} className="flex items-start gap-2 text-sm leading-6 text-muted"><Check className="mt-1 h-4 w-4 shrink-0 text-accent" /><span>{line}</span></li>
               ))}
             </ul>
             {tier.benefit ? <p className="mt-4 text-sm font-medium text-foreground">{tier.benefit}</p> : null}
-            <LinkButton href={tier.ctaUrl || linkMap[tier.id as keyof typeof linkMap] || "/product"} className="mt-7 w-full" variant={tier.featured ? "default" : "secondary"}>{tier.cta}</LinkButton>
+            <LinkButton href={tier.ctaUrl || linkMap[tier.id as keyof typeof linkMap] || "/product"} className="mt-6 h-11 w-full" variant={tier.featured ? "default" : "secondary"}>{tier.cta}</LinkButton>
           </Card>
         ))}
       </div>

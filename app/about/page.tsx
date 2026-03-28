@@ -12,9 +12,16 @@ export const metadata = createMetadata({
 export default async function AboutPage() {
   const site = await readCollection("site");
   return (
-    <div className="container py-20">
+    <div className="container py-12 sm:py-16 md:py-20">
       <SectionTitle eyebrow={site.about.eyebrow} title={site.about.title} description={site.about.description} />
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">{site.about.sections.map((section) => <Card key={section.id} className="p-7"><h2 className="text-xl font-semibold">{section.title}</h2><p className="mt-3 text-sm leading-7 text-muted">{section.body}</p></Card>)}</div>
+      <div className="mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-2">
+        {site.about.sections.map((section) => (
+          <Card key={section.id} className="p-5 sm:p-7">
+            <h2 className="text-xl font-semibold">{section.title}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
