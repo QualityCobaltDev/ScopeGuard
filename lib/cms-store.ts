@@ -6,6 +6,7 @@ import { getEmailSettingsForAdmin } from "@/lib/email-settings-store";
 import { getLeadMagnetSettings, getSubscribers, leadMagnetMetrics } from "@/lib/lead-magnet-store";
 import { listUsers } from "@/lib/user-store";
 import { SYSTEM_MANAGED_PAGES } from "@/lib/managed-pages";
+import { BlogPostBlock, normalizePostBlocks, safePublicAssetUrl } from "@/lib/post-blocks";
 
 export type ManagedPage = {
   id: string;
@@ -33,6 +34,9 @@ export type ContentPost = {
   title: string;
   excerpt: string;
   body: string;
+  blocks?: BlogPostBlock[];
+  featuredImageUrl?: string;
+  publishDate?: string;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -127,6 +131,23 @@ function withSystemPages(pages: ManagedPage[]): { pages: ManagedPage[]; changed:
   };
 }
 
+function normalizePost(raw: Partial<ContentPost>): ContentPost {
+  const now = new Date().toISOString();
+  return {
+    id: String(raw.id || ""),
+    slug: String(raw.slug || "").trim(),
+    title: String(raw.title || "").trim(),
+    excerpt: String(raw.excerpt || "").trim(),
+    body: String(raw.body || "").trim(),
+    blocks: normalizePostBlocks(raw.blocks),
+    featuredImageUrl: raw.featuredImageUrl ? safePublicAssetUrl(raw.featuredImageUrl) || undefined : undefined,
+    publishDate: raw.publishDate || undefined,
+    isPublished: Boolean(raw.isPublished),
+    createdAt: raw.createdAt || now,
+    updatedAt: raw.updatedAt || now
+  };
+}
+
 export async function readPages() {
   const storedPages = await readJson<ManagedPage[]>(PAGES_PATH, []);
   const { pages, changed } = withSystemPages(storedPages);
@@ -139,11 +160,12 @@ export async function writePages(pages: ManagedPage[]) {
 }
 
 export async function readPosts() {
-  return readJson<ContentPost[]>(POSTS_PATH, []);
+  const raw = await readJson<ContentPost[]>(POSTS_PATH, []);
+  return raw.map((post) => normalizePost(post));
 }
 
 export async function writePosts(posts: ContentPost[]) {
-  await writeJson(POSTS_PATH, posts);
+  await writeJson(POSTS_PATH, posts.map((post) => normalizePost(post)));
 }
 
 export async function readPageSections() {
