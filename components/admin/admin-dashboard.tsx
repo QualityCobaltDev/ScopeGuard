@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import type { AnalyticsEvent } from "@/lib/analytics-store";
 import type { ContentPost, ManagedPage, PageSectionBlock } from "@/lib/cms-store";
-import type { FaqItem, PricingTier, ResourceItem, SiteContent, Testimonial } from "@/lib/content-types";
+import type { FaqItem, PricingTier, ProductContent, ResourceItem, SiteContent, Testimonial } from "@/lib/content-types";
 import type { UploadedFileRecord } from "@/lib/file-store";
 import type { LeadMagnetSettings, LeadSubscriber } from "@/lib/lead-magnet-store";
 
@@ -49,6 +49,7 @@ type LeadMagnetResponse = {
 type Section =
   | "Overview"
   | "Website Content"
+  | "Product Content"
   | "Pricing"
   | "Testimonials"
   | "FAQ"
@@ -70,7 +71,7 @@ type Section =
 const sectionGroups: { heading: string; sections: Section[] }[] = [
   { heading: "Control Center", sections: ["Overview"] },
   { heading: "Content", sections: ["Website Content", "Pages", "Page Sections", "Posts", "Navigation", "Footer"] },
-  { heading: "Commerce / Product", sections: ["Pricing", "Testimonials", "Resources", "Lead Magnet", "Documents / Files"] },
+  { heading: "Commerce / Product", sections: ["Product Content", "Pricing", "Testimonials", "Resources", "Lead Magnet", "Documents / Files"] },
   { heading: "Audience / Operations", sections: ["Subscribers", "Analytics", "Email / SMTP"] },
   { heading: "System / Account", sections: ["Settings", "Users", "Profile"] }
 ];
@@ -195,6 +196,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [site, setSite] = useState<SiteContent | null>(null);
+  const [products, setProducts] = useState<ProductContent | null>(null);
   const [pricing, setPricing] = useState<PricingTier[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faq, setFaq] = useState<FaqItem[]>([]);
@@ -295,6 +297,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
   const refreshAll = useCallback(async () => {
     await Promise.all([
       loadCollection<SiteContent>("site", setSite),
+      loadCollection<ProductContent>("products", setProducts),
       loadCollection<PricingTier[]>("pricing", setPricing),
       loadCollection<Testimonial[]>("testimonials", setTestimonials),
       loadCollection<FaqItem[]>("faq", setFaq),
@@ -496,6 +499,44 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                 <Field label="Secondary CTA label" value={site.hero.secondaryCtaLabel} onChange={(value) => setSite({ ...site, hero: { ...site.hero, secondaryCtaLabel: value } })} />
                 <Field label="Secondary CTA URL" value={site.hero.secondaryCtaLink} onChange={(value) => setSite({ ...site, hero: { ...site.hero, secondaryCtaLink: value } })} />
               </div>
+
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">About page content</h3>
+                <div className="mt-3 grid gap-2">
+                  <Field label="About eyebrow" value={site.about.eyebrow} onChange={(value) => setSite({ ...site, about: { ...site.about, eyebrow: value } })} />
+                  <Field label="About title" value={site.about.title} onChange={(value) => setSite({ ...site, about: { ...site.about, title: value } })} />
+                  <Area label="About description" value={site.about.description} onChange={(value) => setSite({ ...site, about: { ...site.about, description: value } })} />
+                </div>
+                <div className="mt-3 space-y-3">
+                  {site.about.sections.map((aboutSection, aboutIndex) => (
+                    <div key={aboutSection.id} className="grid gap-2 rounded-lg border border-border/70 p-3">
+                      <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                        <Field label="Section title" value={aboutSection.title} onChange={(value) => setSite({ ...site, about: { ...site.about, sections: site.about.sections.map((entry, idx) => (idx === aboutIndex ? { ...entry, title: value } : entry)) } })} />
+                        <button className="mt-6 rounded border border-border px-2 py-1 text-sm" onClick={() => setSite({ ...site, about: { ...site.about, sections: site.about.sections.filter((_, idx) => idx !== aboutIndex) } })}>Delete</button>
+                      </div>
+                      <Area label="Section body" value={aboutSection.body} onChange={(value) => setSite({ ...site, about: { ...site.about, sections: site.about.sections.map((entry, idx) => (idx === aboutIndex ? { ...entry, body: value } : entry)) } })} />
+                    </div>
+                  ))}
+                </div>
+                <button className="mt-3 rounded border border-border px-3 py-2 text-sm" onClick={() => setSite({ ...site, about: { ...site.about, sections: [...site.about.sections, { id: `about-${Date.now()}`, title: "", body: "" }] } })}>Add about section</button>
+              </div>
+
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">Contact page content</h3>
+                <div className="mt-3 grid gap-2">
+                  <Field label="Contact headline" value={site.contact.headline} onChange={(value) => setSite({ ...site, contact: { ...site.contact, headline: value } })} />
+                  <Area label="Contact description" value={site.contact.description} onChange={(value) => setSite({ ...site, contact: { ...site.contact, description: value } })} />
+                  <Field label="Response window" value={site.contact.responseWindow} onChange={(value) => setSite({ ...site, contact: { ...site.contact, responseWindow: value } })} />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">Legal page content</h3>
+                <Area label="Privacy policy paragraphs (one per line)" value={site.legal.privacy.join("\n")} onChange={(value) => setSite({ ...site, legal: { ...site.legal, privacy: value.split("\n").map((line) => line.trim()).filter(Boolean) } })} />
+                <Area label="Terms paragraphs (one per line)" value={site.legal.terms.join("\n")} onChange={(value) => setSite({ ...site, legal: { ...site.legal, terms: value.split("\n").map((line) => line.trim()).filter(Boolean) } })} />
+                <Area label="Refund policy paragraphs (one per line)" value={site.legal.refund.join("\n")} onChange={(value) => setSite({ ...site, legal: { ...site.legal, refund: value.split("\n").map((line) => line.trim()).filter(Boolean) } })} />
+              </div>
+
               <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
                 Save website content
               </button>
@@ -514,6 +555,31 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
               <SimpleNavEditor title="Legal links" items={site.footer.legalLinks} onChange={(next) => setSite({ ...site, footer: { ...site.footer, legalLinks: next } })} onSave={() => saveCollection("site", site)} hideSave />
               <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("site", site)}>
                 Save footer
+              </button>
+            </div>
+          )}
+
+          {section === "Product Content" && products && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Product Content</h2>
+              <ArrayEditor
+                title="Product highlights"
+                items={products.highlights}
+                onAdd={() => setProducts({ ...products, highlights: [...products.highlights, { id: `highlight-${Date.now()}`, title: "", description: "" }] })}
+                render={(item, index) => (
+                  <div className="grid gap-2 rounded-xl border border-border p-4">
+                    <Field label="Title" value={item.title} onChange={(value) => setProducts({ ...products, highlights: products.highlights.map((entry, idx) => (idx === index ? { ...entry, title: value } : entry)) })} />
+                    <Area label="Description" value={item.description} onChange={(value) => setProducts({ ...products, highlights: products.highlights.map((entry, idx) => (idx === index ? { ...entry, description: value } : entry)) })} />
+                    <button className="w-fit rounded border border-border px-2 py-1" onClick={() => setProducts({ ...products, highlights: products.highlights.filter((_, idx) => idx !== index) })}>Delete</button>
+                  </div>
+                )}
+                onSave={() => saveCollection("products", products)}
+              />
+              <Area label="Deliverables (one per line)" value={products.deliverables.join("\n")} onChange={(value) => setProducts({ ...products, deliverables: value.split("\n").map((line) => line.trim()).filter(Boolean) })} />
+              <Area label="Who this is for" value={products.fit} onChange={(value) => setProducts({ ...products, fit: value })} />
+              <Area label="Bonuses (one per line)" value={products.bonuses.join("\n")} onChange={(value) => setProducts({ ...products, bonuses: value.split("\n").map((line) => line.trim()).filter(Boolean) })} />
+              <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black" onClick={() => saveCollection("products", products)}>
+                Save product content
               </button>
             </div>
           )}

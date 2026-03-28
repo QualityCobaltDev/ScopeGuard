@@ -5,6 +5,7 @@ import { readFiles } from "@/lib/file-store";
 import { getEmailSettingsForAdmin } from "@/lib/email-settings-store";
 import { getLeadMagnetSettings, getSubscribers, leadMagnetMetrics } from "@/lib/lead-magnet-store";
 import { listUsers } from "@/lib/user-store";
+import { SYSTEM_MANAGED_PAGES } from "@/lib/managed-pages";
 
 export type ManagedPage = {
   id: string;
@@ -70,8 +71,67 @@ async function writeJson(file: string, value: unknown) {
   await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, "utf-8");
 }
 
+function withSystemPages(pages: ManagedPage[]): { pages: ManagedPage[]; changed: boolean } {
+  let changed = false;
+  const now = new Date().toISOString();
+  const byId = new Map(pages.map((page) => [page.id, page]));
+  const merged = [...pages];
+
+  for (const definition of SYSTEM_MANAGED_PAGES) {
+    const existing = byId.get(definition.id) || pages.find((page) => page.pageKey === definition.pageKey || page.slug === definition.slug);
+    if (existing) {
+      if (!existing.isSystemPage) {
+        existing.isSystemPage = true;
+        changed = true;
+      }
+      if (!existing.pageKey) {
+        existing.pageKey = definition.pageKey;
+        changed = true;
+      }
+      if (existing.slug !== definition.slug && existing.id === definition.id) {
+        existing.slug = definition.slug;
+        changed = true;
+      }
+      continue;
+    }
+
+    merged.push({
+      id: definition.id,
+      title: definition.title,
+      internalName: definition.internalName,
+      slug: definition.slug,
+      pageKey: definition.pageKey,
+      pageType: definition.pageType,
+      seoTitle: definition.seoTitle,
+      seoDescription: definition.seoDescription,
+      isPublished: true,
+      isVisible: true,
+      showInNavigation: definition.showInNavigation,
+      isSystemPage: true,
+      sortOrder: definition.sortOrder,
+      createdAt: now,
+      updatedAt: now
+    });
+    changed = true;
+  }
+
+  return {
+    pages: merged
+      .map((page, index) => ({
+        ...page,
+        slug: String(page.slug || "").replace(/^\/+/, ""),
+        pageKey: page.pageKey || page.slug || `page-${index + 1}`
+      }))
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+    changed
+  };
+}
+
 export async function readPages() {
-  return readJson<ManagedPage[]>(PAGES_PATH, []);
+  const storedPages = await readJson<ManagedPage[]>(PAGES_PATH, []);
+  const { pages, changed } = withSystemPages(storedPages);
+  if (changed) await writeJson(PAGES_PATH, pages);
+  return pages;
 }
 
 export async function writePages(pages: ManagedPage[]) {
