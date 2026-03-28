@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createArrayItem, deleteArrayItem, readCollection, updateArrayItem, writeCollection } from "@/lib/content-store";
 import { CollectionName } from "@/lib/content-types";
 import { requireAdmin } from "@/lib/permissions";
+import { revalidateSiteContent } from "@/lib/site-sync";
 
 const COLLECTIONS: CollectionName[] = ["site", "pricing", "testimonials", "faq", "products", "resources"];
 
@@ -31,8 +32,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
   if (!validateCollection(collection)) return NextResponse.json({ message: "Invalid collection" }, { status: 404 });
   const body = await req.json();
 
-  if (collection === "site" || collection === "products") return NextResponse.json(await writeCollection(collection, body));
-  return NextResponse.json(await createArrayItem(collection, body));
+  if (collection === "site" || collection === "products") {
+    const result = await writeCollection(collection, body);
+    await revalidateSiteContent();
+    return NextResponse.json(result);
+  }
+  const result = await createArrayItem(collection, body);
+  await revalidateSiteContent();
+  return NextResponse.json(result);
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ collection: string }> }) {
@@ -43,7 +50,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
   const body = (await req.json()) as { id?: string; payload?: unknown };
 
   if (body.payload && (collection === "site" || collection === "products" || Array.isArray(body.payload))) {
-    return NextResponse.json(await writeCollection(collection, body.payload as never));
+    const result = await writeCollection(collection, body.payload as never);
+    await revalidateSiteContent();
+    return NextResponse.json(result);
   }
 
   if (collection === "site" || collection === "products") {
@@ -54,7 +63,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ message: "id and object payload required" }, { status: 400 });
   }
 
-  return NextResponse.json(await updateArrayItem(collection, body.id, body.payload as Record<string, unknown>));
+  const result = await updateArrayItem(collection, body.id, body.payload as Record<string, unknown>);
+  await revalidateSiteContent();
+  return NextResponse.json(result);
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ collection: string }> }) {
@@ -66,5 +77,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ colle
 
   const body = (await req.json()) as { id?: string };
   if (!body.id) return NextResponse.json({ message: "id required" }, { status: 400 });
-  return NextResponse.json(await deleteArrayItem(collection, body.id));
+  const result = await deleteArrayItem(collection, body.id);
+  await revalidateSiteContent();
+  return NextResponse.json(result);
 }

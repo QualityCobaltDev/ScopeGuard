@@ -5,13 +5,10 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { Locale } from "@/lib/i18n";
-import { t } from "@/lib/i18n";
 
-export function ContactForm({ locale }: { locale: Locale }) {
-  const dict = t(locale);
+export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState<string>(dict.contactSafety);
+  const [message, setMessage] = useState<string>("No sensitive data, legal documents, or credentials in this form.");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,7 +47,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
       <input name="company" className="hidden" tabIndex={-1} autoComplete="off" />
       <Textarea required minLength={10} name="message" placeholder="How can we help?" className="min-h-36" />
       <Button className="h-12 w-full" disabled={status === "loading"} type="submit">
-        {status === "loading" ? dict.contactSending : dict.contactSend}
+        {status === "loading" ? "Sending..." : "Send message"}
       </Button>
       <p className="text-xs leading-6 text-muted">{message}</p>
     </form>
