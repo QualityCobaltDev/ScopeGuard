@@ -34,7 +34,7 @@ export function ResourcesLibrary({ resources, locale }: { resources: ResourceIte
       <div className="mb-5 grid gap-3 rounded-xl border border-border bg-card p-4 md:grid-cols-[1fr_220px]">
         <label className="grid gap-1 text-sm">
           <span className="text-muted">{dict.searchResources}</span>
-          <input className="h-11 rounded-lg border border-border bg-background px-3" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by title or summary" />
+          <input className="h-11 rounded-lg border border-border bg-background px-3" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={dict.searchResourcesPlaceholder} />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-muted">{dict.category}</span>
@@ -63,6 +63,7 @@ export function ResourcesLibrary({ resources, locale }: { resources: ResourceIte
           </Card>
         ))}
       </div>
+      {!filtered.length ? <p className="mt-4 text-sm text-muted">{dict.noResources}</p> : null}
     </div>
   );
 }

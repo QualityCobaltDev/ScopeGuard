@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
 import { readPageSections, readPages, writePageSections } from "@/lib/cms-store";
+import { revalidateSiteContent } from "@/lib/site-sync";
 
 export async function GET() {
   try {
@@ -30,5 +31,6 @@ export async function PUT(request: Request) {
   }));
 
   await writePageSections(payload);
+  await revalidateSiteContent();
   return NextResponse.json({ ok: true });
 }
