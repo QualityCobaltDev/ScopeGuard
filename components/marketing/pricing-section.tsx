@@ -25,7 +25,7 @@ export function PricingSection({ tiers, locale }: { tiers: PricingTier[]; locale
             {tier.featured ? <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">{dict.pricingBestValue}</p> : null}
             <p className="text-sm font-medium text-brand-soft">{localizeText(tier.name, locale)}</p>
             <h3 className="mt-1 text-xl font-semibold text-foreground">{localizeText(tier.label, locale)}</h3>
-            <p className="mt-3 text-3xl font-semibold text-foreground">{parsePriceAmount(tier.price) ? formatCurrency(parsePriceAmount(tier.price)!, locale) : tier.price}</p>
+            <p className="mt-3 text-3xl font-semibold text-foreground">{parsePriceAmount(localizeText(tier.price as any, locale)) ? formatCurrency(parsePriceAmount(localizeText(tier.price as any, locale))!, locale) : localizeText(tier.price as any, locale)}</p>
             <p className="mt-3 text-sm leading-6 text-muted">{localizeText(tier.description, locale)}</p>
             {tier.audience ? <p className="mt-2 text-xs leading-6 text-muted">{localizeText(tier.audience, locale)}</p> : null}
             <ul className="mt-5 space-y-2.5">

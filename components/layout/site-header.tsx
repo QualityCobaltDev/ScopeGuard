@@ -12,10 +12,12 @@ import type { SiteContent } from "@/lib/content-types";
 import type { SessionUser } from "@/lib/auth";
 import { useLocale } from "@/components/locale-provider";
 import { localizeText } from "@/lib/localized";
+import { t } from "@/lib/i18n";
 
 export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUser | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { locale } = useLocale();
+  const dict = t(locale);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -37,13 +39,13 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
       <div className="container flex h-16 items-center justify-between gap-2 sm:h-[4.5rem]">
         <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold tracking-tight text-foreground" onClick={closeMenu}>
           <ShieldCheck className="h-5 w-5 shrink-0 text-brand-soft" />
-          <span className="truncate text-sm sm:text-base">{localizeText(site.name as any, locale, site.name)}</span>
+          <span className="truncate text-sm sm:text-base">{localizeText(site.name as any, locale)}</span>
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">
           {site.nav.map((item) => (
             <Link key={item.href} href={item.href} className="text-sm text-muted transition hover:text-foreground">
-              {localizeText(item.label as any, locale, item.label)}
+              {localizeText(item.label as any, locale)}
             </Link>
           ))}
         </nav>
@@ -67,8 +69,8 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
               <SessionActions user={user} />
             ) : (
               <>
-                <LinkButton href="/admin/signin" size="sm" variant="secondary">Admin Sign-in</LinkButton>
-                <LinkButton href={checkoutLinks.pro} size="sm">Get Access</LinkButton>
+                <LinkButton href="/admin/signin" size="sm" variant="secondary">{dict.adminSignin}</LinkButton>
+                <LinkButton href={checkoutLinks.pro} size="sm">{dict.getAccess}</LinkButton>
               </>
             )}
           </div>
@@ -87,7 +89,7 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
                   onClick={closeMenu}
                   className="rounded-lg px-3 py-3 text-sm text-foreground transition hover:bg-white/5"
                 >
-                  {localizeText(item.label as any, locale, item.label)}
+                  {localizeText(item.label as any, locale)}
                 </Link>
               ))}
             </nav>
@@ -96,8 +98,8 @@ export function SiteHeader({ site, user }: { site: SiteContent; user: SessionUse
                 <SessionActions user={user} mobile onAction={closeMenu} />
               ) : (
                 <>
-                  <LinkButton href="/admin/signin" size="default" variant="secondary" className="w-full" onClick={closeMenu}>Admin Sign-in</LinkButton>
-                  <LinkButton href={checkoutLinks.pro} size="default" className="w-full" onClick={closeMenu}>Get Access</LinkButton>
+                  <LinkButton href="/admin/signin" size="default" variant="secondary" className="w-full" onClick={closeMenu}>{dict.adminSignin}</LinkButton>
+                  <LinkButton href={checkoutLinks.pro} size="default" className="w-full" onClick={closeMenu}>{dict.getAccess}</LinkButton>
                 </>
               )}
             </div>
