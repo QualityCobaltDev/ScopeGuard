@@ -40,6 +40,12 @@ type AnalyticsSummary = {
   ctaClicks: number;
   recent: AnalyticsEvent[];
 };
+
+type LeadMagnetResponse = {
+  settings?: unknown;
+  resources?: unknown;
+  metrics?: unknown;
+};
 type Section =
   | "Overview"
   | "Website Content"
@@ -103,6 +109,85 @@ function normalizeLocalizedValue<T>(value: T): T {
   return value;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toDisplayString(value: unknown, fallback = ""): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return fallback;
+}
+
+function toLeadMetrics(value: unknown): LeadMetrics | null {
+  if (!isRecord(value)) return null;
+  return {
+    totalSubmissions: typeof value.totalSubmissions === "number" ? value.totalSubmissions : 0,
+    sent: typeof value.sent === "number" ? value.sent : 0,
+    failed: typeof value.failed === "number" ? value.failed : 0,
+    lastSubmissionAt: typeof value.lastSubmissionAt === "string" ? value.lastSubmissionAt : null
+  };
+}
+
+function toLeadMagnetSettings(value: unknown): LeadMagnetSettings | null {
+  const normalized = normalizeLocalizedValue(value);
+  if (!isRecord(normalized)) return null;
+  return {
+    id: toDisplayString(normalized.id, "default"),
+    name: toDisplayString(normalized.name, "Freelancer Checklist"),
+    slug: toDisplayString(normalized.slug, "freelancer-protection-checklist"),
+    publicTitle: toDisplayString(normalized.publicTitle, "Get the Freelancer Protection Checklist"),
+    publicDescription: toDisplayString(normalized.publicDescription),
+    buttonLabel: toDisplayString(normalized.buttonLabel, "Send me the checklist"),
+    successMessage: toDisplayString(normalized.successMessage, "You're in — check your inbox."),
+    emailSubject: toDisplayString(normalized.emailSubject, "Your Freelancer Protection Checklist is here"),
+    emailPreviewText: toDisplayString(normalized.emailPreviewText),
+    emailIntro: toDisplayString(normalized.emailIntro),
+    emailClosing: toDisplayString(normalized.emailClosing),
+    senderName: toDisplayString(normalized.senderName) || undefined,
+    senderEmail: toDisplayString(normalized.senderEmail) || undefined,
+    replyToEmail: toDisplayString(normalized.replyToEmail) || undefined,
+    isActive: Boolean(normalized.isActive),
+    resendOnDuplicate: Boolean(normalized.resendOnDuplicate),
+    sendAdminNotification: Boolean(normalized.sendAdminNotification),
+    selectedResourceIds: Array.isArray(normalized.selectedResourceIds) ? normalized.selectedResourceIds.map((entry) => toDisplayString(entry)).filter(Boolean) : [],
+    primaryResourceId: toDisplayString(normalized.primaryResourceId) || undefined,
+    updatedAt: toDisplayString(normalized.updatedAt, new Date().toISOString())
+  };
+}
+
+function toLeadMagnetResources(value: unknown): ResourceItem[] {
+  const normalized = normalizeLocalizedValue(value);
+  if (!Array.isArray(normalized)) return [];
+
+  return normalized
+    .filter(isRecord)
+    .map((entry) => {
+      const label = resourceLabels.includes(entry.label as ResourceItem["label"]) ? (entry.label as ResourceItem["label"]) : "Guide";
+      const status = entry.status === "published" ? "published" : "draft";
+      const visibility = entry.visibility === "gated" || entry.visibility === "internal" ? entry.visibility : "public";
+      const accessType = entry.accessType === "account_required" || entry.accessType === "hidden" ? entry.accessType : "public";
+      return {
+        id: toDisplayString(entry.id),
+        title: toDisplayString(entry.title, "Untitled resource"),
+        label,
+        category: toDisplayString(entry.category),
+        summary: toDisplayString(entry.summary),
+        description: toDisplayString(entry.description),
+        status,
+        fileId: toDisplayString(entry.fileId) || undefined,
+        externalUrl: toDisplayString(entry.externalUrl) || undefined,
+        ctaLabel: toDisplayString(entry.ctaLabel, "Download"),
+        sortOrder: typeof entry.sortOrder === "number" ? entry.sortOrder : 0,
+        visibility,
+        accessType,
+        linkedPostId: toDisplayString(entry.linkedPostId) || undefined,
+        thumbnailUrl: toDisplayString(entry.thumbnailUrl) || undefined
+      } satisfies ResourceItem;
+    })
+    .filter((entry) => Boolean(entry.id));
+}
+
 export function AdminDashboard({ user }: { user: SessionUser }) {
   const [section, setSection] = useState<Section>("Overview");
   const [status, setStatus] = useState("Ready");
@@ -156,11 +241,16 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 
   const loadLeadMagnet = useCallback(async () => {
     const res = await fetch("/api/admin/lead-magnet");
-    if (!res.ok) return;
-    const data = (await res.json()) as { settings: LeadMagnetSettings; resources?: ResourceItem[]; metrics?: LeadMetrics | null };
-    setLeadMagnet(normalizeLocalizedValue(data.settings));
-    setLeadMagnetResources(data.resources || []);
-    setLeadMetrics(data.metrics || null);
+    if (!res.ok) {
+      setLeadMagnetResources([]);
+      setLeadMetrics(null);
+      return;
+    }
+
+    const data = (await res.json().catch(() => ({}))) as LeadMagnetResponse;
+    setLeadMagnet(toLeadMagnetSettings(data.settings));
+    setLeadMagnetResources(toLeadMagnetResources(data.resources));
+    setLeadMetrics(toLeadMetrics(data.metrics));
   }, []);
 
   async function loadLeadSubscribers() {
@@ -1131,8 +1221,8 @@ function SubscriberManager({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subscriberId: item.id, email: item.email })
     });
-    const data = await res.json().catch(() => ({}));
-    setStatus(data.message || (res.ok ? "Email resent." : "Resend failed."));
+    const data = (await res.json().catch(() => ({}))) as { message?: unknown };
+    setStatus(toDisplayString(data.message, res.ok ? "Email resent." : "Resend failed."));
     await onRefresh();
   }
 
