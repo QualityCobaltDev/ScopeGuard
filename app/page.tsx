@@ -56,11 +56,11 @@ export default async function HomePage() {
       <div className="relative z-10">
         <Hero site={site} />
 
-        <section className="container pb-12 pt-6 sm:pb-14 sm:pt-8 md:pb-20 md:pt-10">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="container pb-12 pt-6 sm:pb-16 sm:pt-8 md:pb-20 md:pt-10">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
             {site.stats.map((stat, idx) => (
               <Reveal key={stat.label} delay={idx * 0.06}>
-                <Card className="p-5 sm:p-6">
+                <Card className="h-full p-5 sm:p-6">
                   <p className="text-3xl font-semibold text-foreground sm:text-4xl">{localizeText(stat.value)}</p>
                   <p className="mt-2 text-sm leading-6 text-muted">{localizeText(stat.label)}</p>
                 </Card>
@@ -69,18 +69,18 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="container py-12 sm:py-14 md:py-16">
+        <section className="container py-12 sm:py-16 md:py-20">
           <SectionTitle
             eyebrow={dict.painPointsEyebrow}
             title={dict.painPointsTitle}
             description={dict.painPointsDescription}
           />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 [grid-auto-rows:1fr] md:grid-cols-3 md:gap-5">
             {site.painPoints.map((point, index) => {
               const Icon = [Wallet, Shield, Sparkles][index] || Sparkles;
               return (
                 <Reveal key={point.id} delay={index * 0.06}>
-                  <Card className="h-full p-6">
+                  <Card className="h-full p-6 sm:p-7">
                     <Icon className="h-5 w-5 text-brand-soft" />
                     <h3 className="mt-4 text-lg font-semibold text-foreground">{localizeText(point.title)}</h3>
                     <p className="mt-2 text-sm leading-7 text-muted">{localizeText(point.description)}</p>
@@ -91,16 +91,16 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="container py-12 sm:py-14 md:py-20">
+        <section className="container py-12 sm:py-16 md:py-20">
           <SectionTitle
             eyebrow={dict.solutionEyebrow}
             title={dict.solutionTitle}
             description={dict.solutionDescription}
           />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 [grid-auto-rows:1fr] md:grid-cols-3 md:gap-5">
             {products.highlights.map((item, idx) => (
               <Reveal key={item.id} delay={idx * 0.06}>
-                <Card className="h-full p-6">
+                <Card className="h-full p-6 sm:p-7">
                   <BadgeCheck className="h-5 w-5 text-accent" />
                   <h3 className="mt-4 text-lg font-semibold text-foreground">{localizeText(item.title)}</h3>
                   <p className="mt-2 text-sm leading-7 text-muted">{localizeText(item.description)}</p>
@@ -112,12 +112,12 @@ export default async function HomePage() {
 
         <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
 
-        <section className="container py-12 sm:py-14 md:py-20">
+        <section className="container py-12 sm:py-16 md:py-20">
           <SectionTitle eyebrow={dict.testimonialsEyebrow} title={dict.testimonialsTitle} />
-          <div className="grid gap-4 md:grid-cols-3 md:gap-5">
+          <div className="grid gap-4 [grid-auto-rows:1fr] md:grid-cols-3 md:gap-5">
             {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item, idx) => (
               <Reveal key={item.id} delay={idx * 0.06}>
-                <Card className="h-full p-6">
+                <Card className="h-full p-6 sm:p-7">
                   <p className="text-sm leading-7 text-muted">“{localizeText(item.quote)}”</p>
                   <p className="mt-5 font-medium text-foreground">{localizeText(item.name)}</p>
                   <p className="text-xs text-muted">{localizeText(item.role)}</p>
@@ -127,7 +127,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="container py-12 sm:py-14 md:py-20">
+        <section className="container py-12 sm:py-16 md:py-20">
           <SectionTitle eyebrow={dict.faqEyebrow} title={dict.faqTitle} />
           <Reveal className="mx-auto max-w-3xl">
             <Accordion
@@ -141,7 +141,7 @@ export default async function HomePage() {
 
         <section className="container pb-10 sm:pb-12 md:pb-14">
           <Reveal>
-            <Card className="flex flex-col items-stretch justify-between gap-6 p-6 sm:p-8 md:flex-row md:items-center md:p-9">
+            <Card className="flex flex-col items-stretch justify-between gap-6 overflow-hidden bg-gradient-to-br from-card/95 via-card/88 to-card/82 p-6 sm:p-8 md:flex-row md:items-center md:p-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-soft">Final CTA</p>
                 <h3 className="mt-2 text-balance text-2xl font-semibold text-foreground sm:text-3xl">{localizeText(site.finalCta.title)}</h3>
