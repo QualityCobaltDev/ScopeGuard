@@ -18,11 +18,11 @@ const config: Config = {
         }
       },
       colors: {
-        background: "#070B14",
-        foreground: "#E6ECFF",
-        muted: "#96A3C8",
-        card: "#0C1324",
-        border: "#1B2847",
+        background: "rgb(var(--bg) / <alpha-value>)",
+        foreground: "rgb(var(--fg) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)",
+        border: "rgb(var(--border) / <alpha-value>)",
         brand: {
           DEFAULT: "#6C8DFF",
           soft: "#9CB2FF",

@@ -26,10 +26,10 @@ export function Hero({ site }: { site: SiteContent }) {
           <p className="inline-flex items-center rounded-full border border-brand/30 bg-brand/10 px-4 py-1 text-xs font-medium uppercase tracking-widest text-brand-soft">
             {site.hero.badge}
           </p>
-          <h1 className="mt-8 text-balance text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
+          <h1 className="mt-8 text-balance text-4xl font-bold leading-tight text-foreground sm:text-6xl">
             {site.hero.title}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-8 text-muted">
+          <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-8 text-muted">
             {site.hero.description}
           </p>
           <div className="relative mt-10">
@@ -54,6 +54,7 @@ export function Hero({ site }: { site: SiteContent }) {
                 {site.hero.secondaryCtaLabel} <Download className="h-4 w-4" />
               </LinkButton>
             </div>
+            <p className="mt-4 text-xs text-muted">Start with the checklist, then upgrade to the full ScopeGuard system when you’re ready.</p>
           </div>
         </div>
       </motion.div>

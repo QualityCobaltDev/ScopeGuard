@@ -2,25 +2,42 @@
   {
     "id": "r1",
     "title": "Premium Offer Positioning Blueprint",
-    "type": "Guide",
-    "description": "A practical workflow for clarifying your offer promise and category position.",
-    "status": "Live",
-    "link": "https://elevareai.store/resources"
+    "label": "Guide",
+    "category": "Positioning",
+    "summary": "A practical workflow for clarifying your offer promise and category position.",
+    "description": "Use this guide to define a strong market angle and improve conversion quality.",
+    "status": "published",
+    "ctaLabel": "Read guide",
+    "sortOrder": 1,
+    "visibility": "public",
+    "externalUrl": "https://elevareai.store/resources",
+    "accessType": "public",
+    "linkedPostId": "post-1"
   },
   {
     "id": "r2",
     "title": "Pricing Ladder Design Worksheet",
-    "type": "Worksheet",
-    "description": "Design Starter/Pro/Premium offers with clean upgrade logic.",
-    "status": "Live",
-    "link": "https://elevareai.store/resources"
+    "label": "Worksheet",
+    "category": "Pricing",
+    "summary": "Design Starter/Pro/Premium offers with clean upgrade logic.",
+    "description": "A worksheet to map offer ladders and package differentiation.",
+    "status": "published",
+    "ctaLabel": "Download worksheet",
+    "sortOrder": 2,
+    "visibility": "public",
+    "accessType": "account_required"
   },
   {
     "id": "r3",
     "title": "Conversion Narrative Map",
-    "type": "Template",
-    "description": "Structure your page flow for authority, clarity, and buyer momentum.",
-    "status": "Live",
-    "link": "https://elevareai.store/resources"
+    "label": "Template",
+    "category": "Messaging",
+    "summary": "Structure your page flow for authority, clarity, and buyer momentum.",
+    "description": "A reusable narrative template for high-converting page sections.",
+    "status": "draft",
+    "ctaLabel": "Open template",
+    "sortOrder": 3,
+    "visibility": "internal",
+    "accessType": "public"
   }
 ]

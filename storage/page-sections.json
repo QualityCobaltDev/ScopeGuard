@@ -1,0 +1,16 @@
+[
+  {
+    "id": "home-hero",
+    "pageKey": "home",
+    "sectionType": "Hero",
+    "title": "Protect Every Client Engagement",
+    "subtitle": "ScopeGuard operational system",
+    "body": "Contracts, process controls, and communication playbooks for freelancers.",
+    "ctaText": "Explore resources",
+    "ctaUrl": "/resources",
+    "order": 1,
+    "visible": true,
+    "updatedAt": "2026-03-28T00:00:00.000Z",
+    "pageId": "page-home"
+  }
+]

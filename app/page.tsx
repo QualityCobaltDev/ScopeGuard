@@ -8,6 +8,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { LinkButton } from "@/components/ui/button";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
+import { readPageSections, readPages } from "@/lib/cms-store";
 
 export const metadata = createMetadata({
   title: "Freelancer Protection Systems",
@@ -17,12 +18,14 @@ export const metadata = createMetadata({
 });
 
 export default async function HomePage() {
-  const [site, faq, testimonials, products, pricing] = await Promise.all([
+  const [site, faq, testimonials, products, pricing, pageSections, pages] = await Promise.all([
     readCollection("site"),
     readCollection("faq"),
     readCollection("testimonials"),
     readCollection("products"),
     readCollection("pricing"),
+    readPageSections(),
+    readPages(),
   ]);
 
   return (
@@ -92,14 +95,14 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-        <PricingSection tiers={pricing} />
+        <PricingSection tiers={pricing.filter((tier) => tier.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))} />
         <section className="container py-20">
           <SectionTitle
             eyebrow="Testimonials"
             title="Proof from freelancers using ScopeGuard"
           />
           <div className="grid gap-5 md:grid-cols-3">
-            {testimonials.map((item) => (
+            {testimonials.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => (
               <Card key={item.id} className="p-6">
                 <p className="text-sm leading-7 text-muted">“{item.quote}”</p>
                 <p className="mt-6 font-medium text-foreground">{item.name}</p>
@@ -112,7 +115,7 @@ export default async function HomePage() {
           <SectionTitle eyebrow="FAQ" title="Questions before you commit" />
           <div className="mx-auto max-w-3xl">
             <Accordion
-              items={faq.map((item) => ({
+              items={faq.filter((item) => item.visible !== false).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => ({
                 question: item.question,
                 answer: item.answer,
               }))}
@@ -141,6 +144,21 @@ export default async function HomePage() {
             </LinkButton>
           </Card>
         </section>
+
+        {pageSections
+          .filter((section) => { const home = pages.find((p) => p.pageKey === "home"); return (section.pageId === home?.id || section.pageKey === "home") && section.visible; })
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+          .map((section) => (
+            <section key={section.id} className="container py-10">
+              <Card className="p-8">
+                <p className="text-xs uppercase tracking-[0.16em] text-brand-soft">{section.sectionType}</p>
+                <h3 className="mt-2 text-2xl font-semibold">{section.title}</h3>
+                {section.subtitle ? <p className="mt-2 text-sm text-muted">{section.subtitle}</p> : null}
+                {section.body ? <p className="mt-3 text-sm leading-7 text-muted">{section.body}</p> : null}
+                {section.ctaText && section.ctaUrl ? <a className="mt-4 inline-block text-sm text-foreground underline" href={section.ctaUrl}>{section.ctaText}</a> : null}
+              </Card>
+            </section>
+          ))}
         <LeadCapture />
       </div>
     </div>
