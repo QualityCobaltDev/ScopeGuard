@@ -1,10 +1,10 @@
-export const SUPPORTED_LOCALES = ["en", "km"] as const;
-export type Locale = (typeof SUPPORTED_LOCALES)[number];
+export const SUPPORTED_LOCALES = ["en"] as const;
+export type Locale = "en";
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "scopeguard-locale";
 
 export function isLocale(value: string | null | undefined): value is Locale {
-  return value === "en" || value === "km";
+  return value === "en";
 }
 
 export const uiDictionary = {
@@ -54,55 +54,21 @@ export const uiDictionary = {
     productOverviewDescription: "Every asset is designed to tighten boundaries, improve payment reliability, and elevate your client experience.",
     pricingBestValue: "Best Value",
     pricingOfferLadder: "Offer Ladder",
-    pricingChoose: "Choose your protection level",
-    pricingOneTime: "One-time payment",
-    pricingInstantAccess: "Instant access",
-    termsTitle: "Terms of Service",
-    privacyTitle: "Privacy Policy",
-    refundTitle: "Refund Policy",
-    lastUpdated: "Last updated"
-  },
-  km: {
-    localeLabel: "Language",
-    english: "EN",
-    khmer: "KM",
-    searchResources: "Search resources",
-    category: "Category",
-    all: "all",
-    accountRequired: "Account required",
-    publicDownload: "Public download",
-    openResource: "Open resource",
-    leadMagnet: "Lead Magnet",
-    sending: "Sending...",
-    contactSend: "Send message",
-    contactSending: "Sending...",
-    contactSafety: "No sensitive data, legal documents, or credentials in this form.",
-    homeFinalCta: "Final CTA",
-    pricingBestValue: "Best Value",
-    pricingOfferLadder: "Offer Ladder",
     pricingChoose: "Choose your protection level"
   }
 } as const;
 
-export type UiKey = keyof typeof uiDictionary.en;
-export type UiDictionary = Record<UiKey, string>;
-
-export function t(locale: Locale): UiDictionary {
-  return (uiDictionary[locale] ?? uiDictionary.en) as UiDictionary;
-}
-
-export function translateUi(locale: Locale, key: UiKey): string {
-  return t(locale)[key] || t("en")[key];
+export function t(): (typeof uiDictionary)["en"] {
+  return uiDictionary.en;
 }
 
 export function formatCurrency(
   value: number,
-  locale: Locale,
+  _locale: Locale = "en",
   currency: string = "USD",
   options?: Intl.NumberFormatOptions
 ) {
-  const localeTag = locale === "km" ? "en-US" : "en-US";
-  return new Intl.NumberFormat(localeTag, {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,

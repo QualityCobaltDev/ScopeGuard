@@ -2,8 +2,6 @@ import { SectionTitle } from "@/components/marketing/section-title";
 import { ResourcesLibrary } from "@/components/marketing/resources-library";
 import { createMetadata } from "@/lib/seo";
 import { readCollection } from "@/lib/content-store";
-import { getServerLocale } from "@/lib/i18n-server";
-import { t } from "@/lib/i18n";
 
 export const metadata = createMetadata({
   title: "Resources",
@@ -12,8 +10,6 @@ export const metadata = createMetadata({
 });
 
 export default async function ResourcesPage() {
-  const locale = await getServerLocale();
-  const dict = t(locale);
   const resources = await readCollection("resources");
 
   const published = resources
@@ -22,8 +18,8 @@ export default async function ResourcesPage() {
 
   return (
     <div className="container py-12 sm:py-16 md:py-20">
-      <SectionTitle eyebrow={dict.resourcesEyebrow} title={dict.resourcesTitle} description={dict.resourcesDescription} />
-      <ResourcesLibrary resources={published} locale={locale} />
+      <SectionTitle eyebrow="Resources" title="Build your premium growth library" description="Search, filter, and unlock structured downloads built for freelancers." />
+      <ResourcesLibrary resources={published} />
     </div>
   );
 }

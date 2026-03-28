@@ -83,9 +83,25 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 
   const [newUser, setNewUser] = useState({ username: "", name: "", password: "", role: "user" as "admin" | "user" });
 
+  function normalizeLocalizedValue<T>(value: T): T {
+    if (Array.isArray(value)) return value.map((item) => normalizeLocalizedValue(item)) as T;
+    if (value && typeof value === "object") {
+      const record = value as Record<string, unknown>;
+      const keys = Object.keys(record);
+      const localeKeys = keys.filter((key) => key === "en" || key === "km");
+      if (localeKeys.length && localeKeys.length === keys.length) {
+        return String(record.en || "") as T;
+      }
+      const next: Record<string, unknown> = {};
+      for (const [key, entry] of Object.entries(record)) next[key] = normalizeLocalizedValue(entry);
+      return next as T;
+    }
+    return value;
+  }
+
   async function loadCollection<T>(name: string, setter: (value: T) => void) {
     const res = await fetch(`/api/content/${name}`);
-    if (res.ok) setter(await res.json());
+    if (res.ok) setter(normalizeLocalizedValue(await res.json()));
   }
 
   async function loadFiles() {
@@ -110,7 +126,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     const res = await fetch("/api/admin/lead-magnet");
     if (!res.ok) return;
     const data = await res.json();
-    setLeadMagnet(data.settings);
+    setLeadMagnet(normalizeLocalizedValue(data.settings));
     setLeadMagnetResources(data.resources || []);
     setLeadMetrics(data.metrics || null);
   }
@@ -129,7 +145,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
 
   async function loadPosts() {
     const res = await fetch("/api/admin/posts");
-    if (res.ok) setPosts(await res.json());
+    if (res.ok) setPosts(normalizeLocalizedValue(await res.json()));
   }
 
 
@@ -142,7 +158,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     const res = await fetch("/api/admin/pages");
     if (res.ok) {
       const data = await res.json();
-      setManagedPages(data);
+      setManagedPages(normalizeLocalizedValue(data));
       if (!selectedPageId && data.length) setSelectedPageId(data[0].id);
     }
   }
@@ -151,7 +167,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
     const res = await fetch("/api/admin/page-sections");
     if (!res.ok) return;
     const data = await res.json();
-    setPageSections(data.sections || []);
+    setPageSections(normalizeLocalizedValue(data.sections || []));
   }
 
   async function refreshAll() {
