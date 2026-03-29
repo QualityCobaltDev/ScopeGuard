@@ -211,19 +211,47 @@ export async function syncNavigationFromPages() {
 }
 
 export async function getOverviewMetrics() {
-  const [users, resources, pricing, faq, testimonials, files, smtp, leadMagnet, subscriberMetrics, sections, pages] = await Promise.all([
-    listUsers(),
-    readCollection("resources"),
-    readCollection("pricing"),
-    readCollection("faq"),
-    readCollection("testimonials"),
-    readFiles(),
-    getEmailSettingsForAdmin(),
-    getLeadMagnetSettings(),
-    leadMagnetMetrics(),
-    readPageSections(),
-    readPages()
-  ]);
+  const [usersResult, resourcesResult, pricingResult, faqResult, testimonialsResult, filesResult, smtpResult, leadMagnetResult, subscriberMetricsResult, sectionsResult, pagesResult, siteResult] =
+    await Promise.allSettled([
+      listUsers(),
+      readCollection("resources"),
+      readCollection("pricing"),
+      readCollection("faq"),
+      readCollection("testimonials"),
+      readFiles(),
+      getEmailSettingsForAdmin(),
+      getLeadMagnetSettings(),
+      leadMagnetMetrics(),
+      readPageSections(),
+      readPages(),
+      readCollection("site")
+    ]);
+
+  if (usersResult.status === "rejected") console.error("[admin/overview] Failed to load users.", usersResult.reason);
+  if (resourcesResult.status === "rejected") console.error("[admin/overview] Failed to load resources.", resourcesResult.reason);
+  if (pricingResult.status === "rejected") console.error("[admin/overview] Failed to load pricing.", pricingResult.reason);
+  if (faqResult.status === "rejected") console.error("[admin/overview] Failed to load FAQ.", faqResult.reason);
+  if (testimonialsResult.status === "rejected") console.error("[admin/overview] Failed to load testimonials.", testimonialsResult.reason);
+  if (filesResult.status === "rejected") console.error("[admin/overview] Failed to load files.", filesResult.reason);
+  if (smtpResult.status === "rejected") console.error("[admin/overview] Failed to load SMTP status.", smtpResult.reason);
+  if (leadMagnetResult.status === "rejected") console.error("[admin/overview] Failed to load lead magnet settings.", leadMagnetResult.reason);
+  if (subscriberMetricsResult.status === "rejected") console.error("[admin/overview] Failed to load lead subscriber metrics.", subscriberMetricsResult.reason);
+  if (sectionsResult.status === "rejected") console.error("[admin/overview] Failed to load page sections.", sectionsResult.reason);
+  if (pagesResult.status === "rejected") console.error("[admin/overview] Failed to load managed pages.", pagesResult.reason);
+  if (siteResult.status === "rejected") console.error("[admin/overview] Failed to load site navigation/footer data.", siteResult.reason);
+
+  const users = usersResult.status === "fulfilled" ? usersResult.value : [];
+  const resources = resourcesResult.status === "fulfilled" ? resourcesResult.value : [];
+  const pricing = pricingResult.status === "fulfilled" ? pricingResult.value : [];
+  const faq = faqResult.status === "fulfilled" ? faqResult.value : [];
+  const testimonials = testimonialsResult.status === "fulfilled" ? testimonialsResult.value : [];
+  const files = filesResult.status === "fulfilled" ? filesResult.value : [];
+  const smtp = smtpResult.status === "fulfilled" ? smtpResult.value : { isActive: false, hasPassword: false, lastConnectionTestAt: null };
+  const leadMagnet = leadMagnetResult.status === "fulfilled" ? leadMagnetResult.value : { isActive: false };
+  const subscriberMetrics = subscriberMetricsResult.status === "fulfilled" ? subscriberMetricsResult.value : { totalSubmissions: 0, sent: 0 };
+  const sections = sectionsResult.status === "fulfilled" ? sectionsResult.value : [];
+  const pages = pagesResult.status === "fulfilled" ? pagesResult.value : [];
+  const site = siteResult.status === "fulfilled" ? siteResult.value : { nav: [], footer: { companyLinks: [], legalLinks: [] } };
 
   return {
     users: users.length,
@@ -244,8 +272,8 @@ export async function getOverviewMetrics() {
     pagesTotal: pages.length,
     pagesPublished: pages.filter((p) => p.isPublished).length,
     pagesHidden: pages.filter((p) => !p.isVisible).length,
-    navItems: (await readCollection("site")).nav.length,
-    footerLinks: (await readCollection("site")).footer.companyLinks.length + (await readCollection("site")).footer.legalLinks.length
+    navItems: site.nav.length,
+    footerLinks: site.footer.companyLinks.length + site.footer.legalLinks.length
   };
 }
 

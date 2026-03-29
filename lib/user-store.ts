@@ -21,7 +21,9 @@ const SESSIONS_FILE = path.join(process.cwd(), "storage", "sessions.json");
 
 async function readUsers(): Promise<StoredUser[]> {
   try {
-    return JSON.parse(await fs.readFile(USERS_FILE, "utf8")) as StoredUser[];
+    const parsed = JSON.parse(await fs.readFile(USERS_FILE, "utf8")) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed as StoredUser[];
   } catch {
     return [];
   }
@@ -100,7 +102,13 @@ export async function authenticateUser(username: string, password: string) {
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const token = await getSessionToken();
   if (!token) return null;
-  const sessions = JSON.parse(await fs.readFile(SESSIONS_FILE, "utf8").catch(() => "[]")) as Array<{ token: string; userId: string; expiresAt: string }>;
+  let sessions: Array<{ token: string; userId: string; expiresAt: string }> = [];
+  try {
+    const parsed = JSON.parse(await fs.readFile(SESSIONS_FILE, "utf8").catch(() => "[]")) as unknown;
+    if (Array.isArray(parsed)) sessions = parsed as Array<{ token: string; userId: string; expiresAt: string }>;
+  } catch (error) {
+    console.error("[auth] Failed to parse sessions storage. Resetting to empty session list.", error);
+  }
   const found = sessions.find((s) => s.token === token && new Date(s.expiresAt) > new Date());
   if (!found) return null;
   const users = await readUsers();
