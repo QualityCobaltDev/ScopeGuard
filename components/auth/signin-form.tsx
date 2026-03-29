@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isAdminRole, type Role } from "@/lib/auth";
 
 export function SignInForm() {
   const [username, setUsername] = useState("");
@@ -29,7 +30,7 @@ export function SignInForm() {
     }
 
     const next = params.get("next");
-    router.push(next || (data.role === "admin" ? "/admin" : "/dashboard"));
+    router.push(next || (isAdminRole(data.role as Role) ? "/admin" : "/dashboard"));
     router.refresh();
   }
 
