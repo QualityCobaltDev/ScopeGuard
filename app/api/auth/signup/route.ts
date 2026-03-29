@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
 import { createUser, ensureDefaultAdmin } from "@/lib/user-store";
+import { requireSameOrigin } from "@/lib/security";
 
 export async function POST(req: Request) {
   await ensureDefaultAdmin();
+  await requireSameOrigin(req);
+
   const body = (await req.json()) as { username?: string; name?: string; password?: string };
-  if (!body.username || body.username.length < 4 || !body.name || body.name.length < 2 || !body.password || body.password.length < 8) {
+  if (!body.username || body.username.length < 4 || !body.name || body.name.length < 2 || !body.password) {
     return NextResponse.json({ message: "Invalid input" }, { status: 400 });
   }
   try {

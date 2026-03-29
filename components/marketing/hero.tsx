@@ -1,96 +1,76 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight, Download, ShieldCheck, Clock3, BadgeDollarSign } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
 import type { SiteContent } from "@/lib/content-types";
-import { localizeText } from "@/lib/localized";
 
 const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.08
+      staggerChildren: 0.08,
+      delayChildren: 0.06
     }
   }
 };
 
 const item = {
-  hidden: { opacity: 0, y: 18, filter: "blur(8px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)"
-  }
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0 }
 };
+
+const trustPoints = [
+  { icon: ShieldCheck, text: "Protect every project with proven systems" },
+  { icon: BadgeDollarSign, text: "Increase paid-in-full client outcomes" },
+  { icon: Clock3, text: "Deploy in hours, not weeks" }
+];
 
 export function Hero({ site }: { site: SiteContent }) {
   return (
-    <section className="relative overflow-hidden pb-16 pt-14 sm:pb-20 sm:pt-16 md:pb-28 md:pt-24">
+    <section className="relative overflow-hidden pb-14 pt-12 sm:pb-18 sm:pt-14 md:pb-24 md:pt-20">
       <div
-        className="absolute inset-0 bg-mesh opacity-85 [mask-image:linear-gradient(to_bottom,black_0%,black_74%,transparent_100%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -top-24 left-1/2 h-72 w-[58rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,154,255,0.2)_0%,rgba(124,154,255,0)_70%)] blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-x-0 -bottom-24 h-56 bg-gradient-to-b from-transparent via-background/70 to-background"
+        className="absolute inset-0 bg-mesh opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_74%,transparent_100%)]"
         aria-hidden
       />
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="container relative"
-      >
+      <motion.div variants={container} initial="hidden" animate="show" className="container relative">
         <div className="mx-auto max-w-5xl text-center">
           <motion.p
             variants={item}
-            className="inline-flex items-center rounded-full border border-brand/40 bg-brand/12 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-brand-soft shadow-[0_8px_26px_rgba(89,119,236,0.2)] sm:px-4 sm:text-xs"
+            className="inline-flex items-center rounded-full border border-brand/40 bg-brand/12 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-brand-soft sm:px-4 sm:text-xs"
           >
-            {localizeText(site.hero.badge)}
+            Built for freelancers, consultants, and micro-agencies
           </motion.p>
 
-          <motion.h1
-            variants={item}
-            className="mt-6 text-balance text-4xl font-semibold leading-[1.04] tracking-tight text-foreground sm:mt-8 sm:text-6xl md:text-7xl"
-          >
-            <span className="gradient-text">{localizeText(site.hero.title)}</span>
+          <motion.h1 variants={item} className="mt-5 text-balance text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-6xl md:text-7xl">
+            Stop scope creep. <span className="gradient-text">Protect revenue.</span>
           </motion.h1>
 
-          <motion.p
-            variants={item}
-            className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-7 text-muted sm:text-lg sm:leading-8"
-          >
-            {localizeText(site.hero.description)}
+          <motion.p variants={item} className="mx-auto mt-4 max-w-2xl text-pretty text-base leading-7 text-muted sm:text-lg sm:leading-8">
+            ScopeGuard gives you contracts, pricing frameworks, and delivery playbooks to close better clients and keep projects profitable.
           </motion.p>
 
-          <motion.div variants={item} className="relative mt-9 sm:mt-10">
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-20 w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/16 blur-3xl sm:w-[29rem]"
-              aria-hidden
-            />
+          <motion.div variants={item} className="relative mt-8 sm:mt-9">
             <div className="relative grid gap-3 sm:flex sm:items-center sm:justify-center">
-              <LinkButton href={site.hero.primaryCtaLink} size="lg" className="h-12 w-full gap-2 sm:w-auto">
-                {localizeText(site.hero.primaryCtaLabel)} <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              <LinkButton href={site.hero.primaryCtaLink} size="lg" className="h-12 w-full gap-2 sm:w-auto" aria-label="Get ScopeGuard and protect your client revenue">
+                Get ScopeGuard now <ArrowRight className="h-4 w-4" />
               </LinkButton>
-              <LinkButton href={site.hero.secondaryCtaLink} variant="secondary" size="lg" className="h-12 w-full gap-2 sm:w-auto">
-                {localizeText(site.hero.secondaryCtaLabel)} <Download className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              <LinkButton href={site.hero.secondaryCtaLink} variant="secondary" size="lg" className="h-12 w-full gap-2 sm:w-auto" aria-label="Download the free freelancer protection checklist">
+                Download free checklist <Download className="h-4 w-4" />
               </LinkButton>
             </div>
           </motion.div>
 
-          <motion.p
-            variants={item}
-            className="mx-auto mt-4 max-w-xl text-xs leading-6 text-muted sm:text-sm"
-          >
-            Contracts, pricing frameworks, and delivery systems designed for premium client operations.
-          </motion.p>
+          <motion.ul variants={item} className="mx-auto mt-5 grid max-w-3xl gap-2 text-left sm:grid-cols-3">
+            {trustPoints.map((point) => (
+              <li key={point.text} className="rounded-xl border border-border/80 bg-card/85 px-3 py-2.5 text-xs text-muted sm:text-sm">
+                <point.icon className="mr-1 inline h-4 w-4 text-brand-soft" aria-hidden />
+                {point.text}
+              </li>
+            ))}
+          </motion.ul>
         </div>
       </motion.div>
     </section>

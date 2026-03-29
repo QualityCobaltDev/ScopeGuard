@@ -10,9 +10,10 @@ export function AdminLogin() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    const csrf = document.cookie.split("; ").find((entry) => entry.startsWith("scopeguard_csrf="))?.split("=")[1] || "";
     const res = await fetch("/api/admin/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-csrf-token": csrf },
       body: JSON.stringify({ username, password })
     });
     if (!res.ok) {

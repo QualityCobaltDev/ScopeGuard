@@ -9,6 +9,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { readCollection } from "@/lib/content-store";
 import { getCurrentUser } from "@/lib/user-store";
 import { localizeText } from "@/lib/localized";
+import { getOrSetCsrfToken } from "@/lib/security";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 
 export const metadata: Metadata = {
   title: "ScopeGuard | Premium Digital Growth Systems",
@@ -25,6 +27,7 @@ export default async function RootLayout({
   const [site, user] = await Promise.all([
     readCollection("site"),
     getCurrentUser(),
+    getOrSetCsrfToken()
   ]);
 
   const organizationSchema = {
@@ -39,12 +42,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
+        <a href="#main-content" className="skip-link">Skip to content</a>
         <ThemeProvider>
           <SiteHeader site={site} user={user} />
-          <main className="relative isolate pb-24 md:pb-0">{children}</main>
+          <main id="main-content" className="relative isolate pb-24 md:pb-0">{children}</main>
           <SiteFooter site={site} />
           <MobileStickyCta />
         </ThemeProvider>
+        <AnalyticsTracker />
         <Script
           id="schema-org"
           type="application/ld+json"
