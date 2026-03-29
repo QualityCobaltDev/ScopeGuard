@@ -213,15 +213,20 @@ function createPostBlock(type: BlogPostBlock["type"]): BlogPostBlock {
 
 function normalizeAdminPost(post: ContentPost): ContentPost {
   const blocks = Array.isArray(post.blocks) ? post.blocks : [];
+  const status = post.status === "published" ? "published" : "draft";
   return {
     ...post,
     slug: post.slug || slugifyPost(post.title || ""),
     body: post.body || "",
     excerpt: post.excerpt || "",
     title: post.title || "",
+    author: post.author || "ScopeGuard Team",
     blocks,
+    status,
     publishDate: post.publishDate || undefined,
-    featuredImageUrl: post.featuredImageUrl || undefined
+    featuredImageUrl: post.featuredImageUrl || undefined,
+    seoTitle: post.seoTitle || undefined,
+    seoDescription: post.seoDescription || undefined
   };
 }
 
@@ -922,8 +927,12 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                     body: "",
                     blocks: [],
                     featuredImageUrl: "",
+                    author: "ScopeGuard Team",
+                    status: "draft",
                     publishDate: new Date().toISOString().slice(0, 10),
-                    isPublished: false,
+                    publishedAt: undefined,
+                    seoTitle: "",
+                    seoDescription: "",
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                   })
@@ -937,11 +946,19 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                       <Field label="Title" value={item.title || ""} onChange={(value) => patchArray(setPosts, index, { title: value, slug: slugifyPost(item.slug || value) })} />
                       <Field label="Slug" value={item.slug || ""} onChange={(value) => patchArray(setPosts, index, { slug: slugifyPost(value) })} />
                     </div>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <Field label="Author" value={item.author || ""} onChange={(value) => patchArray(setPosts, index, { author: value })} />
+                      <Select label="Status" value={item.status || "draft"} options={["draft", "published"]} onChange={(value) => patchArray(setPosts, index, { status: value === "published" ? "published" : "draft" })} />
+                    </div>
                     <Area label="Excerpt" value={item.excerpt || ""} onChange={(value) => patchArray(setPosts, index, { excerpt: value })} />
                     <Area label="Body fallback" value={item.body || ""} onChange={(value) => patchArray(setPosts, index, { body: value })} />
                     <div className="grid gap-2 md:grid-cols-2">
                       <Field label="Featured image URL" value={item.featuredImageUrl || ""} onChange={(value) => patchArray(setPosts, index, { featuredImageUrl: value })} />
                       <Field label="Publish date (YYYY-MM-DD)" value={item.publishDate || ""} onChange={(value) => patchArray(setPosts, index, { publishDate: value })} />
+                    </div>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <Field label="SEO title (optional)" value={item.seoTitle || ""} onChange={(value) => patchArray(setPosts, index, { seoTitle: value })} />
+                      <Field label="SEO description (optional)" value={item.seoDescription || ""} onChange={(value) => patchArray(setPosts, index, { seoDescription: value })} />
                     </div>
 
                     <div className="space-y-2 rounded-xl border border-border/70 p-3">
@@ -1073,7 +1090,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                       ))}
                     </div>
 
-                    <label className="text-sm"><input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => patchArray(setPosts, index, { isPublished: e.target.checked })} /> Published</label>
+                    <label className="text-sm"><input type="checkbox" checked={item.status === "published"} onChange={(e) => patchArray(setPosts, index, { status: e.target.checked ? "published" : "draft" })} /> Published</label>
                     <button className="w-fit rounded border border-border px-2 py-1" onClick={() => removeAt(setPosts, index)}>Delete post</button>
                   </div>
                 );
