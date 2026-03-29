@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkButton } from "@/components/ui/button";
-import type { SessionUser } from "@/lib/auth";
+import { isAdminRole, type SessionUser } from "@/lib/auth";
 
 export function SessionActions({
   user,
@@ -20,8 +20,8 @@ export function SessionActions({
 
   return (
     <div className={`flex ${mobile ? "flex-col items-stretch" : "items-center"} gap-2`}>
-      <LinkButton href={user.role === "admin" ? "/admin" : "/dashboard"} size="sm" onClick={onAction} className={mobile ? "h-11 w-full" : undefined}>
-        {user.role === "admin" ? "Admin Dashboard" : "Dashboard"}
+      <LinkButton href={isAdminRole(user.role) ? "/admin" : "/dashboard"} size="sm" onClick={onAction} className={mobile ? "h-11 w-full" : undefined}>
+        {isAdminRole(user.role) ? "Admin Dashboard" : "Dashboard"}
       </LinkButton>
       <button
         onClick={logout}

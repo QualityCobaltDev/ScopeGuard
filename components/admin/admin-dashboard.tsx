@@ -2,7 +2,7 @@
 
 import { Dispatch, FormEvent, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { Menu, X } from "lucide-react";
-import type { SessionUser } from "@/lib/auth";
+import { isAdminRole, type SessionUser } from "@/lib/auth";
 import type { AnalyticsEvent } from "@/lib/analytics-store";
 import type { ContentPost, ManagedPage, PageSectionBlock } from "@/lib/cms-store";
 import { BLOG_BLOCK_TYPES, BlogPostBlock } from "@/lib/post-blocks";
@@ -500,7 +500,7 @@ export function AdminDashboard({ user }: { user: SessionUser }) {
                   <h1 className="text-2xl font-semibold">ScopeGuard CMS Dashboard</h1>
                   <p className="mt-1 text-sm text-muted">Unified operations hub for multilingual content, publishing, and system health.</p>
                 </div>
-                {user.role === "admin" ? (
+                {isAdminRole(user.role) ? (
                   <button
                     type="button"
                     onClick={syncSite}

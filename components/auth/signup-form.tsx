@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isAdminRole, type Role } from "@/lib/auth";
 
 export function SignUpForm() {
   const [name, setName] = useState("");
@@ -21,7 +22,7 @@ export function SignUpForm() {
     const data = await res.json();
     if (!res.ok) return setStatus(data.message || "Sign up failed");
     setStatus("Success. Redirecting...");
-    router.push(data.role === "admin" ? "/admin" : "/dashboard");
+    router.push(isAdminRole(data.role as Role) ? "/admin" : "/dashboard");
     router.refresh();
   }
 
