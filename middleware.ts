@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const USER_COOKIE = "elevare_session";
+const CSRF_COOKIE = "scopeguard_csrf";
+
+function createCsrfToken() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get(USER_COOKIE)?.value;
+  const csrfToken = req.cookies.get(CSRF_COOKIE)?.value;
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/admin") && pathname !== "/admin/signin" && !token) {
@@ -20,6 +28,15 @@ export function middleware(req: NextRequest) {
   }
 
   const response = NextResponse.next();
+  if (!csrfToken) {
+    response.cookies.set(CSRF_COOKIE, createCsrfToken(), {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 8
+    });
+  }
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

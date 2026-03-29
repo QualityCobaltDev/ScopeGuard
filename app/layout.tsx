@@ -9,7 +9,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { readCollection } from "@/lib/content-store";
 import { getCurrentUser } from "@/lib/user-store";
 import { localizeText } from "@/lib/localized";
-import { getOrSetCsrfToken } from "@/lib/security";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 
 export const metadata: Metadata = {
@@ -26,8 +25,7 @@ export default async function RootLayout({
 }) {
   const [site, user] = await Promise.all([
     readCollection("site"),
-    getCurrentUser(),
-    getOrSetCsrfToken()
+    getCurrentUser()
   ]);
 
   const organizationSchema = {
