@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { getSessionToken, hashPassword, verifyPassword } from "@/lib/auth";
+import { getSessionToken, hashPassword, verifyPassword } from "@/lib/auth/server";
 import type { Role, SessionUser } from "@/lib/auth";
 import { passwordMeetsPolicy, sanitizeText } from "@/lib/security";
 
