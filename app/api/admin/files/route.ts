@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/permissions";
 import { deleteFile, persistUploadedFile, readFiles, replaceFile, updateFileMetadata, uploadConstraints } from "@/lib/file-store";
 import { readCollection, writeCollection } from "@/lib/content-store";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { requireCsrf, requireSameOrigin, sanitizeText } from "@/lib/security";
 
-async function guard() {
+async function guard(req?: Request) {
   try {
     await requireAdmin();
+    if (req) {
+      await requireSameOrigin(req);
+      await requireCsrf(req);
+    }
     return null;
   } catch {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -20,8 +26,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const denied = await guard();
+  const denied = await guard(req);
   if (denied) return denied;
+
+  const rate = checkRateLimit(`admin-files-post:${getClientIp(req)}`, 30, 10 * 60 * 1000);
+  if (!rate.ok) return NextResponse.json({ message: "Too many upload attempts" }, { status: 429 });
 
   const form = await req.formData();
   const file = form.get("file");
@@ -30,8 +39,8 @@ export async function POST(req: Request) {
   try {
     const created = await persistUploadedFile({
       file,
-      title: String(form.get("title") || file.name),
-      description: String(form.get("description") || ""),
+      title: sanitizeText(String(form.get("title") || file.name), 140),
+      description: sanitizeText(String(form.get("description") || ""), 1000),
       visibility: (String(form.get("visibility") || "public") as "public" | "gated" | "internal")
     });
     return NextResponse.json(created, { status: 201 });
@@ -41,7 +50,7 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const denied = await guard();
+  const denied = await guard(req);
   if (denied) return denied;
 
   const form = await req.formData();
@@ -56,8 +65,8 @@ export async function PUT(req: Request) {
     }
 
     const updated = await updateFileMetadata(id, {
-      title: form.get("title") ? String(form.get("title")) : undefined,
-      description: form.get("description") ? String(form.get("description")) : undefined,
+      title: form.get("title") ? sanitizeText(String(form.get("title")), 140) : undefined,
+      description: form.get("description") ? sanitizeText(String(form.get("description")), 1000) : undefined,
       visibility: form.get("visibility") ? (String(form.get("visibility")) as "public" | "gated" | "internal") : undefined
     });
     return NextResponse.json(updated);
@@ -67,7 +76,7 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const denied = await guard();
+  const denied = await guard(req);
   if (denied) return denied;
 
   const { id } = (await req.json().catch(() => ({}))) as { id?: string };

@@ -3,13 +3,14 @@ import { cookies } from "next/headers";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-export type Role = "admin" | "user";
+export type Role = "owner" | "admin" | "editor" | "marketer" | "viewer" | "support" | "user";
 export type SessionUser = { id: string; username: string; name: string; role: Role };
 
 type StoredSession = { token: string; userId: string; expiresAt: string };
 
 const COOKIE_NAME = "elevare_session";
 const SESSION_FILE = path.join(process.cwd(), "storage", "sessions.json");
+const SESSION_MAX_AGE_SECONDS = Number(process.env.SESSION_MAX_AGE_SECONDS || 60 * 60 * 8);
 
 function hashPassword(password: string, salt?: string) {
   const useSalt = salt || randomBytes(16).toString("hex");
@@ -19,6 +20,7 @@ function hashPassword(password: string, salt?: string) {
 
 function verifyPassword(password: string, stored: string) {
   const [salt, key] = stored.split(":");
+  if (!salt || !key) return false;
   const derived = scryptSync(password, salt, 64);
   return timingSafeEqual(Buffer.from(key, "hex"), derived);
 }
@@ -39,7 +41,7 @@ async function writeSessions(sessions: StoredSession[]) {
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString("hex");
   const sessions = await readSessions();
-  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
+  const expires = new Date(Date.now() + 1000 * SESSION_MAX_AGE_SECONDS).toISOString();
   sessions.push({ token, userId, expiresAt: expires });
   await writeSessions(sessions);
 
@@ -47,9 +49,9 @@ export async function createSession(userId: string) {
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: SESSION_MAX_AGE_SECONDS
   });
 }
 

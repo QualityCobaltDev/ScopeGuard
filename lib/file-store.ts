@@ -36,7 +36,15 @@ const ALLOWED_EXTENSIONS = new Set([".pdf", ".doc", ".docx", ".xls", ".xlsx", ".
 const MAX_UPLOAD_SIZE = 15 * 1024 * 1024;
 
 function normalizeName(value: string) {
-  return value.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 120);
+  return value.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/\.{2,}/g, ".").slice(0, 120);
+}
+
+function assertFileSignature(fileName: string, bytes: Buffer) {
+  const ext = path.extname(fileName).toLowerCase();
+  if (ext === ".pdf") {
+    const signature = bytes.subarray(0, 4).toString("ascii");
+    if (signature !== "%PDF") throw new Error("Invalid PDF signature.");
+  }
 }
 
 export async function ensureUploadDir() {
@@ -58,7 +66,9 @@ async function writeFiles(payload: UploadedFileRecord[]) {
 }
 
 export function validateUpload(file: File) {
-  const ext = path.extname(file.name || "").toLowerCase();
+  const name = normalizeName(file.name || "");
+  const ext = path.extname(name).toLowerCase();
+  if (name.split(".").length > 3) throw new Error("Potential double-extension upload blocked.");
   if (!ALLOWED_EXTENSIONS.has(ext)) throw new Error("Unsupported file extension.");
   if (!ALLOWED_MIME.has(file.type)) throw new Error("Unsupported file type.");
   if (file.size > MAX_UPLOAD_SIZE) throw new Error("File exceeds 15MB limit.");
@@ -78,6 +88,7 @@ export async function persistUploadedFile(input: {
   const safeOriginal = normalizeName(input.file.name);
   const filePath = path.join(UPLOAD_DIR, storedName);
   const arr = Buffer.from(await input.file.arrayBuffer());
+  assertFileSignature(safeOriginal, arr);
   await fs.writeFile(filePath, arr);
 
   const record: UploadedFileRecord = {
@@ -108,6 +119,7 @@ export async function replaceFile(id: string, file: File) {
   const ext = path.extname(file.name).toLowerCase();
   const nextStoredName = `${Date.now()}-${randomUUID()}${ext}`;
   const arr = Buffer.from(await file.arrayBuffer());
+  assertFileSignature(file.name, arr);
   await ensureUploadDir();
   await fs.writeFile(path.join(UPLOAD_DIR, nextStoredName), arr);
 
