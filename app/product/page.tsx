@@ -78,22 +78,76 @@ export default async function ProductPage() {
           </Reveal>
         </section>
 
-        <section className="mt-10 sm:mt-12 md:mt-16">
-          <h3 className="text-center text-3xl font-semibold">Tier comparison</h3>
-          <Reveal className="mt-5 overflow-x-auto rounded-2xl border border-border bg-card/80 shadow-[0_14px_34px_rgba(13,34,72,0.08)]">
-            <table className="min-w-[640px] text-left text-sm">
-              <thead className="bg-white/5 text-foreground"><tr><th className="p-4">Tier</th><th className="p-4">Primary outcome</th><th className="p-4">Price</th><th className="p-4">Action</th></tr></thead>
+        <section className="mt-12 sm:mt-14 md:mt-20">
+          <h3 className="text-center text-3xl font-semibold tracking-tight text-foreground sm:text-[2rem]">Tier comparison</h3>
+          <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-7 text-muted sm:text-[0.95rem]">
+            Compare outcomes and choose the tier that matches your current stage.
+          </p>
+
+          <Reveal className="mx-auto mt-6 hidden w-full max-w-5xl overflow-hidden rounded-3xl border border-border/75 bg-card/90 shadow-[0_22px_60px_rgba(8,16,37,0.42)] backdrop-blur sm:block">
+            <table className="w-full table-fixed text-left">
+              <colgroup>
+                <col className="w-[20%]" />
+                <col className="w-[45%]" />
+                <col className="w-[13%]" />
+                <col className="w-[22%]" />
+              </colgroup>
+              <thead className="bg-white/[0.04] text-foreground">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85 md:px-7">Tier</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85 md:px-7">Primary outcome</th>
+                  <th className="px-3 py-4 text-center text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85">Price</th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85 md:px-7">Action</th>
+                </tr>
+              </thead>
               <tbody>
                 {pricing.map((tier) => (
-                  <tr key={tier.id} className="border-t border-border/70">
-                    <td className="p-4 font-medium text-foreground">{localizeText(tier.name, undefined, String(tier.name))}</td>
-                    <td className="p-4 text-muted">{localizeText((tier.benefit || tier.description), undefined, String(tier.benefit || tier.description || ""))}</td>
-                    <td className="p-4 text-foreground">{localizeText(tier.price, undefined, String(tier.price))}</td>
-                    <td className="p-4"><LinkButton href="/contact" size="sm" variant="secondary">{localizeText(tier.cta, undefined, String(tier.cta))}</LinkButton></td>
+                  <tr key={tier.id} className="border-t border-border/70 align-middle">
+                    <td className="px-6 py-5 align-middle text-[0.95rem] font-semibold leading-6 text-foreground md:px-7">
+                      {localizeText(tier.name, undefined, String(tier.name))}
+                    </td>
+                    <td className="px-6 py-5 align-middle text-sm leading-6 text-muted md:px-7">
+                      {localizeText((tier.benefit || tier.description), undefined, String(tier.benefit || tier.description || ""))}
+                    </td>
+                    <td className="px-3 py-5 text-center align-middle text-[1.02rem] font-semibold leading-none text-foreground">
+                      {localizeText(tier.price, undefined, String(tier.price))}
+                    </td>
+                    <td className="px-6 py-5 text-center align-middle md:px-7">
+                      <LinkButton
+                        href="/contact"
+                        size="sm"
+                        variant="secondary"
+                        className="h-10 min-w-[12.75rem] rounded-xl px-5 text-sm font-semibold tracking-[0.01em] transition-all duration-200 hover:-translate-y-[1px] focus-visible:ring-2 focus-visible:ring-brand/50"
+                      >
+                        {localizeText(tier.cta, undefined, String(tier.cta))}
+                      </LinkButton>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </Reveal>
+
+          <Reveal className="mx-auto mt-6 grid w-full max-w-xl gap-3.5 sm:hidden">
+            {pricing.map((tier) => (
+              <Card key={tier.id} className="rounded-2xl border-border/75 bg-card/90 p-5 shadow-[0_16px_40px_rgba(8,16,37,0.34)]">
+                <div className="flex items-start justify-between gap-4 border-b border-border/70 pb-3.5">
+                  <p className="text-base font-semibold leading-6 text-foreground">{localizeText(tier.name, undefined, String(tier.name))}</p>
+                  <p className="shrink-0 text-base font-semibold leading-6 text-foreground">{localizeText(tier.price, undefined, String(tier.price))}</p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {localizeText((tier.benefit || tier.description), undefined, String(tier.benefit || tier.description || ""))}
+                </p>
+                <LinkButton
+                  href="/contact"
+                  size="sm"
+                  variant="secondary"
+                  className="mt-4 h-11 w-full rounded-xl px-5 text-sm font-semibold tracking-[0.01em] transition-all duration-200 hover:-translate-y-[1px] focus-visible:ring-2 focus-visible:ring-brand/50"
+                >
+                  {localizeText(tier.cta, undefined, String(tier.cta))}
+                </LinkButton>
+              </Card>
+            ))}
           </Reveal>
         </section>
       </div>
