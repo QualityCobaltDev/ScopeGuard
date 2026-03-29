@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSession } from "@/lib/auth";
+import { createSession } from "@/lib/auth/server";
 import { createUser, ensureDefaultAdmin } from "@/lib/user-store";
 import { requireSameOrigin } from "@/lib/security";
 
