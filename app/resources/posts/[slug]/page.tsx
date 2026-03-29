@@ -2,13 +2,14 @@ import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/marketing/section-title";
 import { readPosts } from "@/lib/cms-store";
+import { isPublishedPost } from "@/lib/blog";
 import { readCollection } from "@/lib/content-store";
 import { localizeText } from "@/lib/localized";
 
 export default async function ResourcePostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [posts, resources] = await Promise.all([readPosts(), readCollection("resources")]);
-  const post = posts.find((item) => (item.slug === slug || item.id === slug) && item.isPublished);
+  const post = posts.find((item) => (item.slug === slug || item.id === slug) && isPublishedPost(item));
   if (!post) notFound();
 
   const linkedResources = resources.filter((resource) => (resource).linkedPostId === post.id && resource.status === "published");

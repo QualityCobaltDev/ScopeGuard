@@ -32,12 +32,16 @@ export type ContentPost = {
   id: string;
   slug: string;
   title: string;
+  author: string;
   excerpt: string;
   body: string;
   blocks?: BlogPostBlock[];
   featuredImageUrl?: string;
+  status: "draft" | "published";
   publishDate?: string;
-  isPublished: boolean;
+  publishedAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -133,16 +137,23 @@ function withSystemPages(pages: ManagedPage[]): { pages: ManagedPage[]; changed:
 
 function normalizePost(raw: Partial<ContentPost>): ContentPost {
   const now = new Date().toISOString();
+  const legacyPublished = Boolean((raw as { isPublished?: boolean }).isPublished);
+  const status = raw.status === "published" || legacyPublished ? "published" : "draft";
+  const publishDate = raw.publishDate || raw.publishedAt || undefined;
   return {
     id: String(raw.id || ""),
     slug: String(raw.slug || "").trim(),
     title: String(raw.title || "").trim(),
+    author: String(raw.author || "ScopeGuard Team").trim(),
     excerpt: String(raw.excerpt || "").trim(),
     body: String(raw.body || "").trim(),
     blocks: normalizePostBlocks(raw.blocks),
     featuredImageUrl: raw.featuredImageUrl ? safePublicAssetUrl(raw.featuredImageUrl) || undefined : undefined,
-    publishDate: raw.publishDate || undefined,
-    isPublished: Boolean(raw.isPublished),
+    status,
+    publishDate,
+    publishedAt: status === "published" ? publishDate || now : undefined,
+    seoTitle: raw.seoTitle ? String(raw.seoTitle).trim() : undefined,
+    seoDescription: raw.seoDescription ? String(raw.seoDescription).trim() : undefined,
     createdAt: raw.createdAt || now,
     updatedAt: raw.updatedAt || now
   };

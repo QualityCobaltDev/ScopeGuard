@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
+import { renderSafeInlineMarkdown } from "@/lib/blog";
 import { BlogPostBlock, normalizeVideoEmbedUrl, safePublicAssetUrl } from "@/lib/post-blocks";
 
 export function BlogBlockRenderer({ block }: { block: BlogPostBlock }) {
   if (block.type === "richText") {
-    return <p className="text-base leading-8 text-muted">{block.text}</p>;
+    return <p className="text-base leading-8 text-muted" dangerouslySetInnerHTML={{ __html: renderSafeInlineMarkdown(block.text) }} />;
   }
 
   if (block.type === "heading") {

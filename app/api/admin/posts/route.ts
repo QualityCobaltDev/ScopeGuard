@@ -4,60 +4,82 @@ import { requireAdmin } from "@/lib/permissions";
 import { ContentPost, readPosts, writePosts } from "@/lib/cms-store";
 import { normalizePostBlocks, safePublicAssetUrl } from "@/lib/post-blocks";
 import { revalidateSiteContent } from "@/lib/site-sync";
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 120);
-}
+import { sanitizePostInput } from "@/lib/blog";
 
 function normalizePostInput(item: Partial<ContentPost>): ContentPost {
   const now = new Date().toISOString();
-  const title = String(item.title || "").trim();
-  const slug = slugify(String(item.slug || title));
+  const base = sanitizePostInput(item);
+  const publishDate = base.publishDate || (base.status === "published" ? now.slice(0, 10) : undefined);
+
   return {
     id: item.id || randomUUID(),
-    slug,
-    title,
-    excerpt: String(item.excerpt || "").trim(),
-    body: String(item.body || "").trim(),
-    blocks: normalizePostBlocks(item.blocks),
-    featuredImageUrl: safePublicAssetUrl(String(item.featuredImageUrl || "")) || undefined,
-    publishDate: item.publishDate || undefined,
-    isPublished: Boolean(item.isPublished),
+    slug: String(base.slug || ""),
+    title: String(base.title || ""),
+    author: String(base.author || "ScopeGuard Team"),
+    excerpt: String(base.excerpt || ""),
+    body: String(base.body || ""),
+    blocks: normalizePostBlocks(base.blocks),
+    featuredImageUrl: safePublicAssetUrl(String(base.featuredImageUrl || "")) || undefined,
+    status: base.status === "published" ? "published" : "draft",
+    publishDate,
+    publishedAt: base.status === "published" ? (item.publishedAt || now) : undefined,
+    seoTitle: base.seoTitle || undefined,
+    seoDescription: base.seoDescription || undefined,
     updatedAt: now,
     createdAt: item.createdAt || now
   };
 }
 
-export async function GET() {
+async function adminGuard() {
   try {
     await requireAdmin();
-    return NextResponse.json(await readPosts());
+    return null;
   } catch {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 }
 
-export async function PUT(request: Request) {
-  try {
-    await requireAdmin();
-  } catch {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+function validatePosts(posts: ContentPost[]) {
+  const slugSet = new Set<string>();
+  for (const post of posts) {
+    if (!post.title || !post.slug) return `Each post requires a title and slug.`;
+    if (slugSet.has(post.slug)) return `Duplicate slug detected: ${post.slug}`;
+    slugSet.add(post.slug);
   }
+  return null;
+}
+
+export async function GET() {
+  const denied = await adminGuard();
+  if (denied) return denied;
+  return NextResponse.json(await readPosts());
+}
+
+export async function POST(request: Request) {
+  const denied = await adminGuard();
+  if (denied) return denied;
+
+  const body = (await request.json().catch(() => ({}))) as { payload?: Partial<ContentPost> };
+  if (!body.payload) return NextResponse.json({ message: "payload is required" }, { status: 400 });
+
+  const posts = await readPosts();
+  const next = [...posts, normalizePostInput(body.payload)];
+  const error = validatePosts(next);
+  if (error) return NextResponse.json({ message: error }, { status: 400 });
+
+  await writePosts(next);
+  await revalidateSiteContent();
+  return NextResponse.json({ ok: true, id: next[next.length - 1].id });
+}
+
+export async function PUT(request: Request) {
+  const denied = await adminGuard();
+  if (denied) return denied;
 
   const body = (await request.json().catch(() => ({}))) as { payload?: ContentPost[] };
   const normalized = (body.payload || []).map((item) => normalizePostInput(item));
-
-  const slugSet = new Set<string>();
-  for (const post of normalized) {
-    if (!post.title || !post.slug) return NextResponse.json({ message: "Each post requires a title and slug." }, { status: 400 });
-    if (slugSet.has(post.slug)) return NextResponse.json({ message: `Duplicate slug detected: ${post.slug}` }, { status: 400 });
-    slugSet.add(post.slug);
-  }
+  const error = validatePosts(normalized);
+  if (error) return NextResponse.json({ message: error }, { status: 400 });
 
   await writePosts(normalized);
   await revalidateSiteContent();
